@@ -412,7 +412,13 @@ function App() {
                 onClick={() => handleActivityClick(activity)}
               >
                 <div className="card-image-container">
-                  <img src={getActivityImage(activity)} alt={activity.title} className="activity-image" />
+                  <img
+                    src={getActivityImage(activity)}
+                    alt={activity.title}
+                    className="activity-image"
+                    onError={handleImageError}
+                    loading="lazy"
+                  />
                   <div
                     className="category-badge"
                     style={{ backgroundColor: getCategoryColor(activity.category) }}
