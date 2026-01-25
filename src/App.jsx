@@ -342,24 +342,31 @@ function App() {
           <h1>✨ 清迈活动探索</h1>
           <p>发现泰北玫瑰城的精彩体验</p>
         </div>
+
+        {/* 搜索栏和操作区 */}
+        <div className="header-actions">
+          {/* 搜索框 */}
+          <div className="search-section-inline">
+            <div className="search-icon">🔍</div>
+            <input
+              type="text"
+              placeholder="搜索活动、地点、关键词..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="search-input-inline"
+            />
+          </div>
+
+          {/* 查看课表按钮 */}
+          <a href="/schedule.html" className="schedule-link-inline" target="_blank" rel="noopener noreferrer">
+            📅 查看周课表
+          </a>
+        </div>
+
         <div className="header-decoration"></div>
-        <a href="/schedule.html" className="schedule-link" target="_blank" rel="noopener noreferrer">
-          📅 查看周课表
-        </a>
       </header>
 
       <div className="container">
-        {/* 搜索框 */}
-        <div className="search-section">
-          <div className="search-icon">🔍</div>
-          <input
-            type="text"
-            placeholder="搜索活动、地点、关键词..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="search-input"
-          />
-        </div>
 
         {/* 筛选区域 */}
         <div className="filters-section">
