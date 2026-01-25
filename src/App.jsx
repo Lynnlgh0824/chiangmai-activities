@@ -24,7 +24,7 @@ function App() {
   const [selectedActivity, setSelectedActivity] = useState(null)
   const [totalItems, setTotalItems] = useState(0)
   const [showSchedule, setShowSchedule] = useState(false) // 控制周课表面板显示
-  const [scheduleView, setScheduleView] = useState('list') // list 或 calendar
+  const [scheduleView, setScheduleView] = useState('calendar') // list 或 calendar
   const itemsPerPage = 6
 
   const categories = getCategories()

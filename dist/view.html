@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动展示 - Chiengmai</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .toolbar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .toolbar select {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+            min-width: 150px;
+        }
+
+        .toolbar select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .activity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .activity-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #333;
+            flex: 1;
+        }
+
+        .activity-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-默认 { background: #e0e0e0; color: #333; }
+        .badge-工作 { background: #e3f2fd; color: #1976d2; }
+        .badge-个人 { background: #fce4ec; color: #c2185b; }
+        .badge-学习 { background: #fff3e0; color: #f57c00; }
+        .badge-其他 { background: #f3e5f5; color: #7b1fa2; }
+
+        .activity-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .meta-icon {
+            font-size: 16px;
+        }
+
+        .activity-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .activity-time {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: white;
+        }
+
+        .empty-state-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-text {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-field {
+            margin-bottom: 20px;
+        }
+
+        .modal-label {
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .modal-value {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .activity-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏝️ 活动展示</h1>
+            <p>查看所有活动信息</p>
+        </div>
+
+        <div class="toolbar">
+            <select id="categoryFilter">
+                <option value="">全部分类</option>
+                <option value="默认">默认</option>
+                <option value="工作">工作</option>
+                <option value="个人">个人</option>
+                <option value="学习">学习</option>
+                <option value="其他">其他</option>
+            </select>
+
+            <select id="frequencyFilter">
+                <option value="">全部频率</option>
+                <option value="once">一次性</option>
+                <option value="daily">每天</option>
+                <option value="weekly">每周</option>
+                <option value="monthly">每月</option>
+            </select>
+
+            <select id="sortFilter">
+                <option value="updatedAt-desc">最新更新</option>
+                <option value="createdAt-desc">最新创建</option>
+                <option value="displayTime-asc">时间排序</option>
+            </select>
+        </div>
+
+        <div class="activity-grid" id="activityGrid">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">活动详情</div>
+            <div class="modal-field">
+                <div class="modal-label">分类</div>
+                <div class="modal-value" id="modalCategory"></div>
+            </div>
+            <div class="modal-field">
+                <div class="modal-label">活动频率</div>
+                <div class="modal-value" id="modalFrequency"></div>
+            </div>
+            <div class="modal-field">
+                <div class="modal-label">展示时间</div>
+                <div class="modal-value" id="modalDisplayTime"></div>
+            </div>
+            <div class="modal-field">
+                <div class="modal-label">描述</div>
+                <div class="modal-value" id="modalDescription" style="white-space: pre-wrap;"></div>
+            </div>
+            <div class="modal-field">
+                <div class="modal-label">创建时间</div>
+                <div class="modal-value" id="modalCreatedAt"></div>
+            </div>
+            <div class="modal-close">
+                <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activities = [];
+        let filteredActivities = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadActivities();
+            bindEvents();
+        });
+
+        // 加载活动数据
+        async function loadActivities() {
+            try {
+                const response = await fetch('/api/items');
+                const result = await response.json();
+
+                if (result.success) {
+                    activities = result.data;
+                    applyFilterAndSort();
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+                document.getElementById('activityGrid').innerHTML =
+                    '<div class="empty-state"><div class="empty-state-icon">❌</div><div class="empty-state-text">加载失败</div></div>';
+            }
+        }
+
+        // 应用筛选和排序
+        function applyFilterAndSort() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const frequencyFilter = document.getElementById('frequencyFilter').value;
+            const [sortField, sortOrder] = document.getElementById('sortFilter').value.split('-');
+
+            // 筛选
+            filteredActivities = activities.filter(item => {
+                const matchesCategory = !categoryFilter || item.category === categoryFilter;
+                const matchesFrequency = !frequencyFilter || item.frequency === frequencyFilter;
+                return matchesCategory && matchesFrequency;
+            });
+
+            // 排序
+            filteredActivities.sort((a, b) => {
+                let comparison = 0;
+
+                if (sortField === 'displayTime') {
+                    if (!a.displayTime) return 1;
+                    if (!b.displayTime) return -1;
+                    comparison = a.displayTime.localeCompare(b.displayTime);
+                } else {
+                    comparison = new Date(a[sortField]) - new Date(b[sortField]);
+                }
+
+                return sortOrder === 'desc' ? -comparison : comparison;
+            });
+
+            renderActivities();
+        }
+
+        // 渲染活动卡片
+        function renderActivities() {
+            const grid = document.getElementById('activityGrid');
+
+            if (filteredActivities.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-state-icon">📭</div>
+                        <div class="empty-state-text">暂无活动</div>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filteredActivities.map(item => `
+                <div class="activity-card" onclick="showDetail('${item.id}')">
+                    <div class="activity-header">
+                        <div class="activity-title">${escapeHtml(item.title)}</div>
+                        <span class="activity-badge badge-${item.category}">${item.category}</span>
+                    </div>
+                    <div class="activity-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">🔄</span>
+                            <span>${getFrequencyLabel(item.frequency)}</span>
+                        </div>
+                        ${item.displayTime ? `
+                            <div class="meta-item">
+                                <span class="meta-icon">⏰</span>
+                                <span>${item.displayTime}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="activity-description">
+                        ${escapeHtml(item.description).substring(0, 100)}${item.description.length > 100 ? '...' : ''}
+                    </div>
+                    ${item.displayTime ? `
+                        <div class="activity-time">
+                            <span>⏰</span>
+                            <span>${item.displayTime}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        // 显示详情
+        function showDetail(id) {
+            const item = activities.find(a => a.id === id);
+            if (!item) return;
+
+            document.getElementById('modalTitle').textContent = item.title;
+            document.getElementById('modalCategory').innerHTML = `<span class="modal-badge badge-${item.category}">${item.category}</span>`;
+            document.getElementById('modalFrequency').textContent = getFrequencyLabel(item.frequency);
+            document.getElementById('modalDisplayTime').textContent = item.displayTime || '未设置';
+            document.getElementById('modalDescription').textContent = item.description;
+            document.getElementById('modalCreatedAt').textContent = formatDate(item.createdAt);
+
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            document.getElementById('categoryFilter').addEventListener('change', () => applyFilterAndSort());
+            document.getElementById('frequencyFilter').addEventListener('change', () => applyFilterAndSort());
+            document.getElementById('sortFilter').addEventListener('change', () => applyFilterAndSort());
+
+            document.getElementById('detailModal').addEventListener('click', (e) => {
+                if (e.target.id === 'detailModal') {
+                    closeModal();
+                }
+            });
+        }
+
+        // 工具函数
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getFrequencyLabel(frequency) {
+            const labels = {
+                'once': '一次性',
+                'daily': '每天',
+                'weekly': '每周',
+                'monthly': '每月'
+            };
+            return labels[frequency] || frequency;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>

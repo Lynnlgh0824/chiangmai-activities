@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动管理后台 - Chiengmai</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: #66bb6a;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef5350;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        /* 表格样式 */
+        .table-container {
+            overflow-x: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            font-weight: 700;
+            padding: 20px 30px 10px 30px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            padding: 20px 30px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 0 0 20px 20px;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        /* 分类标签颜色 */
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-瑜伽 { background: #FF6B6B; color: white; }
+        .badge-冥想 { background: #4ECDC4; color: white; }
+        .badge-户外探险 { background: #FFE66D; color: #333; }
+        .badge-文化艺术 { background: #95E1D3; color: #333; }
+        .badge-美食体验 { background: #F38181; color: white; }
+        .badge-节庆活动 { background: #AA96DA; color: white; }
+        .badge-其他 { background: #667eea; color: white; }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending { background: #FFA726; color: white; }
+        .status-ongoing { background: #66BB6A; color: white; }
+        .status-expired { background: #EF5350; color: white; }
+        .status-draft { background: #9E9E9E; color: white; }
+
+        /* 草稿按钮样式 */
+        .btn-draft {
+            background: #9E9E9E;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-draft:hover {
+            background: #757575;
+        }
+
+        /* 拖拽上传样式 */
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: #e8eaf6;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .image-previews {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .image-preview {
+            position: relative;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .image-preview .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ef5350;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .image-preview:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .image-preview .image-order {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-progress {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .upload-progress.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .upload-progress.active .progress-fill {
+            width: 100%;
+        }
+
+        /* Tab 切换样式 */
+        .tab-container {
+            margin-bottom: 20px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-button:hover {
+            color: #667eea;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .weekday-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .weekday-checkbox {
+            display: none;
+        }
+
+        .weekday-label {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .weekday-checkbox:checked + .weekday-label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏝️ 活动管理后台</h1>
+        <p style="color: #666; margin-bottom: 20px;">清迈活动查询平台 - 数据管理</p>
+
+        <div class="toolbar">
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <select id="categoryFilter" class="btn btn-secondary">
+                    <option value="">全部分类</option>
+                    <option value="瑜伽">瑜伽</option>
+                    <option value="冥想">冥想</option>
+                    <option value="户外探险">户外探险</option>
+                    <option value="文化艺术">文化艺术</option>
+                    <option value="美食体验">美食体验</option>
+                    <option value="节庆活动">节庆活动</option>
+                    <option value="其他">其他</option>
+                </select>
+                <select id="statusFilter" class="btn btn-secondary">
+                    <option value="">全部状态</option>
+                    <option value="draft">草稿</option>
+                    <option value="pending">待开始</option>
+                    <option value="ongoing">进行中</option>
+                    <option value="expired">已过期</option>
+                </select>
+            </div>
+            <button class="btn btn-primary" onclick="openFormModal()">
+                ➕ 新增活动
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>标题</th>
+                        <th style="width: 100px;">分类</th>
+                        <th style="width: 120px;">日期</th>
+                        <th style="width: 100px;">时间</th>
+                        <th style="width: 100px;">地点</th>
+                        <th style="width: 100px;">价格</th>
+                        <th style="width: 80px;">状态</th>
+                        <th style="width: 150px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                            加载中...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 编辑弹窗 -->
+    <div class="modal" id="formModal">
+        <div class="modal-content">
+            <div class="modal-header" id="modalTitle">新增活动</div>
+            <div class="modal-body">
+                <form id="dataForm">
+                    <input type="hidden" id="itemId">
+
+                <!-- 基本信息 -->
+                <h3 style="margin: 20px 0 15px 0; color: #667eea;">📋 基本信息</h3>
+                <div class="form-group">
+                    <label for="title">活动标题 *</label>
+                    <input type="text" id="title" name="title" placeholder="请输入活动标题" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">分类 *</label>
+                        <select id="category" name="category" required>
+                            <option value="瑜伽">瑜伽</option>
+                            <option value="冥想">冥想</option>
+                            <option value="户外探险">户外探险</option>
+                            <option value="文化艺术">文化艺术</option>
+                            <option value="美食体验">美食体验</option>
+                            <option value="节庆活动">节庆活动</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">状态</label>
+                        <select id="status" name="status">
+                            <option value="draft">草稿</option>
+                            <option value="pending">待开始</option>
+                            <option value="ongoing">进行中</option>
+                            <option value="expired">已过期</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">活动描述 *</label>
+                    <textarea id="description" name="description" rows="3" placeholder="请输入活动描述" required></textarea>
+                </div>
+
+                <!-- 时间信息 -->
+                <h3 style="margin: 20px 0 15px 0; color: #667eea;">⏰ 时间信息</h3>
+
+                <!-- Tab 切换 -->
+                <div class="tab-container">
+                    <div class="tab-buttons">
+                        <button type="button" class="tab-button active" onclick="switchTab('fixed')">📅 固定频率活动</button>
+                        <button type="button" class="tab-button" onclick="switchTab('temporary')">📝 临时活动</button>
+                    </div>
+
+                    <!-- 固定频率活动 -->
+                    <div id="fixedTab" class="tab-content active">
+                        <div class="form-group">
+                            <label>选择星期（可多选）</label>
+                            <div class="weekday-selector">
+                                <label>
+                                    <input type="checkbox" class="weekday-checkbox" name="weekdays" value="1">
+                                    <span class="weekday-label">周一</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" class="weekday-checkbox" name="weekdays" value="2">
+                                    <span class="weekday-label">周二</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" class="weekday-checkbox" name="weekdays" value="3">
+                                    <span class="weekday-label">周三</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" class="weekday-checkbox" name="weekdays" value="4">
+                                    <span class="weekday-label">周四</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" class="weekday-checkbox" name="weekdays" value="5">
+                                    <span class="weekday-label">周五</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" class="weekday-checkbox" name="weekdays" value="6">
+                                    <span class="weekday-label">周六</span>
+                                </label>
+                                <label>
+                                    <input type="checkbox" class="weekday-checkbox" name="weekdays" value="0">
+                                    <span class="weekday-label">周日</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="fixedTime">时间</label>
+                                <input type="text" id="fixedTime" name="fixedTime" placeholder="例如：09:00-10:30">
+                            </div>
+                            <div class="form-group">
+                                <label for="duration">持续时间</label>
+                                <input type="text" id="duration" name="duration" placeholder="例如：1.5小时">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="color: #666; font-size: 12px;">
+                                💡 固定频率活动：每周在选择的星期几重复进行
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 临时活动 -->
+                    <div id="temporaryTab" class="tab-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="date">具体日期</label>
+                                <input type="date" id="date" name="date">
+                            </div>
+                            <div class="form-group">
+                                <label for="time">时间</label>
+                                <input type="text" id="time" name="time" placeholder="例如：09:00-10:30">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="tempDuration">持续时间</label>
+                            <input type="text" id="tempDuration" name="tempDuration" placeholder="例如：1.5小时">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="color: #666; font-size: 12px;">
+                                💡 临时活动：仅在指定的具体日期进行一次
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 地点信息 -->
+                <h3 style="margin: 20px 0 15px 0; color: #667eea;">📍 地点信息</h3>
+                <div class="form-group">
+                    <label for="location">地点名称 *</label>
+                    <input type="text" id="location" name="location" placeholder="例如：宁曼一号瑜伽馆" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">详细地址</label>
+                    <input type="text" id="address" name="address" placeholder="详细地址">
+                </div>
+
+
+                <!-- 价格信息 -->
+                <h3 style="margin: 20px 0 15px 0; color: #667eea;">💰 价格信息</h3>
+                <div class="form-group">
+                    <label for="price">价格显示</label>
+                    <input type="text" id="price" name="price" placeholder="例如：免费、500฿">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="priceMin">最低价格</label>
+                        <input type="number" id="priceMin" name="priceMin" placeholder="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="priceMax">最高价格</label>
+                        <input type="number" id="priceMax" name="priceMax" placeholder="0">
+                    </div>
+                </div>
+
+                <!-- 参与人数 -->
+                <h3 style="margin: 20px 0 15px 0; color: #667eea;">👥 参与信息</h3>
+                <div class="form-group">
+                    <label for="maxParticipants">最大人数</label>
+                    <input type="number" id="maxParticipants" name="maxParticipants" placeholder="0表示不限">
+                </div>
+
+                <!-- 其他选项 -->
+                <h3 style="margin: 20px 0 15px 0; color: #667eea;">⚙️ 其他选项</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="flexibleTime" name="flexibleTime">
+                            灵活时间活动
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="bookingRequired" name="bookingRequired" checked>
+                            需要预约
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>活动图片</label>
+
+                    <!-- 拖拽上传区域 -->
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📸</div>
+                        <div class="upload-text">拖拽图片到此处，或点击上传</div>
+                        <div class="upload-hint">支持 JPG、PNG、GIF、WEBP 格式，最大5MB</div>
+                        <input type="file" id="fileInput" accept="image/*" style="display: none;" multiple>
+                    </div>
+
+                    <!-- 上传进度 -->
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="upload-hint" id="uploadStatus">上传中...</div>
+                    </div>
+
+                    <!-- 图片预览 -->
+                    <div class="image-previews" id="imagePreviews"></div>
+
+                    <!-- 也可以手动输入URL -->
+                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+                        <label style="font-size: 12px; color: #666; margin-bottom: 8px;">或手动输入图片URL（每行一个）：</label>
+                        <textarea id="imageUrls" rows="2" placeholder="https://example.com/image1.jpg" style="font-size: 12px;"></textarea>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="sourceUrl">来源链接</label>
+                    <input type="url" id="sourceUrl" name="sourceUrl" placeholder="https://...">
+                </div>
+            </form>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeFormModal()">取消</button>
+                <button type="button" class="btn btn-draft" onclick="submitFormAsDraft()">📝 草稿</button>
+                <button type="submit" class="btn btn-success" form="dataForm">💾 保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+        let items = [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadItems();
+        });
+
+        // 加载数据
+        async function loadItems() {
+            try {
+                const response = await fetch(`${API_BASE}/items`);
+                const result = await response.json();
+                items = result.data || [];
+                renderTable();
+            } catch (error) {
+                console.error('加载失败:', error);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align: center; color: #999;">加载失败</td></tr>';
+            }
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            let filteredItems = items;
+
+            if (categoryFilter) {
+                filteredItems = filteredItems.filter(item => item.category === categoryFilter);
+            }
+
+            if (statusFilter) {
+                filteredItems = filteredItems.filter(item => item.status === statusFilter);
+            }
+
+            if (filteredItems.length === 0) {
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #999;">暂无数据</td></tr>';
+                return;
+            }
+
+            document.getElementById('tableBody').innerHTML = filteredItems.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><strong>${escapeHtml(item.title)}</strong></td>
+                    <td><span class="category-badge badge-${item.category}">${item.category}</span></td>
+                    <td>${item.date || '-'}</td>
+                    <td>${item.time || '-'}</td>
+                    <td>${escapeHtml(item.location || '-').substring(0, 15)}</td>
+                    <td>${item.price || '-'}</td>
+                    <td><span class="status-badge status-${item.status}">${getStatusText(item.status)}</span></td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editItem('${item.id}')" style="padding: 6px 12px; font-size: 12px;">编辑</button>
+                        <button class="btn btn-danger" onclick="deleteItem('${item.id}')" style="padding: 6px 12px; font-size: 12px;">删除</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 切换 Tab
+        function switchTab(tabType) {
+            // 更新按钮状态
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 切换内容
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabType + 'Tab').classList.add('active');
+        }
+
+        // ========== 图片相关函数（需要提前定义）==========
+
+        // 显示图片预览
+        function displayImagePreview(imageUrl, index) {
+            const previewsContainer = document.getElementById('imagePreviews');
+
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'image-preview';
+            previewDiv.dataset.index = index;
+            previewDiv.dataset.url = imageUrl;
+
+            previewDiv.innerHTML = `
+                <img src="${imageUrl}" alt="预览图片" loading="lazy">
+                <div class="image-overlay">
+                    <button class="delete-image-btn" onclick="deleteImage(${index})" title="删除图片">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="image-order">${index + 1}</div>
+            `;
+
+            previewsContainer.appendChild(previewDiv);
+        }
+
+        // 删除图片
+        async function deleteImage(index) {
+            const previewDiv = document.querySelector(`.image-preview[data-index="${index}"]`);
+            if (!previewDiv) return;
+
+            const imageUrl = previewDiv.dataset.url;
+
+            // 如果是上传的图片，从服务器删除
+            if (imageUrl.startsWith('/uploads/')) {
+                const filename = imageUrl.split('/').pop();
+                try {
+                    await fetch(`/api/upload/${filename}`, { method: 'DELETE' });
+                } catch (error) {
+                    console.error('删除服务器文件失败:', error);
+                }
+            }
+
+            // 从数组中移除
+            uploadedImages = uploadedImages.filter((url, i) => i !== index);
+
+            // 移除预览元素
+            previewDiv.remove();
+
+            // 更新索引
+            updateImageIndexes();
+
+            // 更新textarea
+            updateImagesTextarea();
+        }
+
+        // 更新图片索引
+        function updateImageIndexes() {
+            const previews = document.querySelectorAll('.image-preview');
+            previews.forEach((preview, newIndex) => {
+                preview.dataset.index = newIndex;
+                const orderBadge = preview.querySelector('.image-order');
+                if (orderBadge) {
+                    orderBadge.textContent = newIndex + 1;
+                }
+                const deleteBtn = preview.querySelector('.delete-image-btn');
+                if (deleteBtn) {
+                    deleteBtn.onclick = () => deleteImage(newIndex);
+                }
+            });
+        }
+
+        // 更新图片URL的textarea
+        function updateImagesTextarea() {
+            const textarea = document.getElementById('imageUrls');
+            const imagesTextarea = document.getElementById('images');
+
+            if (!textarea) return;
+
+            // 获取手动输入的URL
+            const manualUrls = textarea.value.split('\n').filter(url => url.trim());
+
+            // 合并上传的URL和手动输入的URL
+            const allUrls = [...uploadedImages, ...manualUrls];
+
+            // 更新隐藏的images字段
+            if (imagesTextarea) {
+                imagesTextarea.value = allUrls.join('\n');
+            }
+        }
+
+        // ========== 表单操作函数 ==========
+
+        // 打开表单弹窗
+        function openFormModal(item = null) {
+            try {
+                const form = document.getElementById('dataForm');
+                if (!form) {
+                    alert('错误：找不到表单');
+                    return;
+                }
+
+                form.reset();
+                document.getElementById('itemId').value = '';
+                document.getElementById('modalTitle').textContent = '新增活动';
+
+                // 清空上传的图片列表
+                uploadedImages = [];
+                const imagePreviews = document.getElementById('imagePreviews');
+                if (imagePreviews) imagePreviews.innerHTML = '';
+
+                const imageUrls = document.getElementById('imageUrls');
+                if (imageUrls) imageUrls.value = '';
+
+                const images = document.getElementById('images');
+                if (images) images.value = '';
+
+                // 默认切换到临时活动Tab
+                switchTabWithoutEvent('temporary');
+
+                // 新增活动时默认状态为"草稿"
+                const statusSelect = document.getElementById('status');
+                if (statusSelect) statusSelect.value = 'draft';
+
+                if (item) {
+                    document.getElementById('modalTitle').textContent = '编辑活动';
+                    document.getElementById('itemId').value = item.id || item._id;
+                    document.getElementById('title').value = item.title || '';
+                    document.getElementById('category').value = item.category || '其他';
+                    document.getElementById('status').value = item.status || 'draft';
+                    document.getElementById('description').value = item.description || '';
+
+                    // 根据是否有 weekdays 判断活动类型
+                    if (item.weekdays && item.weekdays.length > 0) {
+                        // 固定频率活动
+                        switchTabWithoutEvent('fixed');
+                        // 设置选中的星期
+                        document.querySelectorAll('.weekday-checkbox').forEach(checkbox => {
+                            checkbox.checked = item.weekdays.includes(parseInt(checkbox.value));
+                        });
+                        document.getElementById('fixedTime').value = item.time || '';
+                        document.getElementById('duration').value = item.duration || '';
+                    } else {
+                        // 临时活动
+                        switchTabWithoutEvent('temporary');
+                        document.getElementById('date').value = item.date || '';
+                        document.getElementById('time').value = item.time || '';
+                        document.getElementById('tempDuration').value = item.duration || '';
+                    }
+
+                    document.getElementById('location').value = item.location || '';
+                    document.getElementById('address').value = item.address || '';
+                    document.getElementById('price').value = item.price || '';
+                    document.getElementById('priceMin').value = item.priceMin || '';
+                    document.getElementById('priceMax').value = item.priceMax || '';
+                    document.getElementById('maxParticipants').value = item.maxParticipants || '';
+                    document.getElementById('flexibleTime').checked = item.flexibleTime || false;
+                    document.getElementById('bookingRequired').checked = item.bookingRequired !== undefined ? item.bookingRequired : true;
+
+                    // 处理图片
+                    const images = item.images || [];
+                    document.getElementById('images').value = images.join('\n');
+                    document.getElementById('imageUrls').value = images.join('\n');
+
+                    // 清空预览并重新加载
+                    uploadedImages = [];
+                    if (imagePreviews) imagePreviews.innerHTML = '';
+
+                    // 显示已有图片预览
+                    images.forEach((imageUrl, index) => {
+                        uploadedImages.push(imageUrl);
+                        displayImagePreview(imageUrl, index);
+                    });
+
+                    document.getElementById('sourceUrl').value = item.source?.url || '';
+                }
+
+                document.getElementById('formModal').classList.add('active');
+            } catch (error) {
+                console.error('打开表单失败:', error);
+                alert('打开表单失败: ' + error.message);
+            }
+        }
+
+        // 切换 Tab（不触发事件）
+        function switchTabWithoutEvent(tabType) {
+            document.querySelectorAll('.tab-button').forEach((btn, index) => {
+                btn.classList.remove('active');
+                if ((tabType === 'fixed' && index === 0) || (tabType === 'temporary' && index === 1)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabType + 'Tab').classList.add('active');
+        }
+
+        // 关闭表单弹窗
+        function closeFormModal() {
+            document.getElementById('formModal').classList.remove('active');
+        }
+
+        // 编辑项目
+        function editItem(id) {
+            const item = items.find(i => (i.id === id || i._id === id));
+            if (item) {
+                openFormModal(item);
+            }
+        }
+
+        // 删除项目
+        async function deleteItem(id) {
+            if (!confirm('确定要删除这个活动吗？')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/items/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('删除成功');
+                    await loadItems();
+                } else {
+                    alert('删除失败：' + result.message);
+                }
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('删除失败');
+            }
+        }
+
+        // 表单提交
+        document.getElementById('dataForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 如果是保存草稿，确保状态为 draft
+            if (isSavingDraft) {
+                document.getElementById('status').value = 'draft';
+            }
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // 重置草稿标记
+            isSavingDraft = false;
+
+            // 判断当前是哪个Tab
+            const isFixedTab = document.getElementById('fixedTab').classList.contains('active');
+
+            if (isFixedTab) {
+                // 固定频率活动
+                const selectedWeekdays = Array.from(document.querySelectorAll('.weekday-checkbox:checked'))
+                    .map(cb => parseInt(cb.value));
+
+                if (selectedWeekdays.length === 0) {
+                    alert('请至少选择一个星期');
+                    return;
+                }
+
+                data.weekdays = selectedWeekdays;
+                data.time = document.getElementById('fixedTime').value;
+                data.duration = document.getElementById('duration').value;
+                data.frequency = 'weekly';
+
+                // 清除临时活动字段
+                delete data.date;
+            } else {
+                // 临时活动
+                data.date = document.getElementById('date').value;
+                data.time = document.getElementById('time').value;
+                data.duration = document.getElementById('tempDuration').value;
+                data.frequency = 'once';
+
+                // 清除固定活动字段
+                delete data.weekdays;
+            }
+
+            // 处理复选框
+            data.flexibleTime = document.getElementById('flexibleTime').checked;
+            data.bookingRequired = document.getElementById('bookingRequired').checked;
+
+            // 处理图片数组
+            data.images = document.getElementById('images').value.split('\n').filter(url => url.trim());
+
+            // 处理来源信息
+            if (data.sourceUrl) {
+                data.source = {
+                    name: '手动添加',
+                    url: data.sourceUrl,
+                    type: 'manual',
+                    lastUpdated: new Date()
+                };
+            }
+
+            // 删除临时字段
+            delete data.sourceUrl;
+            delete data.fixedTime;
+            delete data.tempDuration;
+
+            try {
+                const id = document.getElementById('itemId').value;
+                const url = id ? `${API_BASE}/items/${id}` : `${API_BASE}/items`;
+                const method = id ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // 根据状态显示不同的成功消息
+                    const statusText = data.status === 'draft' ? '草稿' : '活动';
+                    const message = id ? `✅ ${statusText}更新成功` : `✅ ${statusText}创建成功`;
+
+                    alert(message);
+                    closeFormModal();
+                    await loadItems();
+                } else {
+                    alert('操作失败：' + result.message);
+                }
+            } catch (error) {
+                console.error('保存失败:', error);
+                alert('保存失败');
+            }
+        });
+
+        // 筛选事件
+        document.getElementById('categoryFilter').addEventListener('change', renderTable);
+        document.getElementById('statusFilter').addEventListener('change', renderTable);
+
+        // 点击弹窗外部关闭
+        document.getElementById('formModal').addEventListener('click', (e) => {
+            if (e.target.id === 'formModal') {
+                closeFormModal();
+            }
+        });
+
+        // 工具函数
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'draft': '草稿',
+                'pending': '待开始',
+                'ongoing': '进行中',
+                'expired': '已过期',
+                'active': '活跃' // 兼容旧数据
+            };
+            return statusMap[status] || status;
+        }
+
+        // 保存为草稿标记
+        let isSavingDraft = false;
+
+        // 保存为草稿
+        function submitFormAsDraft() {
+            isSavingDraft = true; // 设置草稿标记
+            document.getElementById('status').value = 'draft'; // 设置状态为草稿
+            document.getElementById('dataForm').dispatchEvent(new Event('submit')); // 触发表单提交
+        }
+
+        // ========== 图片拖拽上传功能 ==========
+        let uploadedImages = []; // 存储已上传的图片URL
+
+        // 初始化上传区域事件监听
+        function initImageUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            if (!uploadArea || !fileInput) return;
+
+            // 点击上传区域触发文件选择
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            // 文件选择事件
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            // 拖拽事件
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFiles(e.dataTransfer.files);
+            });
+        }
+
+        // 处理文件上传
+        async function handleFiles(files) {
+            const uploadProgress = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            const uploadStatus = document.getElementById('uploadStatus');
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+
+                // 验证文件类型
+                if (!file.type.startsWith('image/')) {
+                    alert(`${file.name} 不是图片文件`);
+                    continue;
+                }
+
+                // 验证文件大小 (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`${file.name} 超过5MB限制`);
+                    continue;
+                }
+
+                // 显示上传进度
+                uploadProgress.style.display = 'block';
+                uploadStatus.textContent = `正在上传 ${file.name}...`;
+                progressFill.style.width = '0%';
+
+                try {
+                    const imageUrl = await uploadImage(file, (percent) => {
+                        progressFill.style.width = percent + '%';
+                    });
+
+                    if (imageUrl) {
+                        uploadedImages.push(imageUrl);
+                        displayImagePreview(imageUrl, uploadedImages.length - 1);
+                        updateImagesTextarea();
+                    }
+                } catch (error) {
+                    console.error('上传失败:', error);
+                    alert(`${file.name} 上传失败: ${error.message}`);
+                }
+            }
+
+            // 隐藏上传进度
+            setTimeout(() => {
+                uploadProgress.style.display = 'none';
+                progressFill.style.width = '0%';
+            }, 500);
+
+            // 清空文件输入
+            document.getElementById('fileInput').value = '';
+        }
+
+        // 上传单个图片
+        async function uploadImage(file, progressCallback) {
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                // 模拟进度
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 10;
+                    if (progress <= 90) {
+                        progressCallback(progress);
+                    }
+                }, 100);
+
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                progressCallback(100);
+
+                const result = await response.json();
+
+                if (result.success) {
+                    return result.data.url;
+                } else {
+                    throw new Error(result.message || '上传失败');
+                }
+            } catch (error) {
+                console.error('上传错误:', error);
+                throw error;
+            }
+        }
+
+        // 监听手动输入的URL变化
+        document.addEventListener('DOMContentLoaded', () => {
+            initImageUpload();
+
+            const textarea = document.getElementById('imageUrls');
+            if (textarea) {
+                textarea.addEventListener('input', updateImagesTextarea);
+            }
+        });
+    </script>
+</body>
+</html>
