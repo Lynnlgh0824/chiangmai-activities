@@ -1,19 +1,2244 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清迈活动平台 - Chiengmai Activities</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- 禁用缓存 -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
 
-    <title>清迈活动查询平台 - Chiengmai Activities</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx?v=2.0.1"></script>
-  </body>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .search-section {
+            flex: 1;
+            max-width: 600px;
+            margin: 0;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            position: relative;
+        }
+
+        .search-icon {
+            margin-right: 8px;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        /* 搜索按钮 - 桌面端显示 */
+        .search-btn {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .search-btn:hover {
+            background: rgba(255, 255, 255, 0.35);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* 移动端搜索图标按钮 */
+        .search-icon-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 6px;
+            width: 36px;
+            height: 36px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 18px;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .search-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .search-icon-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 筛选区域 - 固定在顶部 */
+        .filter-section {
+            background: #fff;
+            padding: 12px 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .filter-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        .filter-chip:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+
+        .filter-chip:active {
+            transform: scale(0.96);
+            background: #e8e8e8;
+        }
+
+        .filter-chip:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+
+        .filter-chip.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Tab导航 */
+        .tabs-nav {
+            display: flex;
+            background: #fff;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 0 20px;
+        }
+
+        .tab-item {
+            padding: 14px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tab-item:hover {
+            color: #667eea;
+        }
+
+        .tab-item.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-icon {
+            font-size: 18px;
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* 日历Tab */
+        .calendar-header {
+            margin-bottom: 20px;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .month-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            padding: 6px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .date-grid-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .date-cell-header {
+            padding: 8px 4px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            position: relative;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .date-cell-header:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .date-cell-header:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .date-cell-header.selected-day {
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+            transform: scale(1.08);
+            animation: selectPulse 0.3s ease;
+        }
+
+        .date-cell-header.selected-day::after {
+            content: '✓';
+            margin-left: 4px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* 今天的高亮样式（默认状态，保持黄色） */
+        .date-cell-header.today-header {
+            background: #ffc107;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.4);
+        }
+
+        /* 今天且被选中（使用蓝色） */
+        .date-cell-header.today-header.selected-day {
+            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+        }
+
+        @keyframes selectPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+            100% { transform: scale(1.08); }
+        }
+
+        /* Tooltip 提示 */
+        .date-cell-header:hover::before {
+            content: '点击查看当天活动';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: tooltipFade 0.3s ease forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .date-cell-header:hover::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+            margin-bottom: -4px;
+            opacity: 0;
+            animation: tooltipFade 0.3s ease forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes tooltipFade {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .day-cell.dimmed {
+            opacity: 0.25;
+            pointer-events: none;
+            filter: grayscale(100%);
+            transform: scale(0.98);
+            transition: all 0.4s ease;
+        }
+
+        .day-cell {
+            transition: all 0.3s ease;
+        }
+
+        .day-cell:not(.dimmed):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-cell {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .day-cell:not(.dimmed):hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        /* 选中的日期样式 */
+        .day-cell.selected-day {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .day-cell.selected-day::before {
+            content: '✓';
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            font-size: 18px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        /* 今天的日期单元格（默认状态，保持黄色） */
+        .day-cell.today {
+            background: linear-gradient(135deg, #fff9e6 0%, #fff3cd 100%);
+            border-color: #ffc107;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+        }
+
+        /* 今天且被选中（使用蓝色） */
+        .day-cell.today.selected-day {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border-color: #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 点击提示 */
+        .day-cell:not(.dimmed):hover::after {
+            content: '点击筛选';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            font-size: 10px;
+            color: #667eea;
+            opacity: 0.6;
+        }
+
+        .day-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin: 6px 0;
+            text-align: center;
+            position: relative;
+            padding-right: 16px;
+        }
+
+        /* 添加可点击提示图标 */
+        .day-name::after {
+            content: '👆';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .day-cell:not(.dimmed):hover .day-name::after {
+            opacity: 0.5;
+        }
+
+        .day-cell.today .day-name {
+            color: #ff6b6b;
+            font-weight: 700;
+        }
+
+        .day-cell.selected-day .day-name {
+            color: #667eea;
+        }
+
+        .activity-chip {
+            background: white;
+            border-left: 3px solid #667eea;
+            padding: 6px 8px;
+            margin-bottom: 8px; /* 统一间隔 */
+            border-radius: 4px;
+            font-size: 11px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            /* 确保内部元素紧凑排列 */
+            display: flex;
+            flex-direction: column;
+            gap: 2px; /* 时间和标题之间的小间隔 */
+        }
+
+        /* 最后一个活动卡片不需要底部间隔 */
+        .activity-chip:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 活动卡片内部元素样式 */
+        .activity-chip > div {
+            line-height: 1.4;
+        }
+
+        .chip-title {
+            line-height: 1.3;
+        }
+
+        .day-cell.today .activity-chip {
+            background: #ffffff;
+            border-left-width: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .day-cell.today .activity-chip:hover {
+            transform: translateX(2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        /* 列表Tab */
+        .schedule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .schedule-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .schedule-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        /* 列表视图中的星期筛选标签 */
+        .day-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            position: relative;
+        }
+
+        /* 添加点击提示图标 */
+        .day-filter-chip::before {
+            content: '🔍';
+            font-size: 9px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .day-filter-chip:hover::before {
+            opacity: 0.5;
+        }
+
+        .day-filter-chip:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .day-filter-chip:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        /* 如果当前筛选的星期匹配，显示高亮 */
+        .day-filter-chip.highlight {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .day-filter-chip.highlight::after {
+            content: '✓';
+            margin-left: 2px;
+            font-size: 10px;
+        }
+
+        .category-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .schedule-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .schedule-item-meta {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 筛选条件标签 */
+        .active-filters {
+            display: none;
+            padding: 8px 20px;
+            background: #fff3cd;
+            border-bottom: 1px solid #ffc107;
+        }
+
+        .active-filters.show {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-tag {
+            background: white;
+            border: 1px solid #ffc107;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-tag button {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-tag button:hover {
+            color: #c92a2a;
+        }
+
+        .clear-all-btn {
+            background: #ffc107;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .clear-all-btn:hover {
+            background: #e0a800;
+        }
+
+        /* 筛选结果数量 */
+        .results-count {
+            text-align: center;
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .results-count .count-number {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* 空状态提示 */
+        .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .empty-state.show {
+            display: flex;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.6;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .empty-description {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 24px;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        .empty-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .empty-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .empty-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .empty-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .empty-btn.primary:hover {
+            background: #5568d3;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .modal-info-row strong {
+            color: #333;
+            min-width: 60px;
+        }
+
+        .modal-description {
+            margin-top: 16px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        /* 弹窗底部链接按钮 */
+        .modal-footer {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .modal-link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .modal-link-btn:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-link-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            font-size: 18px;
+        }
+
+        .btn-text {
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn-arrow {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .modal-link-btn:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
+        .modal-category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 12px;
+        }
+
+        .note {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .note strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #1976d2;
+        }
+
+        /* 响应式设计 - 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            /* 头部优化 */
+            .header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                padding: 16px 20px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+                text-align: center;
+            }
+
+            /* 移动端搜索优化 - 单行布局 */
+            .search-section {
+                max-width: 100%;
+                width: 100%;
+                flex-direction: row;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .search-input-wrapper {
+                flex: 1;
+                padding: 10px 48px 10px 12px; /* 为搜索按钮留出空间，增加高度 */
+            }
+
+            .search-input {
+                font-size: 15px; /* 移动端增大字体 */
+            }
+
+            /* 移动端显示图标按钮，隐藏文字按钮 */
+            .search-btn {
+                display: none;
+            }
+
+            .search-icon-btn {
+                display: flex;
+            }
+
+            /* 筛选区域优化 */
+            .filter-section {
+                padding: 12px 16px;
+            }
+
+            .filter-chips {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .filter-chip {
+                padding: 6px 12px;
+                font-size: 13px;
+                min-height: 32px;
+                display: inline-flex;
+                align-items: center;
+                border-radius: 16px;
+            }
+
+            .filter-chip {
+                padding: 6px 12px;
+                font-size: 13px;
+                min-height: 32px;
+                display: inline-flex;
+                align-items: center;
+                border-radius: 16px;
+            }
+
+            /* 日历优化 - 移动端水平滚动 */
+            .date-grid-header {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 8px;
+            }
+
+            .date-cell-header {
+                min-width: 60px;
+                padding: 10px 6px;
+                font-size: 11px;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            /* 日历网格改为单列卡片或优化显示 */
+            .calendar-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .day-cell {
+                min-height: auto;
+                padding: 12px;
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+
+            .day-cell:active {
+                transform: scale(0.98);
+            }
+
+            .day-cell::after {
+                font-size: 9px;
+                bottom: 2px;
+                right: 2px;
+            }
+
+            .activity-chip {
+                padding: 8px 10px;
+                font-size: 12px;
+                /* 移动端使用统一的间隔 */
+            }
+
+            /* 列表视图优化 */
+            .schedule-list {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .schedule-item {
+                padding: 12px;
+            }
+
+            .schedule-item-title {
+                font-size: 15px;
+            }
+
+            .schedule-item-meta {
+                font-size: 12px;
+            }
+
+            /* 移动端星期筛选标签优化 */
+            .day-filter-chip {
+                padding: 5px 10px;
+                font-size: 11px;
+                min-height: 28px;
+            }
+
+            /* 弹窗优化 */
+            .modal {
+                width: 95%;
+                max-height: 85vh;
+                margin: 10px auto;
+            }
+
+            .modal-header {
+                padding: 16px;
+            }
+
+            .modal-body {
+                padding: 16px;
+            }
+
+            /* 移动端链接按钮优化 */
+            .modal-link-btn {
+                padding: 14px 20px;
+                font-size: 16px;
+                min-height: 48px; /* 满足最小触控区域 */
+            }
+
+            .btn-icon {
+                font-size: 20px;
+            }
+
+            /* Tab导航优化 */
+            .tabs-nav {
+                padding: 0 16px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .tab-item {
+                padding: 12px 16px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+            /* 结果统计优化 */
+            .results-count {
+                padding: 10px 16px;
+                font-size: 13px;
+            }
+        }
+
+        /* 超小屏幕优化（< 375px） */
+        @media (max-width: 374px) {
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .date-cell-header {
+                min-width: 50px;
+                font-size: 10px;
+            }
+
+            .filter-chip {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>✨ 清迈活动探索</h1>
+            <div class="search-section">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input
+                        type="text"
+                        class="search-input"
+                        id="searchInput"
+                        placeholder="搜索活动、地点、关键词..."
+                    >
+                    <!-- 移动端搜索按钮 -->
+                    <button class="search-icon-btn" onclick="performSearch()" aria-label="搜索">
+                        🔍
+                    </button>
+                </div>
+                <button class="search-btn" onclick="performSearch()">搜索</button>
+            </div>
+        </div>
+
+        <!-- 筛选区域（固定在顶部） -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <span class="filter-label">分类:</span>
+                    <div class="filter-chips" id="categoryChips">
+                        <div class="filter-chip active" onclick="setFilter('category', '全部')">全部</div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">价格:</span>
+                    <div class="filter-chips">
+                        <div class="filter-chip active" onclick="setFilter('price', '全部')">全部</div>
+                        <div class="filter-chip" onclick="setFilter('price', '免费')">免费</div>
+                        <div class="filter-chip" onclick="setFilter('price', '<500฿')">&lt;500฿</div>
+                        <div class="filter-chip" onclick="setFilter('price', '<1000฿')">&lt;1000฿</div>
+                        <div class="filter-chip" onclick="setFilter('price', '<1500฿')">&lt;1500฿</div>
+                        <div class="filter-chip" onclick="setFilter('price', '>1500฿')">&gt;1500฿</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选条件标签（显示已选择的筛选） -->
+        <div class="active-filters" id="activeFilters">
+            <!-- 动态生成筛选标签 -->
+        </div>
+
+        <!-- 移动端当前筛选状态条 -->
+        <div class="mobile-filter-status" id="mobileFilterStatus" style="display: none;">
+            <div class="status-item">
+                <span class="status-label">分类</span>
+                <span class="status-value" id="mobileCategoryStatus">全部</span>
+            </div>
+            <div class="status-divider"></div>
+            <div class="status-item">
+                <span class="status-label">价格</span>
+                <span class="status-value" id="mobilePriceStatus">全部</span>
+            </div>
+        </div>
+
+        <!-- Tab导航（只有2个Tab） -->
+        <div class="tabs-nav">
+            <div class="tab-item active" onclick="switchTab(0)">
+                <span class="tab-icon">📅</span>
+                <span>日历视图</span>
+            </div>
+            <div class="tab-item" onclick="switchTab(1)">
+                <span class="tab-icon">📋</span>
+                <span>列表视图</span>
+            </div>
+        </div>
+
+        <!-- Tab内容 -->
+        <div class="tab-content">
+            <!-- 日历Tab -->
+            <div id="tab-0" class="tab-pane active">
+                <div class="calendar-header">
+                    <div class="nav-row">
+                        <div class="month-label" id="monthLabel">本周活动</div>
+                        <div class="nav-buttons">
+                            <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
+                            <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
+                            <button class="nav-btn" onclick="navigateWeek(1)">下一周 →</button>
+                        </div>
+                    </div>
+                    <div class="date-grid-header">
+                        <!-- 日期表头将通过 JavaScript 动态生成 -->
+                    </div>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- 动态生成日历内容 -->
+                </div>
+            </div>
+
+            <!-- 列表Tab -->
+            <div id="tab-1" class="tab-pane">
+                <div class="schedule-list" id="scheduleList">
+                    <!-- 动态生成列表内容 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选结果数量 -->
+        <div class="results-count" id="resultsCount">
+            <span>共 </span>
+            <span class="count-number" id="totalCount">0</span>
+            <span> 个活动</span>
+        </div>
+
+        <!-- 空状态提示 -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">没有找到符合条件的活动</div>
+            <div class="empty-description" id="emptyDescription">
+                试试调整筛选条件，或者搜索其他关键词？
+            </div>
+            <div class="empty-actions">
+                <button class="empty-btn primary" onclick="clearAllFilters()">清除所有筛选</button>
+                <button class="empty-btn" onclick="clearSearch()">清空搜索</button>
+            </div>
+        </div>
+
+        <!-- 活动详情弹窗 -->
+        <div class="modal-overlay" id="activityModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title" id="modalTitle">活动标题</div>
+                    <button class="modal-close" onclick="closeModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <span class="modal-category-badge" id="modalCategory">分类</span>
+                    <div class="modal-info-row">
+                        <strong>📍 地点:</strong>
+                        <span id="modalLocation">地点名称</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <strong>⏰ 时间:</strong>
+                        <span id="modalTime">08:30-09:45</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <strong>💰 价格:</strong>
+                        <span id="modalPrice">免费</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <strong>📅 频率:</strong>
+                        <span id="modalFrequency">每周</span>
+                    </div>
+                    <div class="modal-description" id="modalDescription">
+                        活动描述内容...
+                    </div>
+
+                    <!-- 链接按钮（仅在活动有链接时显示） -->
+                    <div class="modal-footer" id="modalFooter" style="display: none;">
+                        <a id="modalLinkButton" href="#" target="_blank" class="modal-link-btn">
+                            <span class="btn-icon">🔗</span>
+                            <span class="btn-text">查看详情</span>
+                            <span class="btn-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================
+        // 数据获取
+        // =====================================================
+
+        let allActivities = [];
+        let currentFilters = {
+            category: '全部',
+            price: '全部',
+            day: null, // 选中的日期（0=周日, 1=周一, ..., 6=周六）
+            search: ''
+        };
+
+        // 获取今天的星期几（0=周日, 1=周一, ..., 6=周六）
+        const todayDay = new Date().getDay();
+
+        // 保存当前周的日期数据（全局，供其他函数使用）
+        let weekDates = [];
+
+        const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+        const categoryColors = {
+            '瑜伽': '#FF6B6B',
+            '冥想': '#4ECDC4',
+            '户外探险': '#FFE66D',
+            '文化艺术': '#95E1D3',
+            '美食体验': '#F38181',
+            '节庆活动': '#AA96DA',
+            '其他': '#667eea'
+        };
+
+        // 预设的活动颜色组（活泼明亮的颜色）
+        const activityColorPalette = [
+            '#FF6B6B', // 鲜红
+            '#4ECDC4', // 青色
+            '#45B7D1', // 天蓝
+            '#FFA07A', // 橙粉
+            '#98D8C8', // 薄荷绿
+            '#F7DC6F', // 明黄
+            '#BB8FCE', // 淡紫
+            '#85C1E9', // 浅蓝
+            '#F1948A', // 珊瑚红
+            '#82E0AA', // 绿色
+            '#E59866', // 橙色
+            '#D7BDE2', // 淡紫兰
+            '#A3E4D7', // 蓝绿
+            '#FAD7A0', // 杏黄
+            '#F5B7B1', // 粉红
+            '#AED6F1', // 淡天蓝
+            '#ABEBC6', // 草绿
+            '#F9E79F', // 淡黄
+            '#D2B4DE', // 兰紫
+            '#E8DAEF', // 浅紫
+            '#73C6B6', // 青绿
+            '#F0B27A', // 金橙
+            '#C39BD3', // 紫罗兰
+            '#7FB3D5', // 中蓝
+            '#76D7C4', // 青色
+            '#FADBD8', // 浅粉
+            '#D5F5E3', // 淡绿
+            '#FCF3CF', // 浅黄
+            '#EBDEF0', // 淡紫
+            '#D6EAF8', // 浅蓝
+            '#D1F2EB', // 淡青
+            '#FF9FF3', // 亮粉
+            '#54A0FF', // 亮蓝
+            '#5FFF67', // 亮绿
+            '#FFD93D', // 金黄
+            '#6BCB77', // 鲜绿
+            '#4D96FF', // 鲜蓝
+            '#FF6B9D', // 玫红
+            '#C44DFF', // 亮紫
+            '#FFB84D', // 活力橙
+            '#00D9FF', // 青蓝
+            '#FF5E78'  // 活力红
+        ];
+
+        // 根据活动ID获取颜色（使用预设色板）
+        const activityColorsCache = {};
+        function getActivityColor(id) {
+            if (activityColorsCache[id]) {
+                return activityColorsCache[id];
+            }
+
+            // 使用ID生成索引，确保同一活动总是获得相同颜色
+            const hash = id.toString().split('').reduce((acc, char) => {
+                return acc + char.charCodeAt(0);
+            }, 0);
+
+            const colorIndex = hash % activityColorPalette.length;
+            const color = activityColorPalette[colorIndex];
+
+            activityColorsCache[id] = color;
+            return color;
+        }
+
+        // 从 API 获取活动数据
+        async function fetchActivities() {
+            try {
+                const response = await fetch('http://localhost:3000/api/activities?limit=100');
+                const result = await response.json();
+
+                if (result.success && result.data) {
+                    allActivities = result.data.map(item => ({
+                        id: item.id || item._id,
+                        name: item.title,
+                        title: item.title,
+                        category: item.category,
+                        price: item.price,
+                        location: item.location,
+                        time: item.time,
+                        description: item.description,
+                        day: parseDayFromWeekdays(item.weekdays),
+                        frequency: item.frequency || 'weekly',
+                        url: item.source?.url || ''
+                    }));
+
+                    // 初始化分类筛选器
+                    initCategoryFilters();
+
+                    // 刷新 = 重置为"全部"状态，显示所有活动
+                    // 不默认选中任何日期，让用户看到完整的周视图
+                    currentFilters.day = null;
+
+                    // 渲染视图
+                    updateViews();
+
+                    console.log('✅ 已加载', allActivities.length, '个活动');
+                    console.log('📅 今天是:', dayNames[todayDay]);
+                }
+            } catch (error) {
+                console.error('❌ 加载失败:', error);
+                document.getElementById('calendarGrid').innerHTML =
+                    '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#999;">加载失败，请刷新页面重试</div>';
+            }
+        }
+
+        // 解析 weekdays 数组获取 day 数字
+        function parseDayFromWeekdays(weekdays) {
+            if (!weekdays || !Array.isArray(weekdays)) return null;
+
+            const dayMap = { '周日': 0, '周一': 1, '周二': 2, '周三': 3, '周四': 4, '周五': 5, '周六': 6 };
+
+            // 返回第一个匹配的 day
+            for (let day of weekdays) {
+                if (dayMap[day] !== undefined) {
+                    return dayMap[day];
+                }
+            }
+            return null;
+        }
+
+        // 初始化分类筛选器
+        function initCategoryFilters() {
+            const categories = [...new Set(allActivities.map(a => a.category))];
+            const container = document.getElementById('categoryChips');
+
+            let html = '<div class="filter-chip active" onclick="setFilter(\'category\', \'全部\')">全部</div>';
+            categories.forEach(cat => {
+                html += `<div class="filter-chip" onclick="setFilter('category', '${cat}')">${cat}</div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // =====================================================
+        // 筛选功能
+        // =====================================================
+
+        function filterActivities() {
+            let filtered = allActivities;
+
+            // 日期筛选
+            if (currentFilters.day !== null) {
+                filtered = filtered.filter(act => act.day === currentFilters.day);
+            }
+
+            // 分类筛选
+            if (currentFilters.category !== '全部') {
+                filtered = filtered.filter(act => act.category === currentFilters.category);
+            }
+
+            // 价格筛选
+            // 辅助函数：提取价格数值
+            const extractPrice = (priceStr) => {
+                if (priceStr === '免费' || priceStr.includes('免费')) return 0;
+                return parseInt(priceStr.replace(/[^\d]/g, '')) || 0;
+            };
+
+            if (currentFilters.price === '免费') {
+                filtered = filtered.filter(act => act.price === '免费' || act.price.includes('免费'));
+            } else if (currentFilters.price === '<500฿') {
+                filtered = filtered.filter(act => extractPrice(act.price) < 500);
+            } else if (currentFilters.price === '<1000฿') {
+                filtered = filtered.filter(act => extractPrice(act.price) < 1000);
+            } else if (currentFilters.price === '<1500฿') {
+                filtered = filtered.filter(act => extractPrice(act.price) < 1500);
+            } else if (currentFilters.price === '>1500฿') {
+                filtered = filtered.filter(act => extractPrice(act.price) >= 1500);
+            }
+
+            // 搜索筛选
+            if (currentFilters.search) {
+                const searchLower = currentFilters.search.toLowerCase();
+                filtered = filtered.filter(act =>
+                    act.title.toLowerCase().includes(searchLower) ||
+                    act.location.toLowerCase().includes(searchLower) ||
+                    act.description.toLowerCase().includes(searchLower)
+                );
+            }
+
+            return filtered;
+        }
+
+        function setFilter(type, value) {
+            if (type === 'category') {
+                currentFilters.category = value;
+                // 更新 UI
+                document.querySelectorAll('#categoryChips .filter-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                    if (chip.textContent.trim() === value) chip.classList.add('active');
+                });
+            } else if (type === 'price') {
+                currentFilters.price = value;
+                // 更新 UI
+                const priceGroup = document.querySelectorAll('.filter-group')[1];
+                priceGroup.querySelectorAll('.filter-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                    if (chip.textContent.trim() === value) chip.classList.add('active');
+                });
+            }
+
+            updateViews();
+        }
+
+        function toggleDayFilter(day) {
+            if (currentFilters.day === day) {
+                // 再次点击取消筛选，显示所有活动
+                currentFilters.day = null;
+            } else {
+                // 点击其他日期，选中该日期
+                currentFilters.day = day;
+            }
+
+            updateViews();
+
+            // 移动端：将选中的日期滚动到视图中心
+            if (window.innerWidth <= 768) {
+                const selectedHeader = document.querySelector(`.date-cell-header[data-day="${day}"]`);
+                if (selectedHeader) {
+                    selectedHeader.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest',
+                        inline: 'center'
+                    });
+                }
+            }
+
+            // 移动端触觉反馈
+            if (window.innerWidth <= 768 && navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+
+        function performSearch() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            currentFilters.search = searchTerm;
+            updateViews();
+
+            // 移动端搜索反馈
+            if (window.innerWidth <= 768 && searchTerm) {
+                // 可以添加振动反馈
+                if (navigator.vibrate) {
+                    navigator.vibrate(10);
+                }
+            }
+        }
+
+        // 实时搜索（带防抖）
+        let searchTimeout;
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+
+            // 监听输入事件（实时搜索，300ms防抖）
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch();
+                }, 300);
+            });
+
+            // 监听回车键（立即搜索）
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    clearTimeout(searchTimeout);
+                    performSearch();
+                }
+            });
+        });
+
+        // =====================================================
+        // 视图更新
+        // =====================================================
+
+        function updateViews() {
+            const filtered = filterActivities();
+
+            // 更新日历视图
+            updateCalendarView(filtered);
+
+            // 更新列表视图
+            updateListView(filtered);
+
+            // 更新结果数量
+            updateResultCount(filtered);
+
+            // 更新筛选标签
+            updateFilterTags();
+
+            // 更新移动端筛选状态
+            updateMobileFilterStatus();
+
+            // 更新日期高亮状态
+            updateDateHighlight();
+
+            // 更新标题标签
+            updateMonthLabel();
+        }
+
+        // 更新标题标签
+        function updateMonthLabel() {
+            const label = document.getElementById('monthLabel');
+            if (currentFilters.day !== null) {
+                // 查找对应日期的详细信息
+                const dateInfo = weekDates.find(d => d.day === currentFilters.day);
+                if (dateInfo) {
+                    // 格式化月份和日期为两位数（如 01-21）
+                    const monthStr = String(dateInfo.month).padStart(2, '0');
+                    const dateStr = String(dateInfo.date).padStart(2, '0');
+                    label.textContent = `📅 ${monthStr}-${dateStr}的活动`;
+                } else {
+                    label.textContent = `📅 ${dayNames[currentFilters.day]}的活动`;
+                }
+            } else {
+                label.textContent = '📅 本周活动';
+            }
+        }
+
+        function updateCalendarView(filtered) {
+            const grid = document.getElementById('calendarGrid');
+            let html = '';
+
+            // 生成7天的日历单元格
+            for (let day = 1; day <= 6; day++) {
+                html += createDayCell(day, filtered);
+            }
+            html += createDayCell(0, filtered); // 周日
+
+            grid.innerHTML = html;
+
+            // 为每一天添加点击事件
+            document.querySelectorAll('.day-cell').forEach(cell => {
+                cell.addEventListener('click', function() {
+                    const day = parseInt(this.getAttribute('data-day'));
+                    toggleDayFilter(day);
+                });
+
+                // 添加hover效果提示
+                cell.style.cursor = 'pointer';
+            });
+        }
+
+        function createDayCell(day, filtered) {
+            // 使用 allActivities 来判断该日期是否真的有活动，而不是 filtered
+            const allDayActivities = allActivities.filter(act => act.day === day);
+            const isSelectedDay = currentFilters.day === day;
+            const isToday = isDayToday(day);
+            const isDimmed = currentFilters.day !== null && currentFilters.day !== day;
+
+            // 如果是选中的日期，显示筛选后的活动；否则显示该日期的所有活动
+            let activitiesToShow = isSelectedDay ? filtered : allDayActivities;
+
+            // 按时间排序（较早的活动排在前面）
+            activitiesToShow = activitiesToShow.sort((a, b) => {
+                const timeA = a.time || a.startTime || '99:99';
+                const timeB = b.time || b.startTime || '99:99';
+                return timeA.localeCompare(timeB);
+            });
+
+            let chipsHtml = '';
+
+            if (activitiesToShow.length === 0) {
+                // 没有活动时显示提示
+                chipsHtml = `
+                    <div style="text-align:center;color:#999;font-size:12px;padding:20px 0;">
+                        <div>今日无活动</div>
+                    </div>
+                `;
+            } else {
+                chipsHtml = activitiesToShow.map(act => `
+                    <div class="activity-chip"
+                         style="border-left-color: ${getActivityColor(act.id)}"
+                         onclick='showActivityDetail(${act.id})'>
+                        <div style="color: #666;">${act.time || '灵活时间'}</div>
+                        <div style="font-weight: 500;" class="chip-title">${act.title}</div>
+                    </div>
+                `).join('');
+            }
+
+            return `
+                <div class="day-cell ${isToday ? 'today' : ''} ${isSelectedDay ? 'selected-day' : ''} ${isDimmed ? 'dimmed' : ''}" data-day="${day}">
+                    <div class="day-name">${isToday ? '今天' : dayNames[day]}</div>
+                    ${chipsHtml}
+                </div>
+            `;
+        }
+
+        function updateListView(filtered) {
+            const container = document.getElementById('scheduleList');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:#999;">没有找到符合条件的活动</div>';
+                return;
+            }
+
+            let html = filtered.map(act => {
+                const dayName = act.day !== null ? dayNames[act.day] : '灵活时间';
+                const isDaySelected = act.day === currentFilters.day;
+                const dayFilterHtml = act.day !== null
+                    ? `<span class="day-filter-chip ${isDaySelected ? 'highlight' : ''}" onclick="event.stopPropagation(); toggleDayFilter(${act.day});" title="点击筛选${dayName}">${dayName}</span>`
+                    : `<span style="color: #666;">${dayName}</span>`;
+
+                return `
+                    <div class="schedule-item" onclick='showActivityDetail(${act.id})' style="cursor: pointer;">
+                        <div class="schedule-item-header">
+                            <span class="category-tag" style="background: ${categoryColors[act.category] || '#667eea'}">${act.category}</span>
+                            ${dayFilterHtml}
+                        </div>
+                        <div class="schedule-item-title">${act.title}</div>
+                        <div class="schedule-item-meta">
+                            <div>📍 ${act.location}</div>
+                            <div>⏰ ${act.time || '灵活时间'}</div>
+                            <div>💰 ${act.price}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+        }
+
+        function updateResultCount(filtered) {
+            const hasFilter = currentFilters.category !== '全部' ||
+                             currentFilters.price !== '全部' ||
+                             currentFilters.day !== null ||
+                             currentFilters.search;
+
+            document.getElementById('totalCount').textContent =
+                hasFilter ? filtered.length : allActivities.length;
+        }
+
+        function updateFilterTags() {
+            const container = document.getElementById('activeFilters');
+            container.innerHTML = '';
+
+            const hasFilter = currentFilters.category !== '全部' ||
+                             currentFilters.price !== '全部' ||
+                             currentFilters.day !== null ||
+                             currentFilters.search;
+
+            if (!hasFilter) {
+                container.classList.remove('show');
+                return;
+            }
+
+            container.classList.add('show');
+
+            // 日期标签
+            if (currentFilters.day !== null) {
+                container.innerHTML += `<div class="filter-tag"><span>日期: ${dayNames[currentFilters.day]}</span><button onclick="clearFilter('day')">✕</button></div>`;
+            }
+
+            // 分类标签
+            if (currentFilters.category !== '全部') {
+                container.innerHTML += `<div class="filter-tag"><span>分类: ${currentFilters.category}</span><button onclick="clearFilter('category')">✕</button></div>`;
+            }
+
+            // 价格标签
+            if (currentFilters.price !== '全部') {
+                container.innerHTML += `<div class="filter-tag"><span>价格: ${currentFilters.price}</span><button onclick="clearFilter('price')">✕</button></div>`;
+            }
+
+            // 搜索标签
+            if (currentFilters.search) {
+                container.innerHTML += `<div class="filter-tag"><span>搜索: ${currentFilters.search}</span><button onclick="clearSearch()">✕</button></div>`;
+            }
+
+            // 清除全部按钮
+            container.innerHTML += '<button class="clear-all-btn" onclick="clearAllFilters()">清除全部</button>';
+        }
+
+        // 更新移动端筛选状态条
+        function updateMobileFilterStatus() {
+            if (!isMobile()) {
+                document.getElementById('mobileFilterStatus').style.display = 'none';
+                return;
+            }
+
+            const statusEl = document.getElementById('mobileFilterStatus');
+            const categoryEl = document.getElementById('mobileCategoryStatus');
+            const priceEl = document.getElementById('mobilePriceStatus');
+
+            // 显示或隐藏状态条
+            const hasFilter = currentFilters.category !== '全部' ||
+                             currentFilters.price !== '全部' ||
+                             currentFilters.day !== null;
+
+            statusEl.style.display = hasFilter ? 'flex' : 'none';
+
+            // 更新分类
+            categoryEl.textContent = currentFilters.category;
+            if (currentFilters.category === '全部') {
+                categoryEl.style.color = '#999';
+            } else {
+                categoryEl.style.color = '#667eea';
+            }
+
+            // 更新价格
+            priceEl.textContent = currentFilters.price;
+            if (currentFilters.price === '全部') {
+                priceEl.style.color = '#999';
+            } else {
+                priceEl.style.color = '#667eea';
+            }
+        }
+
+        function updateDateHighlight() {
+            // 更新日期表头的高亮状态
+            document.querySelectorAll('.date-cell-header').forEach(header => {
+                const day = parseInt(header.getAttribute('data-day'));
+                if (day === currentFilters.day) {
+                    header.classList.add('selected-day');
+                } else {
+                    header.classList.remove('selected-day');
+                }
+            });
+
+            // 更新日历单元格的选中状态
+            document.querySelectorAll('.day-cell').forEach(cell => {
+                const day = parseInt(cell.getAttribute('data-day'));
+                if (day === currentFilters.day) {
+                    cell.classList.add('selected-day');
+                } else {
+                    cell.classList.remove('selected-day');
+                }
+            });
+        }
+
+        function isDayToday(day) {
+            const today = new Date().getDay();
+            return today === day;
+        }
+
+        // =====================================================
+        // Tab 切换
+        // =====================================================
+
+        function switchTab(index) {
+            // 移除所有 active 类
+            document.querySelectorAll('.tab-item').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+
+            // 添加 active 类到当前 Tab
+            document.querySelectorAll('.tab-item')[index].classList.add('active');
+            document.getElementById('tab-' + index).classList.add('active');
+        }
+
+        // =====================================================
+        // 清除筛选
+        // =====================================================
+
+        function clearFilter(filterKey) {
+            if (filterKey === 'day') {
+                currentFilters.day = null;
+            } else if (filterKey === 'category') {
+                currentFilters.category = '全部';
+                document.querySelectorAll('#categoryChips .filter-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                    if (chip.textContent.trim() === '全部') chip.classList.add('active');
+                });
+            } else if (filterKey === 'price') {
+                currentFilters.price = '全部';
+                const priceGroup = document.querySelectorAll('.filter-group')[1];
+                priceGroup.querySelectorAll('.filter-chip').forEach(chip => {
+                    chip.classList.remove('active');
+                    if (chip.textContent.trim() === '全部') chip.classList.add('active');
+                });
+            }
+
+            updateViews();
+        }
+
+        function clearSearch() {
+            currentFilters.search = '';
+            document.getElementById('searchInput').value = '';
+            updateViews();
+        }
+
+        function clearAllFilters() {
+            currentFilters = {
+                category: '全部',
+                price: '全部',
+                day: null,
+                search: ''
+            };
+
+            // 重置 UI
+            document.querySelectorAll('#categoryChips .filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.textContent.trim() === '全部') chip.classList.add('active');
+            });
+
+            const priceGroup = document.querySelectorAll('.filter-group')[1];
+            priceGroup.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.textContent.trim() === '全部') chip.classList.add('active');
+            });
+
+            document.getElementById('searchInput').value = '';
+
+            updateViews();
+        }
+
+        // =====================================================
+        // 周导航（简化版）
+        // =====================================================
+
+        function navigateWeek(direction) {
+            // 简化实现：显示提示
+            alert('周导航功能开发中...\n\n当前展示的是本周活动。\n提示：您可以点击日期表头筛选特定日期的活动。');
+        }
+
+        function goToThisWeek() {
+            // 回到本周 = 重置为"全部"状态，显示所有活动
+            currentFilters.day = null;
+            updateViews();
+        }
+
+        // =====================================================
+        // 活动详情弹窗
+        // =====================================================
+
+        function showActivityDetail(activityId) {
+            const activity = allActivities.find(a => a.id == activityId);
+            if (!activity) {
+                console.warn('活动未找到:', activityId);
+                return;
+            }
+
+            document.getElementById('modalTitle').textContent = activity.title;
+            document.getElementById('modalCategory').textContent = activity.category;
+            document.getElementById('modalLocation').textContent = activity.location;
+            document.getElementById('modalTime').textContent = activity.time || '灵活时间';
+            document.getElementById('modalPrice').textContent = activity.price;
+            document.getElementById('modalFrequency').textContent = activity.frequency === 'weekly' ? '每周' : '一次性';
+            document.getElementById('modalDescription').textContent = activity.description || '暂无描述';
+
+            // 处理链接按钮
+            const modalFooter = document.getElementById('modalFooter');
+            const modalLinkButton = document.getElementById('modalLinkButton');
+
+            if (activity.url && activity.url.trim() !== '') {
+                // 有链接，显示按钮
+                modalFooter.style.display = 'block';
+                modalLinkButton.href = activity.url.trim();
+            } else {
+                // 没有链接，隐藏按钮
+                modalFooter.style.display = 'none';
+            }
+
+            document.getElementById('activityModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('activityModal').classList.remove('active');
+        }
+
+        // 点击遮罩关闭弹窗
+        document.getElementById('activityModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ESC 键关闭弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // =====================================================
+        // 初始化
+        // =====================================================
+
+        // 生成当前周的日期数据
+        function generateWeekDates() {
+            const today = new Date();
+            const currentDay = today.getDay(); // 0=周日, 1=周一, ...
+
+            // 计算到本周一的天数差
+            const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
+
+            // 获取本周一的日期
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - daysToMonday);
+
+            // 生成7天的日期
+            const weekDates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+
+                weekDates.push({
+                    day: i === 6 ? 0 : i + 1, // 0=周日, 1-6=周一到周六
+                    date: date.getDate(),
+                    month: date.getMonth() + 1,
+                    dayName: i === 6 ? '周日' : ['周一', '周二', '周三', '周四', '周五', '周六'][i],
+                    isToday: date.getDate() === today.getDate() &&
+                              date.getMonth() === today.getMonth() &&
+                              date.getFullYear() === today.getFullYear()
+                });
+            }
+
+            return weekDates;
+        }
+
+        // 更新日期表头
+        function updateDateHeaders() {
+            weekDates = generateWeekDates(); // 保存到全局变量
+            const headerContainer = document.querySelector('.date-grid-header');
+
+            if (!headerContainer) return;
+
+            let html = '';
+            weekDates.forEach(dateInfo => {
+                const dateText = `${dateInfo.date} ${dateInfo.dayName}`; // 格式: "19 周一"
+                const todayClass = dateInfo.isToday ? ' today-header' : '';
+
+                html += `
+                    <div class="date-cell-header ${todayClass}"
+                         data-day="${dateInfo.day}"
+                         onclick="toggleDayFilter(${dateInfo.day})"
+                         title="点击筛选${dateInfo.dayName}">
+                        ${dateText}
+                    </div>
+                `;
+            });
+
+            headerContainer.innerHTML = html;
+        }
+
+        // 页面加载时获取数据
+        document.addEventListener('DOMContentLoaded', function() {
+            // 更新日期表头
+            updateDateHeaders();
+
+            // 移动端：将今天滚动到视图中心
+            if (window.innerWidth <= 768) {
+                const todayHeader = document.querySelector('.date-cell-header.today-header');
+                if (todayHeader) {
+                    // 延迟一点确保DOM完全渲染
+                    setTimeout(() => {
+                        todayHeader.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest',
+                            inline: 'center'
+                        });
+                    }, 100);
+                }
+            }
+
+            // 获取活动数据
+            fetchActivities();
+
+            // 搜索输入框回车监听
+            document.getElementById('searchInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+        });
+    </script>
+
+    <!-- 移动端筛选切换按钮（仅移动端显示） -->
+    <button class="filter-toggle-btn" id="filterToggleBtn" onclick="toggleMobileFilter()" style="display: none;">
+        <span id="filterIcon">⚙️</span>
+    </button>
+
+    <script>
+        // =====================================================
+        // 移动端筛选交互
+        // =====================================================
+
+        // 检测是否为移动端
+        function isMobile() {
+            return window.innerWidth <= 768;
+        }
+
+        // 初始化移动端筛选按钮
+        function initMobileFilter() {
+            const btn = document.getElementById('filterToggleBtn');
+            if (isMobile()) {
+                btn.style.display = 'flex';
+            } else {
+                btn.style.display = 'none';
+            }
+        }
+
+        // 切换筛选器展开/折叠
+        function toggleMobileFilter() {
+            const filterSection = document.querySelector('.filter-section');
+            const btn = document.getElementById('filterToggleBtn');
+            const icon = document.getElementById('filterIcon');
+
+            filterSection.classList.toggle('expanded');
+            const isExpanded = filterSection.classList.contains('expanded');
+
+            // 更新按钮状态
+            btn.classList.toggle('active', isExpanded);
+            icon.textContent = isExpanded ? '✕' : '⚙️';
+
+            // 触觉反馈
+            if (navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+
+            // 更新按钮提示
+            btn.title = isExpanded ? '收起筛选' : '展开筛选';
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initMobileFilter();
+
+            // 监听窗口大小变化
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(initMobileFilter, 250);
+            });
+        });
+    </script>
+</body>
 </html>

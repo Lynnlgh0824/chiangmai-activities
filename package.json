@@ -1,40 +1,36 @@
 {
   "name": "chiengmai-activities",
   "version": "2.0.0",
-  "description": "清迈活动管理平台 - 整合版",
-  "private": true,
+  "description": "清迈活动查询平台 - Pure HTML Version",
+  "type": "module",
   "scripts": {
+    "start": "node server.cjs",
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "nodemon server.cjs",
     "dev:client": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "node server.cjs",
-    "check": "./quick-check.sh",
-    "lint": "eslint src/**/*.{js,jsx} --max-warnings=0",
     "test": "vitest",
     "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "add-ids": "node scripts/add-unique-ids.mjs",
+    "add-numbers": "node scripts/add-activity-numbers.mjs",
+    "export-data": "node scripts/export-excel-to-json.mjs",
+    "export-to-excel": "node scripts/export-json-to-excel.mjs",
+    "validate-data": "node examples/validation-example.mjs",
+    "import-excel": "node scripts/import-excel-enhanced.mjs",
+    "watch-excel": "node scripts/watch-excel.mjs"
   },
-  "keywords": [
-    "express",
-    "react",
-    "vite",
-    "chiangmai",
-    "activities"
-  ],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "axios": "^1.13.2",
-    "dotenv": "^17.2.3",
-    "express": "^4.19.2",
-    "multer": "^2.0.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "axios": "^1.7.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.1",
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
@@ -43,7 +39,14 @@
     "concurrently": "^8.2.0",
     "jsdom": "^27.4.0",
     "nodemon": "^3.1.0",
-    "vite": "5.4.11",
+    "vite": "^5.0.0",
     "vitest": "^4.0.18"
-  }
+  },
+  "keywords": [
+    "chiangmai",
+    "activities",
+    "thailand"
+  ],
+  "author": "",
+  "license": "ISC"
 }

@@ -1,0 +1,380 @@
+import { useState, useEffect, useMemo } from 'react'
+import axios from 'axios'
+import { getCategories } from './data/activities'
+import './App.css'
+
+// API 基础地址
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+
+// API 客户端
+const api = axios.create({
+  baseURL: `${API_BASE}/api`,
+  timeout: 10000
+})
+
+function App() {
+  const [activities, setActivities] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('全部')
+  const [priceFilter, setPriceFilter] = useState('全部')
+  const [viewMode, setViewMode] = useState('calendar') // 'calendar' or 'list'
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => {
+    // 初始化到本周的周一
+    const today = new Date()
+    const day = today.getDay()
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1)
+    const monday = new Date(today.setDate(diff))
+    monday.setHours(0, 0, 0, 0)
+    return monday
+  })
+
+  const categories = getCategories()
+  const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+
+  // 获取活动数据
+  useEffect(() => {
+    fetchActivities()
+  }, [])
+
+  const fetchActivities = async () => {
+    try {
+      const response = await api.get('/activities', {
+        params: {
+          status: 'active',
+          limit: 1000
+        }
+      })
+      setActivities(response.data.data)
+      setLoading(false)
+    } catch (error) {
+      console.error('获取活动数据失败:', error)
+      setActivities([])
+      setLoading(false)
+    }
+  }
+
+  // 筛选活动
+  const filteredActivities = useMemo(() => {
+    let result = activities
+
+    // 搜索筛选
+    if (searchTerm) {
+      result = result.filter(activity =>
+        activity.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        activity.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        activity.location?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+
+    // 分类筛选
+    if (selectedCategory !== '全部') {
+      result = result.filter(activity => activity.category === selectedCategory)
+    }
+
+    // 价格筛选
+    if (priceFilter === '免费') {
+      result = result.filter(activity =>
+        activity.price === '免费' || activity.price.includes('免费')
+      )
+    } else if (priceFilter === '1500฿↓') {
+      result = result.filter(activity => {
+        const price = parseInt(activity.price.replace(/[^\d]/g, '')) || 0
+        return !activity.price.includes('免费') && price < 1500
+      })
+    } else if (priceFilter === '1500฿↑') {
+      result = result.filter(activity => {
+        const price = parseInt(activity.price.replace(/[^\d]/g, '')) || 0
+        return price >= 1500
+      })
+    }
+
+    return result
+  }, [activities, searchTerm, selectedCategory, priceFilter])
+
+  // 获取本周的活动
+  const getWeekActivities = () => {
+    const weekEnd = new Date(currentWeekStart)
+    weekEnd.setDate(weekEnd.getDate() + 6)
+
+    const weekActivities = {}
+
+    // 初始化7天
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(currentWeekStart)
+      date.setDate(date.getDate() + i)
+      const dateStr = date.toISOString().split('T')[0]
+      weekActivities[dateStr] = []
+    }
+
+    // 分配活动到对应日期
+    filteredActivities.forEach(activity => {
+      if (activity.date) {
+        const activityDate = new Date(activity.date)
+        const dateStr = activityDate.toISOString().split('T')[0]
+        if (weekActivities[dateStr]) {
+          weekActivities[dateStr].push(activity)
+        }
+      }
+    })
+
+    return weekActivities
+  }
+
+  // 周导航
+  const goToPrevWeek = () => {
+    const newDate = new Date(currentWeekStart)
+    newDate.setDate(newDate.getDate() - 7)
+    setCurrentWeekStart(newDate)
+  }
+
+  const goToNextWeek = () => {
+    const newDate = new Date(currentWeekStart)
+    newDate.setDate(newDate.getDate() + 7)
+    setCurrentWeekStart(newDate)
+  }
+
+  const goToThisWeek = () => {
+    const today = new Date()
+    const day = today.getDay()
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1)
+    const monday = new Date(today.setDate(diff))
+    monday.setHours(0, 0, 0, 0)
+    setCurrentWeekStart(monday)
+  }
+
+  // 格式化日期
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const targetDate = new Date(dateStr)
+    targetDate.setHours(0, 0, 0, 0)
+
+    const diffTime = targetDate - today
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    if (diffDays === 0) {
+      return '今天'
+    } else if (diffDays === 1) {
+      return '明天'
+    }
+    return `${date.getMonth() + 1}月${date.getDate()}日`
+  }
+
+  // 获取分类颜色
+  const getCategoryColor = (category) => {
+    const colors = {
+      '瑜伽': '#FF6B6B',
+      '冥想': '#4ECDC4',
+      '户外探险': '#FFE66D',
+      '文化艺术': '#95E1D3',
+      '美食体验': '#F38181',
+      '节庆活动': '#AA96DA',
+      '其他': '#667eea'
+    }
+    return colors[category] || '#667eea'
+  }
+
+  const weekActivities = getWeekActivities()
+  const weekDates = []
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(currentWeekStart)
+    date.setDate(date.getDate() + i)
+    weekDates.push(date.toISOString().split('T')[0])
+  }
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  if (loading) {
+    return (
+      <div className="app">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>加载中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="app">
+      {/* 头部导航栏 */}
+      <header className="main-header">
+        <div className="header-content-wrapper">
+          <div className="header-left">
+            <h1 className="site-title">✨ 清迈活动探索</h1>
+          </div>
+          <div className="header-right">
+            <div className="search-container">
+              <input
+                type="text"
+                className="search-input"
+                placeholder="搜索活动、地点、关键词..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <button className="search-button">搜索</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* 分类筛选区 */}
+      <div className="filter-section">
+        <div className="filter-row">
+          <div className="filter-group">
+            <span className="filter-label">分类:</span>
+            <div className="filter-buttons">
+              {categories.map(cat => (
+                <button
+                  key={cat}
+                  className={`filter-btn ${selectedCategory === cat ? 'active' : ''}`}
+                  onClick={() => setSelectedCategory(cat)}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-group">
+            <span className="filter-label">价格:</span>
+            <div className="filter-buttons">
+              {['全部', '免费', '1500฿↓', '1500฿↑'].map(price => (
+                <button
+                  key={price}
+                  className={`filter-btn ${priceFilter === price ? 'active' : ''}`}
+                  onClick={() => setPriceFilter(price)}
+                >
+                  {price}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 视图切换区 */}
+      <div className="view-toggle-section">
+        <div className="view-tabs">
+          <button
+            className={`view-tab ${viewMode === 'calendar' ? 'active' : ''}`}
+            onClick={() => setViewMode('calendar')}
+          >
+            <span className="tab-icon">📅</span>
+            日历视图
+          </button>
+          <button
+            className={`view-tab ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+          >
+            <span className="tab-icon">📋</span>
+            列表视图
+          </button>
+        </div>
+      </div>
+
+      {/* 日期导航区 */}
+      {viewMode === 'calendar' && (
+        <div className="date-navigation">
+          <div className="month-label">
+            {currentWeekStart.getFullYear()}年{currentWeekStart.getMonth() + 1}月
+          </div>
+          <div className="nav-buttons">
+            <button className="nav-btn" onClick={goToPrevWeek}>
+              ← 上一周
+            </button>
+            <button className="nav-btn" onClick={goToThisWeek}>
+              回到本周
+            </button>
+            <button className="nav-btn" onClick={goToNextWeek}>
+              下一周 →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 主内容区 */}
+      <div className="main-content">
+        {viewMode === 'calendar' ? (
+          /* 周日历视图 */
+          <div className="calendar-view">
+            <div className="week-grid">
+              {weekDates.map((dateStr, idx) => {
+                const date = new Date(dateStr)
+                const isToday = date.toDateString() === today.toDateString()
+                const dayActivities = weekActivities[dateStr] || []
+                const dayName = dayNames[date.getDay()]
+
+                return (
+                  <div key={dateStr} className="day-column">
+                    <div className={`day-header ${isToday ? 'today' : ''}`}>
+                      <div className="day-date">{date.getDate()}</div>
+                      <div className="day-name">{dayName}</div>
+                      {isToday && <div className="today-badge">今天</div>}
+                    </div>
+                    <div className="day-activities">
+                      {dayActivities.map(activity => (
+                        <div
+                          key={activity.id || activity._id}
+                          className="activity-card-mini"
+                          style={{ borderLeftColor: getCategoryColor(activity.category) }}
+                        >
+                          <div className="activity-time">{activity.time}</div>
+                          <div className="activity-title">{activity.title}</div>
+                          <div className="activity-location">📍 {activity.location}</div>
+                          <div className="activity-price">{activity.price}</div>
+                        </div>
+                      ))}
+                      {dayActivities.length === 0 && (
+                        <div className="no-activities">暂无活动</div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ) : (
+          /* 列表视图 */
+          <div className="list-view">
+            <div className="activities-list">
+              {filteredActivities.map(activity => (
+                <div
+                  key={activity.id || activity._id}
+                  className="activity-item"
+                  style={{ borderLeftColor: getCategoryColor(activity.category) }}
+                >
+                  <div className="activity-item-header">
+                    <div className="activity-item-time">{activity.time}</div>
+                    <div className="activity-item-category">{activity.category}</div>
+                  </div>
+                  <div className="activity-item-title">{activity.title}</div>
+                  <div className="activity-item-meta">
+                    <span>📅 {formatDate(activity.date)}</span>
+                    <span>📍 {activity.location}</span>
+                    <span className="activity-item-price">{activity.price}</span>
+                  </div>
+                </div>
+              ))}
+              {filteredActivities.length === 0 && (
+                <div className="no-results">
+                  <p>没有找到符合条件的活动</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 活动统计 */}
+      <div className="stats-bar">
+        共 <span className="highlight">{filteredActivities.length}</span> 个活动
+      </div>
+    </div>
+  )
+}
+
+export default App

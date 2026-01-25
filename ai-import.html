@@ -299,33 +299,57 @@
         <div class="divider" style="margin: 20px 0; text-align: center; color: #999;">— 或 —</div>
 
         <div class="tips">
-          <p><strong>方法 1: 粘贴文本</strong></p>
+          <p><strong>方法 1: 粘贴单个活动</strong></p>
           <ol>
             <li>复制活动文本（Ctrl+C / Cmd+C）</li>
             <li>粘贴到下方输入框</li>
-            <li>点击"AI 智能解析"</li>
+            <li>点击"单个解析"按钮</li>
           </ol>
 
-          <p style="margin-top: 15px;"><strong>方法 2: 上传截图</strong></p>
+          <p style="margin-top: 15px;"><strong>方法 2: 批量粘贴多个活动 ⭐</strong></p>
+          <ol>
+            <li>复制多个活动的文本（可直接粘贴聊天记录、文档等）</li>
+            <li>粘贴到下方输入框</li>
+            <li>点击"🚀 批量智能解析"按钮</li>
+            <li>系统会自动识别并分割每个活动</li>
+          </ol>
+          <p style="color: #667eea; margin-top: 10px;">💡 提示：批量模式会自动识别活动边界，格式可以不统一、不规律</p>
+
+          <p style="margin-top: 15px;"><strong>方法 3: 上传截图</strong></p>
           <ol>
             <li>上传活动截图或照片</li>
             <li>查看图片后，手动复制文字</li>
             <li>粘贴到输入框进行解析</li>
           </ol>
-          <p style="color: #667eea; margin-top: 10px;">💡 提示：上传图片后可以查看文字内容，然后复制粘贴到下方输入框</p>
         </div>
 
         <textarea id="inputText" placeholder="在此粘贴活动文本...
 
-示例：
+【单个活动示例】
 清迈流瑜伽早课
 时间：每周一三五 9:00-11:00
 地点：宁曼路瑜伽馆
 价格：500฿/节
-适合所有级别的瑜伽爱好者"></textarea>
+
+【批量活动示例 - 可直接粘贴多个活动】
+清迈流瑜伽早课
+时间：每周一三五 9:00-11:00
+地点：宁曼路瑜伽馆
+价格：500฿/节
+
+语言交换
+时间：每周二 19:00-23:00
+地点：Moat House
+价格：walkin
+
+泰拳体验课
+时间灵活
+清迈多处拳馆
+免费体验"></textarea>
 
         <div class="button-group">
-          <button class="parse-btn" onclick="parseText()">🤖 AI 智能解析</button>
+          <button class="parse-btn" onclick="parseText()">🤖 单个解析</button>
+          <button class="parse-btn" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);" onclick="parseBatch()">🚀 批量智能解析</button>
           <button class="clear-btn" onclick="clearAll()">🗑️ 清空</button>
         </div>
       </div>

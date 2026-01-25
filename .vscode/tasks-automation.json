@@ -1,0 +1,121 @@
+{
+  "automation_plan": {
+    "title": "Chiengmai 项目自动化方案",
+    "created": "2026-01-26",
+
+    "fully_automated": {
+      "description": "这些任务可以完全自动执行，只需运行脚本",
+      "tasks": [
+        {
+          "name": "创建 Excel 导出脚本",
+          "file": "scripts/export-json-to-excel.mjs",
+          "auto_generate": true,
+          "estimated_time": "30分钟",
+          "dependencies": ["xlsx"]
+        },
+        {
+          "name": "实现数据验证",
+          "file": "scripts/lib/validator.mjs",
+          "auto_generate": true,
+          "estimated_time": "45分钟"
+        },
+        {
+          "name": "文件监听自动化",
+          "file": "scripts/watch-excel.mjs",
+          "auto_generate": true,
+          "estimated_time": "30分钟",
+          "dependencies": ["chokidar"]
+        }
+      ]
+    },
+
+    "semi_automated": {
+      "description": "需要初始配置，之后自动运行",
+      "tasks": [
+        {
+          "name": "部署到 Vercel",
+          "steps": [
+            "1. 注册账号（人工）",
+            "2. 连接GitHub（人工）",
+            "3. 以后每次推送代码自动部署（自动）"
+          ]
+        },
+        {
+          "name": "部署到 Render",
+          "steps": [
+            "1. 首次配置（人工）",
+            "2. 后续自动部署（自动）"
+          ]
+        }
+      ]
+    },
+
+    "manual_only": {
+      "description": "必须人工完成的任务",
+      "tasks": [
+        "决策和规划",
+        "测试验证",
+        "问题调试",
+        "用户体验优化"
+      ]
+    },
+
+    "automation_tools": {
+      "code_generation": {
+        "tool": "Claude Code / AI 助手",
+        "capability": "根据需求生成完整代码",
+        "example": "创建一个导出JSON到Excel的脚本"
+      },
+      "task_scheduling": {
+        "options": [
+          {
+            "name": "npm scripts",
+            "usage": "package.json 中定义命令",
+            "example": "\"export-to-excel\": \"node scripts/export-json-to-excel.mjs\""
+          },
+          {
+            "name": "GitHub Actions",
+            "usage": "代码推送时自动运行",
+            "example": ".github/workflows/deploy.yml"
+          },
+          {
+            "name": "cron jobs",
+            "usage": "定时执行任务",
+            "example": "0 2 * * * npm run backup"
+          }
+        ]
+      },
+      "continuous_deployment": {
+        "vercel": {
+          "trigger": "git push",
+          "action": "自动构建和部署",
+          "setup": "一次性配置"
+        },
+        "render": {
+          "trigger": "git push",
+          "action": "自动重启服务",
+          "setup": "连接GitHub仓库"
+        }
+      }
+    },
+
+    "cannot_automate": {
+      "reason": "AI 需要你的指导和决策",
+      "examples": [
+        "休眠后继续工作 ❌ - 电脑休眠会停止所有进程",
+        "自动学习新知识 ❌ - AI 只能基于已有知识生成代码",
+        "自动判断质量 ⚠️ - 需要人工测试和验证",
+        "解决突发问题 ❌ - 需要调试和分析"
+      ]
+    },
+
+    "recommended_workflow": {
+      "step1": "保持电脑唤醒（或使用服务器）",
+      "step2": "让 AI 生成代码",
+      "step3": "运行自动化脚本",
+      "step4": "人工测试验证",
+      "step5": "配置 CI/CD 自动部署",
+      "repeat": "循环执行"
+    }
+  }
+}

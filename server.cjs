@@ -95,7 +95,37 @@ app.get('/api/health', (req, res) => {
 
 // GET /api/activities - 获取活动列表（兼容前端）
 app.get('/api/activities', (req, res) => {
-  const items = readData();
+  const rawItems = readData();
+
+  // 字段映射：将中文字段名转换为英文字段名
+  const items = rawItems.map(item => {
+    // 处理星期字段：将字符串转换为数组
+    const weekdaysStr = item['星期*'] || item.weekdays;
+    const weekdaysArray = weekdaysStr && typeof weekdaysStr === 'string'
+      ? weekdaysStr.split(',').map(s => s.trim())
+      : (Array.isArray(weekdaysStr) ? weekdaysStr : []);
+
+    return {
+      id: item.id,
+      activityNumber: (item['活动编号'] || item.activityNumber || '').replace('#', ''),
+      title: item['活动标题*'] || item.title,
+      category: item['分类*'] || item.category,
+      location: item['地点名称*'] || item.location,
+      time: item['时间*'] || item.time,
+      weekdays: weekdaysArray,
+      price: item['价格显示'] || item.price,
+      description: item['活动描述*'] || item.description,
+      status: item['状态'] || item.status || '草稿',
+      requireBooking: item['需要预约'] || item.requireBooking,
+      flexibleTime: item['灵活时间'] || item.flexibleTime,
+      duration: item['持续时间'] || item.duration,
+      minPrice: item['最低价格'] || item.minPrice,
+      maxPrice: item['最高价格'] || item.maxPrice,
+      maxParticipants: item['最大人数'] || item.maxParticipants,
+      timeInfo: item['时间信息'] || item.timeInfo,
+      sortOrder: item['序号'] || item.sortOrder
+    };
+  });
 
   // 支持筛选参数
   const { category, search, priceMin, priceMax, status, page = 1, limit = 10, sortBy, sortOrder = 'asc' } = req.query;
@@ -299,7 +329,38 @@ app.get('/api/activities/stats/categories', (req, res) => {
 
 // GET /api/items - 获取所有数据
 app.get('/api/items', (req, res) => {
-  const items = readData();
+  const rawItems = readData();
+
+  // 字段映射：将中文字段名转换为英文字段名
+  const items = rawItems.map(item => {
+    // 处理星期字段：将字符串转换为数组
+    const weekdaysStr = item['星期*'] || item.weekdays;
+    const weekdaysArray = weekdaysStr && typeof weekdaysStr === 'string'
+      ? weekdaysStr.split(',').map(s => s.trim())
+      : (Array.isArray(weekdaysStr) ? weekdaysStr : []);
+
+    return {
+      id: item.id,
+      activityNumber: (item['活动编号'] || item.activityNumber || '').replace('#', ''),
+      title: item['活动标题*'] || item.title,
+      category: item['分类*'] || item.category,
+      location: item['地点名称*'] || item.location,
+      time: item['时间*'] || item.time,
+      weekdays: weekdaysArray,
+      price: item['价格显示'] || item.price,
+      description: item['活动描述*'] || item.description,
+      status: item['状态'] || item.status || '草稿',
+      requireBooking: item['需要预约'] || item.requireBooking,
+      flexibleTime: item['灵活时间'] || item.flexibleTime,
+      duration: item['持续时间'] || item.duration,
+      minPrice: item['最低价格'] || item.minPrice,
+      maxPrice: item['最高价格'] || item.maxPrice,
+      maxParticipants: item['最大人数'] || item.maxParticipants,
+      timeInfo: item['时间信息'] || item.timeInfo,
+      sortOrder: item['序号'] || item.sortOrder
+    };
+  });
+
   res.json({ success: true, data: items });
 });
 
@@ -436,6 +497,119 @@ app.get('/', (req, res) => {
       api: 'http://localhost:3000/api'
     }
   });
+});
+
+// ========== Excel导入导出 API ==========
+
+const XLSX = require('xlsx');
+const { exec } = require('child_process');
+
+/**
+ * 从Excel导入数据到后台
+ */
+app.post('/api/import-excel', async (req, res) => {
+  try {
+    console.log('📥 开始从Excel导入数据...');
+
+    // 使用增强的导入脚本
+    const importScript = exec('node scripts/import-excel-enhanced.mjs', {
+      cwd: __dirname,
+      timeout: 30000
+    });
+
+    let output = '';
+    let error = '';
+
+    importScript.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    importScript.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+
+    importScript.on('close', (code) => {
+      if (code === 0) {
+        console.log('✅ Excel导入成功');
+        res.json({
+          success: true,
+          message: '导入成功',
+          details: output
+        });
+      } else {
+        console.error('❌ Excel导入失败:', error);
+        res.status(500).json({
+          success: false,
+          message: '导入失败: ' + error,
+          details: output
+        });
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ 导入API错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '导入失败: ' + error.message
+    });
+  }
+});
+
+/**
+ * 导出后台数据到Excel
+ */
+app.post('/api/export-excel', async (req, res) => {
+  try {
+    console.log('📤 开始导出数据到Excel...');
+
+    // 使用导出脚本
+    const exportScript = exec('node scripts/export-json-to-excel.mjs', {
+      cwd: __dirname,
+      timeout: 30000
+    });
+
+    let output = '';
+    let error = '';
+
+    exportScript.stdout.on('data', (data) => {
+      output += data.toString();
+    });
+
+    exportScript.stderr.on('data', (data) => {
+      error += data.toString();
+    });
+
+    exportScript.on('close', (code) => {
+      if (code === 0) {
+        console.log('✅ Excel导出成功');
+
+        // 读取生成的Excel文件并发送
+        const excelFile = path.join(__dirname, '清迈活动数据-导出.xlsx');
+
+        if (fs.existsSync(excelFile)) {
+          res.download(excelFile, `清迈活动数据-导出-${new Date().toISOString().slice(0, 10)}.xlsx`);
+        } else {
+          res.status(500).json({
+            success: false,
+            message: 'Excel文件生成失败'
+          });
+        }
+      } else {
+        console.error('❌ Excel导出失败:', error);
+        res.status(500).json({
+          success: false,
+          message: '导出失败: ' + error
+        });
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ 导出API错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '导出失败: ' + error.message
+    });
+  }
 });
 
 // ==================== 飞书集成 ====================

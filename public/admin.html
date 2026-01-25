@@ -435,6 +435,12 @@
                 <a href="/ai-import.html" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
                     🤖 AI 智能导入
                 </a>
+                <button class="btn btn-primary" onclick="importFromExcel()" style="display: inline-flex; align-items: center; gap: 5px;">
+                    📥 导入Excel
+                </button>
+                <button class="btn btn-secondary" onclick="exportToExcel()" style="display: inline-flex; align-items: center; gap: 5px;">
+                    📤 导出Excel
+                </button>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <select id="categoryFilter" class="btn btn-secondary">
@@ -464,7 +470,8 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 50px;">#</th>
+                        <th style="width: 50px;">序号</th>
+                        <th style="width: 80px;">活动编号</th>
                         <th>标题</th>
                         <th style="width: 100px;">分类</th>
                         <th style="width: 120px;">日期</th>
@@ -477,7 +484,7 @@
                 </thead>
                 <tbody id="tableBody">
                     <tr>
-                        <td colspan="9" style="text-align: center; padding: 40px; color: #999;">
+                        <td colspan="10" style="text-align: center; padding: 40px; color: #999;">
                             加载中...
                         </td>
                     </tr>
@@ -496,9 +503,15 @@
 
                 <!-- 基本信息 -->
                 <h3 style="margin: 20px 0 15px 0; color: #667eea;">📋 基本信息</h3>
-                <div class="form-group">
-                    <label for="title">活动标题 *</label>
-                    <input type="text" id="title" name="title" placeholder="请输入活动标题" required>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="activityNumber">活动编号</label>
+                        <input type="text" id="activityNumber" name="activityNumber" placeholder="自动生成" readonly style="background-color: #f5f5f5; cursor: not-allowed;">
+                    </div>
+                    <div class="form-group" style="flex: 2;">
+                        <label for="title">活动标题 *</label>
+                        <input type="text" id="title" name="title" placeholder="请输入活动标题" required>
+                    </div>
                 </div>
 
                 <div class="form-row">
@@ -737,7 +750,7 @@
                 renderTable();
             } catch (error) {
                 console.error('加载失败:', error);
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align: center; color: #999;">加载失败</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" style="text-align: center; color: #999;">加载失败</td></tr>';
             }
         }
 
@@ -757,13 +770,18 @@
             }
 
             if (filteredItems.length === 0) {
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 40px; color: #999;">暂无数据</td></tr>';
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 40px; color: #999;">暂无数据</td></tr>';
                 return;
             }
 
-            document.getElementById('tableBody').innerHTML = filteredItems.map((item, index) => `
+            document.getElementById('tableBody').innerHTML = filteredItems.map((item, index) => {
+                let activityNumber = item.activityNumber || item['活动编号'] || '-';
+                // 去掉#号，只显示数字
+                activityNumber = activityNumber.replace('#', '');
+                return `
                 <tr>
                     <td>${index + 1}</td>
+                    <td><strong>${activityNumber}</strong></td>
                     <td><strong>${escapeHtml(item.title)}</strong></td>
                     <td><span class="category-badge badge-${item.category}">${item.category}</span></td>
                     <td>${item.date || '-'}</td>
@@ -776,7 +794,8 @@
                         <button class="btn btn-danger" onclick="deleteItem('${item.id}')" style="padding: 6px 12px; font-size: 12px;">删除</button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
         }
 
         // 切换 Tab
@@ -929,6 +948,7 @@
 
                 form.reset();
                 safeSetValue('itemId', '');
+                safeSetValue('activityNumber', '');
                 safeSetText('modalTitle', '新增活动');
 
                 // 清空上传的图片列表
@@ -946,7 +966,9 @@
                 safeSetValue('status', 'draft');
 
                 if (item) {
+                    const activityNumber = (item.activityNumber || item['活动编号'] || '').replace('#', '');
                     safeSetText('modalTitle', '编辑活动');
+                    safeSetValue('activityNumber', activityNumber || '-');
                     safeSetValue('itemId', item.id || item._id);
                     safeSetValue('title', item.title || '');
                     safeSetValue('category', item.category || '其他');
@@ -1335,6 +1357,85 @@
                 textarea.addEventListener('input', updateImagesTextarea);
             }
         });
+
+        // ========== Excel导入导出功能 ==========
+
+        // 从Excel导入数据
+        async function importFromExcel() {
+            if (!confirm('确定要从Excel导入数据吗？\n\n这将覆盖后台数据，建议先导出备份。')) {
+                return;
+            }
+
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ 导入中...';
+
+            try {
+                const response = await fetch('/api/import-excel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(`✅ 导入成功！\n\n${result.message}\n\n请刷新页面查看最新数据。`);
+                    loadItems(); // 重新加载数据
+                } else {
+                    alert(`❌ 导入失败\n\n${result.message || '未知错误'}`);
+                }
+            } catch (error) {
+                console.error('导入错误:', error);
+                alert('❌ 导入失败\n\n' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+
+        // 导出数据到Excel
+        async function exportToExcel() {
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ 导出中...';
+
+            try {
+                const response = await fetch('/api/export-excel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // 下载文件
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `清迈活动数据-导出-${new Date().toISOString().slice(0, 10)}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+
+                    alert('✅ 导出成功！\n\n文件已自动下载。');
+                } else {
+                    const result = await response.json();
+                    alert(`❌ 导出失败\n\n${result.message || '未知错误'}`);
+                }
+            } catch (error) {
+                console.error('导出错误:', error);
+                alert('❌ 导出失败\n\n' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
     </script>
 </body>
 </html>

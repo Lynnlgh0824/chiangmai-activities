@@ -1,0 +1,192 @@
+<!--
+🚀 静态部署版本 - 无需后端服务器
+
+使用方法：
+1. 将此文件重命名为 index.html
+2. 确保 data/items.json 在同一目录
+3. 直接部署到 Cloudflare Pages / Vercel / GitHub Pages
+
+特点：
+✅ 无需后端 API
+✅ 数据直接从 JSON 文件读取
+✅ 国内访问速度快
+✅ 部署简单
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清迈活动平台 - Chiengmai Activities</title>
+    <meta name="description" content="探索清迈的精彩活动，瑜伽、冥想、户外探险、文化艺术、美食体验">
+    <meta name="keywords" content="清迈,活动,瑜伽,冥想,户外,文化,美食">
+
+    <!-- 静态部署时需要的配置 -->
+    <script>
+        // API 配置 - 静态部署时使用本地 JSON 文件
+        const API_BASE = './data/items.json';
+
+        // 部署环境检测
+        const DEPLOY_ENV = {
+            isStatic: true,  // 静态部署
+            apiEndpoint: API_BASE
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>✨ 清迈活动探索</h1>
+            <div class="search-section">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input
+                        type="text"
+                        class="search-input"
+                        id="searchInput"
+                        placeholder="搜索活动、地点、关键词..."
+                    >
+                    <!-- 移动端搜索按钮 -->
+                    <button class="search-icon-btn" onclick="performSearch()" aria-label="搜索">
+                        🔍
+                    </button>
+                </div>
+                <button class="search-btn" onclick="performSearch()">搜索</button>
+            </div>
+        </div>
+
+        <!-- 筛选区域 -->
+        <div class="filter-section">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <span class="filter-label">分类:</span>
+                    <div class="filter-chips" id="categoryChips">
+                        <div class="filter-chip active" onclick="setFilter('category', '全部')">全部</div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <span class="filter-label">价格:</span>
+                    <div class="filter-chips">
+                        <div class="filter-chip active" onclick="setFilter('price', '全部')">全部</div>
+                        <div class="filter-chip" onclick="setFilter('price', '免费')">免费</div>
+                        <div class="filter-chip" onclick="setFilter('price', '<500฿')">&lt;500฿</div>
+                        <div class="filter-chip" onclick="setFilter('price', '<1000฿')">&lt;1000฿</div>
+                        <div class="filter-chip" onclick="setFilter('price', '<1500฿')">&lt;1500฿</div>
+                        <div class="filter-chip" onclick="setFilter('price', '>1500฿')">&gt;1500฿</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选条件标签 -->
+        <div class="active-filters" id="activeFilters"></div>
+
+        <!-- Tab导航 -->
+        <div class="tabs-nav">
+            <div class="tab-item active" onclick="switchTab(0)">
+                <span class="tab-icon">📅</span>
+                <span>日历视图</span>
+            </div>
+            <div class="tab-item" onclick="switchTab(1)">
+                <span class="tab-icon">📋</span>
+                <span>列表视图</span>
+            </div>
+        </div>
+
+        <!-- Tab内容 -->
+        <div class="tab-content">
+            <div id="tab-0" class="tab-pane active">
+                <div class="calendar-header">
+                    <div class="nav-row">
+                        <div class="month-label" id="monthLabel">本周活动</div>
+                        <div class="nav-buttons">
+                            <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
+                            <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
+                            <button class="nav-btn" onclick="navigateWeek(1)">下一周 →</button>
+                        </div>
+                    </div>
+                    <div class="date-grid-header">
+                        <!-- 日期表头将通过 JavaScript 动态生成 -->
+                    </div>
+                </div>
+
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- 动态生成日历内容 -->
+                </div>
+            </div>
+
+            <div id="tab-1" class="tab-pane">
+                <div class="schedule-list" id="scheduleList">
+                    <!-- 动态生成列表内容 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选结果数量 -->
+        <div class="results-count" id="resultsCount">
+            <span>共 </span>
+            <span class="count-number" id="totalCount">0</span>
+            <span> 个活动</span>
+        </div>
+
+        <!-- 空状态提示 -->
+        <div class="empty-state" id="emptyState">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">没有找到符合条件的活动</div>
+            <div class="empty-description" id="emptyDescription">
+                试试调整筛选条件，或者搜索其他关键词？
+            </div>
+            <div class="empty-actions">
+                <button class="empty-btn primary" onclick="clearAllFilters()">清除所有筛选</button>
+                <button class="empty-btn" onclick="clearSearch()">清空搜索</button>
+            </div>
+        </div>
+
+        <!-- 活动详情弹窗 -->
+        <div class="modal-overlay" id="activityModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <div class="modal-title" id="modalTitle">活动标题</div>
+                    <button class="modal-close" onclick="closeModal()">✕</button>
+                </div>
+                <div class="modal-body">
+                    <span class="modal-category-badge" id="modalCategory">分类</span>
+                    <div class="modal-info-row">
+                        <strong>📍 地点:</strong>
+                        <span id="modalLocation">地点名称</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <strong>⏰ 时间:</strong>
+                        <span id="modalTime">08:30-09:45</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <strong>💰 价格:</strong>
+                        <span id="modalPrice">免费</span>
+                    </div>
+                    <div class="modal-info-row">
+                        <strong>📅 频率:</strong>
+                        <span id="modalFrequency">每周</span>
+                    </div>
+                    <div class="modal-description" id="modalDescription">
+                        活动描述内容...
+                    </div>
+
+                    <!-- 链接按钮 -->
+                    <div class="modal-footer" id="modalFooter" style="display: none;">
+                        <a id="modalLinkButton" href="#" target="_blank" class="modal-link-btn">
+                            <span class="btn-icon">🔗</span>
+                            <span class="btn-text">查看详情</span>
+                            <span class="btn-arrow">→</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 这里包含原来的完整 CSS 和 JavaScript 代码 -->
+    <!-- 注意：需要将原来的 fetchActivities 函数修改为直接读取本地 JSON -->
+</body>
+</html>

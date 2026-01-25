@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`快照测试示例 > 应该能够匹配组件快照 1`] = `
+<div
+  class="user-card"
+>
+  <h3>
+    张三
+  </h3>
+  <p>
+    zhangsan@example.com
+  </p>
+</div>
+`;
