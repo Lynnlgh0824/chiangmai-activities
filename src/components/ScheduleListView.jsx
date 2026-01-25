@@ -1,15 +1,10 @@
 import React from 'react'
-import { weeklyScheduleData, dayNames } from '../data/weeklySchedule'
+import { dayNames } from '../data/weeklySchedule'
 import './ScheduleListView.css'
 
 function ScheduleListView({ activities = [], loading }) {
-  // 如果没有传入活动，使用模拟的周课表数据
-  const scheduleData = activities.length > 0 ? activities : flattenWeeklySchedule(weeklyScheduleData)
-
-  // 将周课表数据展平为列表
-  function flattenWeeklySchedule(weeks) {
-    return weeks.flatMap(week => week.activities)
-  }
+  // 只使用真实数据，不再使用模拟数据
+  const scheduleData = activities
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -29,10 +24,25 @@ function ScheduleListView({ activities = [], loading }) {
     return date.toLocaleDateString('zh-CN', options)
   }
 
-  // 按日期排序
-  const sortedActivities = [...scheduleData].sort((a, b) => {
-    return new Date(a.date || '2025-01-01') - new Date(b.date || '2025-01-01')
+  // 分离有日期和无日期的活动
+  const activitiesWithDate = scheduleData.filter(a => {
+    if (!a.date) return false
+    const date = new Date(a.date)
+    return date.getFullYear() > 2000 && !isNaN(date.getTime())
   })
+
+  const activitiesWithoutDate = scheduleData.filter(a => {
+    if (!a.date && a.weekdays && a.weekdays.length > 0) return true
+    return false
+  })
+
+  // 有日期的活动按日期排序
+  const sortedActivities = [...activitiesWithDate].sort((a, b) => {
+    return new Date(a.date) - new Date(b.date)
+  })
+
+  // 无日期的活动添加在最后
+  const allActivities = [...sortedActivities, ...activitiesWithoutDate]
 
   return (
     <div className="schedule-list-view">
@@ -41,22 +51,31 @@ function ScheduleListView({ activities = [], loading }) {
           <div className="loading-spinner"></div>
           <p>加载中...</p>
         </div>
-      ) : sortedActivities.length === 0 ? (
+      ) : allActivities.length === 0 ? (
         <div className="no-activities">
-          <p>暂无活动安排</p>
+          <div className="no-activities-icon">📅</div>
+          <h3>暂无活动安排</h3>
+          <p>当前没有安排任何课程活动</p>
+          <p className="no-activities-hint">💡 提示：前往管理后台添加活动</p>
         </div>
       ) : (
         <div className="schedule-list">
-          {sortedActivities.map(activity => (
-            <div key={activity.id} className="schedule-item">
-              <div className="date-badge">
-                <div className="date-day">
-                  {dayNames[new Date(activity.date || '2025-01-01').getDay()]}
+          {allActivities.map(activity => {
+            // 如果有日期，显示日期；如果没有日期，显示"无固定日期"
+            const hasDate = activity.date && new Date(activity.date).getFullYear() > 2000
+            const displayDay = hasDate ? dayNames[new Date(activity.date).getDay()] : '周'
+            const displayDate = hasDate ? new Date(activity.date).getDate() : '∞'
+
+            return (
+              <div key={activity.id} className="schedule-item">
+                <div className="date-badge">
+                  <div className="date-day">
+                    {displayDay}
+                  </div>
+                  <div className="date-number">
+                    {displayDate}
+                  </div>
                 </div>
-                <div className="date-number">
-                  {new Date(activity.date || '2025-01-01').getDate()}
-                </div>
-              </div>
 
               <div className="activity-content">
                 <div className="activity-header">
@@ -79,7 +98,13 @@ function ScheduleListView({ activities = [], loading }) {
                 <div className="activity-meta">
                   <div className="meta-item">
                     <span>📅</span>
-                    <span>{formatDate(activity.date || '2025-01-01')}</span>
+                    <span>
+                      {hasDate ? formatDate(activity.date) : (
+                        <span className="no-fixed-date">
+                          无固定日期 · {activity.weekdays?.join('、') || '灵活安排'}
+                        </span>
+                      )}
+                    </span>
                   </div>
                   <div className="meta-item">
                     <span>⏰</span>

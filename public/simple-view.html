@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>清迈活动查询平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+        }
+
+        .stats {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-group {
+            margin-bottom: 15px;
+        }
+
+        .filter-group label {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #333;
+        }
+
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .activity-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .activity-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .activity-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .activity-content {
+            padding: 20px;
+        }
+
+        .activity-category {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .activity-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .activity-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .activity-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .meta-item span:first-child {
+            margin-right: 5px;
+        }
+
+        .activity-price {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            padding: 50px;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ 清迈活动探索</h1>
+
+        <div id="stats" class="stats">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalCount">-</div>
+                    <div class="stat-label">总活动数</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="freeCount">-</div>
+                    <div class="stat-label">免费活动</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="categoryCount">-</div>
+                    <div class="stat-label">活动分类</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="categoryFilter">分类:</label>
+                <select id="categoryFilter" onchange="filterActivities()">
+                    <option value="">全部</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="priceFilter">价格:</label>
+                <select id="priceFilter" onchange="filterActivities()">
+                    <option value="">全部</option>
+                    <option value="free">免费</option>
+                    <option value="paid">付费</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="activities" class="activities-grid">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+
+    <script>
+        let allActivities = [];
+
+        async function loadActivities() {
+            try {
+                const response = await fetch('http://localhost:3000/api/activities?status=active&limit=1000');
+                const data = await response.json();
+                allActivities = data.data;
+                displayActivities(allActivities);
+                updateFilters();
+            } catch (error) {
+                console.error('加载失败:', error);
+                document.getElementById('activities').innerHTML = `
+                    <div class="error">
+                        ❌ 加载活动数据失败<br>
+                        请确保后端服务正在运行 (http://localhost:3000)<br>
+                        错误信息: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function displayActivities(activities) {
+            const container = document.getElementById('activities');
+
+            if (activities.length === 0) {
+                container.innerHTML = '<div class="error">没有找到符合条件的活动</div>';
+                return;
+            }
+
+            container.innerHTML = activities.map(activity => {
+                const image = activity.images && activity.images[0]
+                    ? activity.images[0]
+                    : 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=450&fit=crop';
+
+                return `
+                    <div class="activity-card">
+                        <img src="${image}" alt="${activity.title}" class="activity-image"
+                             onerror="this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=450&fit=crop'">
+                        <div class="activity-content">
+                            <span class="activity-category">${activity.category}</span>
+                            <h3 class="activity-title">${activity.title}</h3>
+                            <p class="activity-description">${activity.description || '暂无描述'}</p>
+                            <div class="activity-meta">
+                                <div class="meta-item">
+                                    <span>📅</span>
+                                    <span>${formatDate(activity.date)}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span>⏰</span>
+                                    <span>${activity.time || '灵活时间'}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span>📍</span>
+                                    <span>${activity.location}</span>
+                                </div>
+                            </div>
+                            <div class="activity-price">${activity.price}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateStats(activities);
+        }
+
+        function updateStats(activities) {
+            document.getElementById('totalCount').textContent = activities.length;
+
+            const freeCount = activities.filter(a =>
+                a.price === '免费' || a.price.includes('免费')
+            ).length;
+            document.getElementById('freeCount').textContent = freeCount;
+
+            const categories = [...new Set(activities.map(a => a.category))];
+            document.getElementById('categoryCount').textContent = categories.length;
+        }
+
+        function updateFilters() {
+            const categories = [...new Set(allActivities.map(a => a.category))].sort();
+            const select = document.getElementById('categoryFilter');
+            select.innerHTML = '<option value="">全部</option>' +
+                categories.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function filterActivities() {
+            const category = document.getElementById('categoryFilter').value;
+            const price = document.getElementById('priceFilter').value;
+
+            let filtered = allActivities;
+
+            if (category) {
+                filtered = filtered.filter(a => a.category === category);
+            }
+
+            if (price === 'free') {
+                filtered = filtered.filter(a => a.price === '免费' || a.price.includes('免费'));
+            } else if (price === 'paid') {
+                filtered = filtered.filter(a => a.price !== '免费' && !a.price.includes('免费'));
+            }
+
+            displayActivities(filtered);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '随时可预约';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '随时可预约';
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const targetDate = new Date(dateStr);
+            targetDate.setHours(0, 0, 0, 0);
+
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) return '今天';
+            if (diffDays === 1) return '明天';
+            if (diffDays > 1 && diffDays <= 7) return `本周${['周日', '周一', '周二', '周三', '周四', '周五', '周六'][targetDate.getDay()]}`;
+
+            return date.toLocaleDateString('zh-CN', {
+                month: '2-digit',
+                day: '2-digit'
+            });
+        }
+
+        // 页面加载时获取数据
+        loadActivities();
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>React Test</title>
+</head>
+<body>
+  <div id="root">Loading...</div>
+  <script type="module">
+    // 测试 React 是否能加载
+    import { createRoot } from 'react-dom/client';
+    import React from 'react';
+
+    function TestApp() {
+      return React.createElement('div', null, 'React is working!');
+    }
+
+    try {
+      const root = createRoot(document.getElementById('root'));
+      root.render(React.createElement(TestApp));
+      console.log('React rendered successfully');
+    } catch (error) {
+      console.error('React render failed:', error);
+      document.getElementById('root').innerHTML = 'Error: ' + error.message;
+    }
+  </script>
+</body>
+</html>

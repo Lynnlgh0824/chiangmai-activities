@@ -1,0 +1,24 @@
+{
+  "name": "xiaohongshu-scraper",
+  "version": "1.0.0",
+  "description": "小红书清迈活动自动抓取工具",
+  "main": "xiaohongshu-scraper.js",
+  "scripts": {
+    "start": "node xiaohongshu-scraper.js",
+    "test": "node test-scraper.js"
+  },
+  "keywords": [
+    "scraper",
+    "xiaohongshu",
+    "puppeteer",
+    "chiangmai"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^21.6.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "xlsx": "^0.18.5"
+  }
+}

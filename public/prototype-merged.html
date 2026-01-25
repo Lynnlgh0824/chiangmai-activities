@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>方案D: 合并视图原型 - 清迈活动平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .search-section {
+            margin-top: 15px;
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .search-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* 视图切换器 */
+        .view-switcher {
+            display: flex;
+            background: #fff;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 0 20px;
+            gap: 20px;
+        }
+
+        .view-option {
+            padding: 14px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            font-size: 15px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-option:hover {
+            color: #667eea;
+        }
+
+        .view-option.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .view-option-icon {
+            font-size: 18px;
+        }
+
+        /* 内容区域 */
+        .content-area {
+            padding: 20px;
+            min-height: 500px;
+        }
+
+        .view-panel {
+            display: none;
+        }
+
+        .view-panel.active {
+            display: block;
+        }
+
+        /* 筛选栏 */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .filter-chip {
+            padding: 6px 12px;
+            border: 1px solid #ddd;
+            border-radius: 16px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .filter-chip:hover {
+            background: #f5f5f5;
+        }
+
+        .filter-chip.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* 日历视图 */
+        .calendar-header {
+            margin-bottom: 20px;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .month-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            padding: 6px 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .date-grid-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .date-cell-header {
+            padding: 8px 4px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-cell {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 100px;
+        }
+
+        .day-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin: 6px 0;
+            text-align: center;
+        }
+
+        .activity-chip {
+            background: white;
+            border-left: 3px solid #667eea;
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            font-size: 11px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+
+        /* 列表视图 */
+        .schedule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .schedule-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .schedule-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .category-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .schedule-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .schedule-item-meta {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 筛选面板 */
+        .filters-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .filter-group {
+            margin-bottom: 24px;
+        }
+
+        .filter-group-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filter-option {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .filter-option.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-option:hover:not(.active) {
+            background: #f5f5f5;
+        }
+
+        .note {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .note strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .note ul {
+            margin-top: 8px;
+            padding-left: 20px;
+        }
+
+        .note li {
+            margin-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>✨ 清迈活动探索</h1>
+            <div class="search-section">
+                <div class="search-input-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input
+                        type="text"
+                        class="search-input"
+                        placeholder="搜索活动、地点、关键词..."
+                    >
+                </div>
+            </div>
+        </div>
+
+        <!-- 视图切换器 -->
+        <div class="view-switcher">
+            <div class="view-option active" onclick="switchView(0)">
+                <span class="view-option-icon">📅</span>
+                <span>日历视图</span>
+            </div>
+            <div class="view-option" onclick="switchView(1)">
+                <span class="view-option-icon">📋</span>
+                <span>列表视图</span>
+            </div>
+            <div class="view-option" onclick="switchView(2)">
+                <span class="view-option-icon">🔍</span>
+                <span>筛选</span>
+            </div>
+        </div>
+
+        <!-- 内容区域 -->
+        <div class="content-area">
+            <!-- 快速筛选栏（所有视图共享） -->
+            <div class="filter-bar">
+                <span class="filter-label">分类：</span>
+                <div class="filter-chip active">全部</div>
+                <div class="filter-chip">瑜伽</div>
+                <div class="filter-chip">冥想</div>
+                <div class="filter-chip">户外</div>
+                <div class="filter-chip">文化</div>
+                <div class="filter-chip">美食</div>
+            </div>
+
+            <!-- 日历视图 -->
+            <div id="view-0" class="view-panel active">
+                <div class="calendar-header">
+                    <div class="nav-row">
+                        <div class="month-label">2026年1月</div>
+                        <div class="nav-buttons">
+                            <button class="nav-btn">← 上一周</button>
+                            <button class="nav-btn">回到本周</button>
+                            <button class="nav-btn">下一周 →</button>
+                        </div>
+                    </div>
+                    <div class="date-grid-header">
+                        <div class="date-cell-header">19 周一</div>
+                        <div class="date-cell-header">20 周二</div>
+                        <div class="date-cell-header">21 周三</div>
+                        <div class="date-cell-header">22 周四</div>
+                        <div class="date-cell-header">23 周五</div>
+                        <div class="date-cell-header">24 周六</div>
+                        <div class="date-cell-header">25 周日</div>
+                    </div>
+                </div>
+
+                <div class="calendar-grid">
+                    <!-- 周一 -->
+                    <div class="day-cell">
+                        <div class="day-name">周一</div>
+                        <div class="activity-chip">
+                            <div style="color: #666;">08:30</div>
+                            <div style="font-weight: 500;">晨间瑜伽</div>
+                        </div>
+                        <div class="activity-chip" style="border-left-color: #4ECDC4;">
+                            <div style="color: #666;">14:00</div>
+                            <div>语言交换</div>
+                        </div>
+                    </div>
+                    <!-- 周二 -->
+                    <div class="day-cell">
+                        <div class="day-name">周二</div>
+                        <div class="activity-chip" style="border-left-color: #4ECDC4;">
+                            <div style="color: #666;">14:00</div>
+                            <div>语言交换</div>
+                        </div>
+                    </div>
+                    <!-- 周三 -->
+                    <div class="day-cell">
+                        <div class="day-name">周三</div>
+                        <div class="activity-chip" style="border-left-color: #FF6B6B;">
+                            <div style="color: #666;">19:00</div>
+                            <div>冥想课程</div>
+                        </div>
+                    </div>
+                    <!-- 周四 -->
+                    <div class="day-cell">
+                        <div class="day-name">周四</div>
+                        <div class="activity-chip" style="border-left-color: #FFE66D;">
+                            <div style="color: #666;">10:00</div>
+                            <div>泰餐课程</div>
+                        </div>
+                    </div>
+                    <!-- 周五 -->
+                    <div class="day-cell">
+                        <div class="day-name">周五</div>
+                        <div class="activity-chip" style="border-left-color: #95E1D3;">
+                            <div style="color: #666;">18:00</div>
+                            <div>文化体验</div>
+                        </div>
+                    </div>
+                    <!-- 周六 -->
+                    <div class="day-cell">
+                        <div class="day-name">周六</div>
+                        <div class="activity-chip" style="border-left-color: #AA96DA;">
+                            <div style="color: #666;">09:00</div>
+                            <div>手工艺工作坊</div>
+                        </div>
+                    </div>
+                    <!-- 周日 -->
+                    <div class="day-cell">
+                        <div class="day-name">周日</div>
+                        <div class="activity-chip" style="border-left-color: #F38181;">
+                            <div style="color: #666;">15:00</div>
+                            <div>厨艺课程</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 列表视图 -->
+            <div id="view-1" class="view-panel">
+                <div class="schedule-list">
+                    <div class="schedule-item">
+                        <div class="schedule-item-header">
+                            <span class="category-tag">瑜伽</span>
+                            <span style="color: #666;">周一</span>
+                        </div>
+                        <div class="schedule-item-title">晨间瑜伽（Nong Buak Haad公园）</div>
+                        <div class="schedule-item-meta">
+                            <div>📍 Nong Buak Haad公园</div>
+                            <div>⏰ 08:30-09:45</div>
+                            <div>💰 免费</div>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-item-header">
+                            <span class="category-tag">文化艺术</span>
+                            <span style="color: #666;">周一</span>
+                        </div>
+                        <div class="schedule-item-title">语言交换</div>
+                        <div class="schedule-item-meta">
+                            <div>📍 Moat House</div>
+                            <div>⏰ 19:00-23:00</div>
+                            <div>💰 免费</div>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-item-header">
+                            <span class="category-tag" style="background: #4ECDC4;">冥想</span>
+                            <span style="color: #666;">周三</span>
+                        </div>
+                        <div class="schedule-item-title">冥想课程</div>
+                        <div class="schedule-item-meta">
+                            <div>📍 冥想中心</div>
+                            <div>⏰ 19:00-20:30</div>
+                            <div>💰 200฿</div>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-item-header">
+                            <span class="category-tag" style="background: #FFE66D;">美食体验</span>
+                            <span style="color: #666;">周四</span>
+                        </div>
+                        <div class="schedule-item-title">泰餐课程</div>
+                        <div class="schedule-item-meta">
+                            <div>📍 烹饪学校</div>
+                            <div>⏰ 10:00-12:00</div>
+                            <div>💰 500฿</div>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-item-header">
+                            <span class="category-tag" style="background: #95E1D3;">文化体验</span>
+                            <span style="color: #666;">周五</span>
+                        </div>
+                        <div class="schedule-item-title">文化体验活动</div>
+                        <div class="schedule-item-meta">
+                            <div>📍 文化中心</div>
+                            <div>⏰ 18:00-20:00</div>
+                            <div>💰 300฿</div>
+                        </div>
+                    </div>
+                    <div class="schedule-item">
+                        <div class="schedule-item-header">
+                            <span class="category-tag" style="background: #AA96DA;">手工艺</span>
+                            <span style="color: #666;">周六</span>
+                        </div>
+                        <div class="schedule-item-title">手工艺工作坊</div>
+                        <div class="schedule-item-meta">
+                            <div>📍 手工艺中心</div>
+                            <div>⏰ 09:00-12:00</div>
+                            <div>💰 400฿</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选视图 -->
+            <div id="view-2" class="view-panel">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <div class="filter-group-label">活动分类</div>
+                        <div class="filter-options">
+                            <div class="filter-option active">全部</div>
+                            <div class="filter-option">瑜伽</div>
+                            <div class="filter-option">冥想</div>
+                            <div class="filter-option">户外探险</div>
+                            <div class="filter-option">文化艺术</div>
+                            <div class="filter-option">美食体验</div>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-group-label">价格范围</div>
+                        <div class="filter-options">
+                            <div class="filter-option active">全部</div>
+                            <div class="filter-option">免费</div>
+                            <div class="filter-option">1500฿以下</div>
+                            <div class="filter-option">1500฿以上</div>
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="filter-group-label">排序方式</div>
+                        <div class="filter-options">
+                            <div class="filter-option active">按日期 ↑</div>
+                            <div class="filter-option">价格：低到高</div>
+                            <div class="filter-option">价格：高到低</div>
+                        </div>
+                    </div>
+
+                    <div class="note">
+                        <strong>💡 筛选说明</strong>
+                        <ul>
+                            <li>设置筛选条件后，返回日历或列表视图查看结果</li>
+                            <li>快速筛选栏在所有视图可见，方便随时调整</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function switchView(index) {
+                // 移除所有active类
+                document.querySelectorAll('.view-option').forEach(option => {
+                    option.classList.remove('active');
+                });
+                document.querySelectorAll('.view-panel').forEach(panel => {
+                    panel.classList.remove('active');
+                });
+
+                // 添加active类到当前视图
+                document.querySelectorAll('.view-option')[index].classList.add('active');
+                document.getElementById('view-' + index).classList.add('active');
+            }
+        </script>
+    </div>
+</body>
+</html>

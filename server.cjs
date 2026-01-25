@@ -1,4 +1,6 @@
+require('dotenv').config();
 const express = require('express');
+const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
@@ -57,19 +59,20 @@ app.use('/uploads', express.static('uploads'));
 
 // 允许 CORS
 app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  // 允许的源：本地开发环境 + 所有 Vercel 部署
   const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://chiengmai-activities.vercel.app',
-    'https://*.vercel.app'
+    'https://chiengmai-activities.vercel.app'
   ];
 
-  const origin = req.headers.origin;
-
-  // 允许的源
+  // 检查是否在允许列表中或为 Vercel 子域名
   if (allowedOrigins.includes(origin) || origin?.endsWith('.vercel.app')) {
     res.header('Access-Control-Allow-Origin', origin);
   } else {
+    // 开发环境允许所有来源，生产环境应移除此行
     res.header('Access-Control-Allow-Origin', '*');
   }
 
@@ -433,6 +436,244 @@ app.get('/', (req, res) => {
       api: 'http://localhost:3000/api'
     }
   });
+});
+
+// ==================== 飞书集成 ====================
+
+/**
+ * 从飞书API获取数据
+ */
+async function fetchFeishuData() {
+  try {
+    // 1. 获取tenant_access_token
+    const tokenResponse = await axios.post(
+      'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal',
+      {
+        app_id: process.env.FEISHU_APP_ID,
+        app_secret: process.env.FEISHU_APP_SECRET
+      }
+    );
+
+    if (tokenResponse.data.code !== 0) {
+      throw new Error('获取飞书token失败: ' + JSON.stringify(tokenResponse.data));
+    }
+
+    const tenantAccessToken = tokenResponse.data.tenant_access_token;
+
+    // 2. 读取表格数据
+    const dataResponse = await axios.get(
+      `https://open.feishu.cn/open-apis/bitable/v1/apps/${process.env.FEISHU_SPREADSHEET_TOKEN}/tables/${process.env.FEISHU_SHEET_ID}/records`,
+      {
+        headers: {
+          'Authorization': `Bearer ${tenantAccessToken}`
+        }
+      }
+    );
+
+    if (dataResponse.data.code !== 0) {
+      throw new Error('读取飞书表格失败: ' + JSON.stringify(dataResponse.data));
+    }
+
+    return dataResponse.data.data.items;
+  } catch (error) {
+    console.error('飞书API调用失败:', error.message);
+    throw error;
+  }
+}
+
+/**
+ * 转换飞书数据格式为项目格式
+ */
+function convertFeishuDataToProjectFormat(feishuItems) {
+  return feishuItems.map(item => {
+    const fields = item.fields;
+
+    // 解析星期字符串为数组
+    let weekdays = [];
+    let date = fields['星期/日期'];
+
+    if (fields['活动类型'] === '固定频率') {
+      weekdays = parseWeekdays(fields['星期/日期']);
+      date = undefined;
+    }
+
+    return {
+      id: fields['序号'] || item.record_id,
+      _id: fields['序号'] || item.record_id,
+      title: fields['活动标题'] || '',
+      category: fields['分类'] || '其他',
+      status: mapStatus(fields['状态']),
+      description: fields['活动描述'] || '',
+      ...(fields['活动类型'] === '固定频率' ? {
+        weekdays: weekdays,
+        frequency: 'weekly'
+      } : {
+        date: fields['星期/日期'],
+        frequency: 'once'
+      }),
+      time: fields['时间'] || '',
+      duration: fields['持续时间'] || '',
+      location: fields['地点名称'] || '',
+      address: fields['详细地址'] || '',
+      price: fields['价格显示'] || '',
+      priceMin: fields['最低价格'] ? parseInt(fields['最低价格']) : 0,
+      priceMax: fields['最高价格'] ? parseInt(fields['最高价格']) : 0,
+      currency: '฿',
+      maxParticipants: fields['最大人数'] ? parseInt(fields['最大人数']) : 0,
+      flexibleTime: fields['灵活时间'] === '是',
+      bookingRequired: fields['需要预约'] === '是',
+      images: parseImages(fields['图片URL']),
+      source: {
+        name: '飞书表格录入',
+        url: fields['来源链接'] || '',
+        type: 'feishu',
+        lastUpdated: new Date().toISOString()
+      },
+      createdAt: new Date(item.created_time || Date.now()).toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  });
+}
+
+/**
+ * 映射状态字段
+ */
+function mapStatus(status) {
+  const statusMap = {
+    '草稿': 'draft',
+    '待开始': 'upcoming',
+    '进行中': 'ongoing',
+    '已过期': 'expired'
+  };
+  return statusMap[status] || 'active';
+}
+
+/**
+ * 解析星期字符串为数组
+ */
+function parseWeekdays(weekdayStr) {
+  const weekdayMap = {
+    '周一': 1, '周二': 2, '周三': 3, '周四': 4,
+    '周五': 5, '周六': 6, '周日': 0
+  };
+
+  if (!weekdayStr) return [];
+
+  return weekdayStr.split(',')
+    .map(s => s.trim())
+    .filter(s => weekdayMap[s] !== undefined)
+    .map(s => weekdayMap[s]);
+}
+
+/**
+ * 解析图片URL字符串
+ */
+function parseImages(urlStr) {
+  if (!urlStr) return [];
+
+  return urlStr
+    .split(/[\n,]+/)
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
+}
+
+/**
+ * 更新本地数据文件
+ */
+async function updateLocalData(feishuData) {
+  // 1. 转换飞书数据格式为项目格式
+  const items = convertFeishuDataToProjectFormat(feishuData);
+
+  // 2. 读取现有数据
+  const existingData = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
+
+  // 3. 合并数据（根据ID更新或新增）
+  const updatedData = mergeData(existingData, items);
+
+  // 4. 保存到文件
+  fs.writeFileSync(DATA_FILE, JSON.stringify(updatedData, null, 2), 'utf8');
+
+  console.log(`✅ 飞书数据已同步: ${items.length} 条记录`);
+}
+
+/**
+ * 合并数据
+ */
+function mergeData(existingData, newItems) {
+  const itemMap = new Map();
+
+  // 先放入现有数据
+  existingData.forEach(item => {
+    itemMap.set(item.id || item._id, item);
+  });
+
+  // 更新或新增飞书数据
+  newItems.forEach(item => {
+    const key = item.id || item._id;
+    itemMap.set(key, {
+      ...itemMap.get(key),
+      ...item,
+      updatedAt: new Date().toISOString()
+    });
+  });
+
+  return Array.from(itemMap.values());
+}
+
+/**
+ * Webhook接收端 - 接收飞书多维表格的通知
+ */
+app.post('/api/sync-from-feishu', async (req, res) => {
+  try {
+    console.log('📬 收到飞书同步请求:', new Date().toISOString());
+
+    // 调用飞书API获取最新数据
+    const feishuData = await fetchFeishuData();
+
+    // 更新本地数据文件
+    await updateLocalData(feishuData);
+
+    // 返回成功
+    res.json({
+      success: true,
+      message: '数据同步成功',
+      recordCount: feishuData.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ 同步失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '同步失败: ' + error.message
+    });
+  }
+});
+
+/**
+ * 手动触发同步接口
+ */
+app.post('/api/sync-manual', async (req, res) => {
+  try {
+    console.log('🔄 开始手动同步飞书数据...');
+
+    const feishuData = await fetchFeishuData();
+    await updateLocalData(feishuData);
+
+    res.json({
+      success: true,
+      message: `同步完成，共 ${feishuData.length} 条记录`,
+      recordCount: feishuData.length,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('❌ 手动同步失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '同步失败: ' + error.message
+    });
+  }
 });
 
 app.listen(PORT, () => {

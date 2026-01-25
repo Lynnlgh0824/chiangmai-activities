@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.chiengmai.dailycheck</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/yuzhoudeshengyin/Documents/my_project/Chiengmai/daily-check.sh</string>
+    </array>
+
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>10</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+
+    <!-- 只在用户登录时运行 -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <!-- 如果错过运行时间，在用户登录时立即运行 -->
+    <key>RunOnLoad</key>
+    <true/>
+
+    <!-- 标准输出和错误输出 -->
+    <key>StandardOutPath</key>
+    <string>/Users/yuzhoudeshengyin/Documents/my_project/Chiengmai/logs/daily-check.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>/Users/yuzhoudeshengyin/Documents/my_project/Chiengmai/logs/daily-check-error.log</string>
+
+    <!-- 环境变量 -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+</dict>
+</plist>

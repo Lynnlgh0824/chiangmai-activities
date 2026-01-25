@@ -27,8 +27,41 @@
 
 .no-activities {
   text-align: center;
-  padding: 60px 20px;
-  color: #999;
+  padding: 80px 20px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.no-activities-icon {
+  font-size: 4rem;
+  margin-bottom: 10px;
+  opacity: 0.8;
+}
+
+.no-activities h3 {
+  font-size: 1.5rem;
+  color: #374151;
+  margin: 0;
+  font-weight: 600;
+}
+
+.no-activities p {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.no-activities-hint {
+  font-size: 0.9rem !important;
+  color: #9ca3af !important;
+  background: #f3f4f6;
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin-top: 10px;
 }
 
 .weeks-container {

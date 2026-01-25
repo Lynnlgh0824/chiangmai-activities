@@ -5,9 +5,9 @@ import ScheduleListView from '../components/ScheduleListView'
 import './Schedule.css'
 import axios from 'axios'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_BASE = import.meta.env.VITE_API_URL || ''  // 使用空字符串，通过 Vite 代理访问后端
 const api = axios.create({
-  baseURL: `${API_BASE}/api`,
+  baseURL: `/api`,  // 直接使用 /api，由 Vite 代理转发到 http://localhost:3000
   timeout: 10000
 })
 
@@ -27,13 +27,12 @@ function Schedule() {
         params: {
           limit: 50,
           sortBy: 'date',
-          sortOrder: 'asc',
-          status: 'active'
+          sortOrder: 'asc'
+          // 移除 status: 'active' 筛选，获取所有活动（包括草稿、待开始、进行中等）
         }
       })
       setActivities(response.data.data || [])
     } catch (error) {
-      console.log('获取活动失败，使用模拟数据')
       // 使用模拟数据会由组件内部处理
     } finally {
       setLoading(false)

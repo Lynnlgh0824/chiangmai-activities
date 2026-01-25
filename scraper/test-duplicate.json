@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "title": "瑜伽（Nong Buak Haad公园）",
+    "category": "瑜伽",
+    "description": "测试重复数据1",
+    "price": "免费",
+    "priceMin": 0,
+    "priceMax": 0,
+    "time": "08:30-09:45",
+    "weekdays": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+    "type": "weekly",
+    "location": "Nong Buak Haad公园",
+    "duration": "1小时15分钟",
+    "flexibleTime": false,
+    "url": ""
+  },
+  {
+    "id": 2,
+    "title": "新活动测试",
+    "category": "测试",
+    "description": "这是一个新的测试活动",
+    "price": "100泰铢",
+    "priceMin": 100,
+    "priceMax": 100,
+    "time": "14:00-16:00",
+    "weekdays": ["周六"],
+    "type": "weekly",
+    "location": "测试地点",
+    "duration": "2小时",
+    "flexibleTime": false,
+    "url": ""
+  },
+  {
+    "id": 3,
+    "title": "瑜伽（Nong Buak Haad公园）",
+    "category": "瑜伽",
+    "description": "测试重复数据2 - 相同标题和地点",
+    "price": "免费",
+    "priceMin": 0,
+    "priceMax": 0,
+    "time": "08:30-09:45",
+    "weekdays": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+    "type": "weekly",
+    "location": "Nong Buak Haad公园",
+    "duration": "1小时15分钟",
+    "flexibleTime": false,
+    "url": ""
+  }
+]

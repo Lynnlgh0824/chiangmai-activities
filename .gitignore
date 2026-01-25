@@ -5,3 +5,8 @@ uploads/
 *.log
 .DS_Store
 debug_admin.html
+*.backup
+*.old
+*.tmp
+*.xlsx
+ uploads/*.xlsx

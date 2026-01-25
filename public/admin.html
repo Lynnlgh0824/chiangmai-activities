@@ -428,6 +428,14 @@
         <p style="color: #666; margin-bottom: 20px;">清迈活动查询平台 - 数据管理</p>
 
         <div class="toolbar">
+            <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                <a href="http://localhost:5173" target="_blank" class="btn btn-success" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    🌐 访问前端页面
+                </a>
+                <a href="/ai-import.html" class="btn btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                    🤖 AI 智能导入
+                </a>
+            </div>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <select id="categoryFilter" class="btn btn-secondary">
                     <option value="">全部分类</option>
@@ -446,10 +454,10 @@
                     <option value="ongoing">进行中</option>
                     <option value="expired">已过期</option>
                 </select>
+                <button class="btn btn-primary" onclick="openFormModal()">
+                    ➕ 新增活动
+                </button>
             </div>
-            <button class="btn btn-primary" onclick="openFormModal()">
-                ➕ 新增活动
-            </button>
         </div>
 
         <div class="table-container">
@@ -876,6 +884,41 @@
         // ========== 表单操作函数 ==========
 
         // 打开表单弹窗
+        // 安全设置元素值的辅助函数
+        function safeSetValue(elementId, value) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.value = value;
+                return true;
+            } else {
+                console.warn(`元素不存在: ${elementId}`);
+                return false;
+            }
+        }
+
+        function safeSetText(elementId, text) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = text;
+                return true;
+            } else {
+                console.warn(`元素不存在: ${elementId}`);
+                return false;
+            }
+        }
+
+        function safeChecked(elementId, checked) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.checked = checked;
+                return true;
+            } else {
+                console.warn(`元素不存在: ${elementId}`);
+                return false;
+            }
+        }
+
+        // 打开表单弹窗
         function openFormModal(item = null) {
             try {
                 const form = document.getElementById('dataForm');
@@ -885,34 +928,30 @@
                 }
 
                 form.reset();
-                document.getElementById('itemId').value = '';
-                document.getElementById('modalTitle').textContent = '新增活动';
+                safeSetValue('itemId', '');
+                safeSetText('modalTitle', '新增活动');
 
                 // 清空上传的图片列表
                 uploadedImages = [];
                 const imagePreviews = document.getElementById('imagePreviews');
                 if (imagePreviews) imagePreviews.innerHTML = '';
 
-                const imageUrls = document.getElementById('imageUrls');
-                if (imageUrls) imageUrls.value = '';
-
-                const images = document.getElementById('images');
-                if (images) images.value = '';
+                safeSetValue('imageUrls', '');
+                safeSetValue('images', '');
 
                 // 默认切换到临时活动Tab
                 switchTabWithoutEvent('temporary');
 
                 // 新增活动时默认状态为"草稿"
-                const statusSelect = document.getElementById('status');
-                if (statusSelect) statusSelect.value = 'draft';
+                safeSetValue('status', 'draft');
 
                 if (item) {
-                    document.getElementById('modalTitle').textContent = '编辑活动';
-                    document.getElementById('itemId').value = item.id || item._id;
-                    document.getElementById('title').value = item.title || '';
-                    document.getElementById('category').value = item.category || '其他';
-                    document.getElementById('status').value = item.status || 'draft';
-                    document.getElementById('description').value = item.description || '';
+                    safeSetText('modalTitle', '编辑活动');
+                    safeSetValue('itemId', item.id || item._id);
+                    safeSetValue('title', item.title || '');
+                    safeSetValue('category', item.category || '其他');
+                    safeSetValue('status', item.status || 'draft');
+                    safeSetValue('description', item.description || '');
 
                     // 根据是否有 weekdays 判断活动类型
                     if (item.weekdays && item.weekdays.length > 0) {
@@ -922,29 +961,30 @@
                         document.querySelectorAll('.weekday-checkbox').forEach(checkbox => {
                             checkbox.checked = item.weekdays.includes(parseInt(checkbox.value));
                         });
-                        document.getElementById('fixedTime').value = item.time || '';
-                        document.getElementById('duration').value = item.duration || '';
+                        safeSetValue('fixedTime', item.time || '');
+                        safeSetValue('duration', item.duration || '');
                     } else {
                         // 临时活动
                         switchTabWithoutEvent('temporary');
-                        document.getElementById('date').value = item.date || '';
-                        document.getElementById('time').value = item.time || '';
-                        document.getElementById('tempDuration').value = item.duration || '';
+                        safeSetValue('date', item.date || '');
+                        safeSetValue('time', item.time || '');
+                        safeSetValue('tempDuration', item.duration || '');
                     }
 
-                    document.getElementById('location').value = item.location || '';
-                    document.getElementById('address').value = item.address || '';
-                    document.getElementById('price').value = item.price || '';
-                    document.getElementById('priceMin').value = item.priceMin || '';
-                    document.getElementById('priceMax').value = item.priceMax || '';
-                    document.getElementById('maxParticipants').value = item.maxParticipants || '';
-                    document.getElementById('flexibleTime').checked = item.flexibleTime || false;
-                    document.getElementById('bookingRequired').checked = item.bookingRequired !== undefined ? item.bookingRequired : true;
+                    safeSetValue('location', item.location || '');
+                    safeSetValue('address', item.address || '');
+                    safeSetValue('price', item.price || '');
+                    safeSetValue('priceMin', item.priceMin || '');
+                    safeSetValue('priceMax', item.priceMax || '');
+                    safeSetValue('maxParticipants', item.maxParticipants || '');
+                    safeChecked('flexibleTime', item.flexibleTime || false);
+                    safeChecked('bookingRequired', item.bookingRequired !== undefined ? item.bookingRequired : true);
 
                     // 处理图片
                     const images = item.images || [];
-                    document.getElementById('images').value = images.join('\n');
-                    document.getElementById('imageUrls').value = images.join('\n');
+                    const imagesValue = images.join('\n');
+                    safeSetValue('images', imagesValue);
+                    safeSetValue('imageUrls', imagesValue);
 
                     // 清空预览并重新加载
                     uploadedImages = [];
@@ -956,7 +996,7 @@
                         displayImagePreview(imageUrl, index);
                     });
 
-                    document.getElementById('sourceUrl').value = item.source?.url || '';
+                    safeSetValue('sourceUrl', item.source?.url || '');
                 }
 
                 document.getElementById('formModal').classList.add('active');
@@ -986,9 +1026,20 @@
 
         // 编辑项目
         function editItem(id) {
-            const item = items.find(i => (i.id === id || i._id === id));
+            console.log('编辑项目，ID:', id, '类型:', typeof id);
+            console.log('当前 items 数量:', items.length);
+
+            const item = items.find(i =>
+                String(i.id) === String(id) ||
+                String(i._id) === String(id)
+            );
+
+            console.log('找到的项目:', item);
+
             if (item) {
                 openFormModal(item);
+            } else {
+                alert('未找到该项目，ID: ' + id);
             }
         }
 
@@ -1018,7 +1069,7 @@
 
             // 如果是保存草稿，确保状态为 draft
             if (isSavingDraft) {
-                document.getElementById('status').value = 'draft';
+                safeSetValue('status', 'draft');
             }
 
             const formData = new FormData(e.target);
@@ -1147,7 +1198,7 @@
         // 保存为草稿
         function submitFormAsDraft() {
             isSavingDraft = true; // 设置草稿标记
-            document.getElementById('status').value = 'draft'; // 设置状态为草稿
+            safeSetValue('status', 'draft'); // 设置状态为草稿
             document.getElementById('dataForm').dispatchEvent(new Event('submit')); // 触发表单提交
         }
 

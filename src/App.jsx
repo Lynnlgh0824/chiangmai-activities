@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
-import { activitiesData, getCategories } from './data/activities'
-import { weeklyScheduleData, dayNames } from './data/weeklySchedule'
+import { getCategories } from './data/activities'
 import './App.css'
 
 // API 基础地址
@@ -14,194 +13,125 @@ const api = axios.create({
 })
 
 function App() {
-  const [activities, setActivities] = useState(activitiesData) // 默认使用模拟数据
-  const [loading, setLoading] = useState(false) // 不显示加载，直接展示数据
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('全部')
-  const [priceRange, setPriceRange] = useState('all')
-  const [sortBy, setSortBy] = useState('date')
+  const [activities, setActivities] = useState([]) // 初始为空，从 API 获取
+  const [loading, setLoading] = useState(true) // 显示加载状态
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedActivity, setSelectedActivity] = useState(null)
   const [totalItems, setTotalItems] = useState(0)
-  const [showSchedule, setShowSchedule] = useState(false) // 控制周课表面板显示
-  const [scheduleView, setScheduleView] = useState('calendar') // list 或 calendar
+
+  // 新增：主视图Tab状态（原型功能）
+  const [mainViewMode, setMainViewMode] = useState('grid') // 'grid' (网格) 或 'calendar' (日历视图)
+
+  // 原型筛选状态管理
+  const [filterCategory, setFilterCategory] = useState('全部')
+  const [filterPrice, setFilterPrice] = useState('全部')
+  const [filterDay, setFilterDay] = useState(null) // 0-6 (周日到周六)，null表示全部
+
   const itemsPerPage = 6
 
-  const categories = getCategories()
+  // 获取星期几名称
+  const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 
-  // 获取活动数据
-  useEffect(() => {
-    fetchActivities()
-  }, [])
-
-  // 当筛选条件改变时重新获取数据（如果使用 API）
-  useEffect(() => {
-    // 只有在使用 API 时才在翻页时重新获取
-    // 本地筛选由 useMemo 自动处理
-    if (totalItems > 0) {
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    }
-  }, [currentPage, sortBy])
-
-  const fetchActivities = async () => {
-    // 先尝试从 API 获取数据
-    try {
-      const params = {
-        page: currentPage,
-        limit: itemsPerPage,
-        sortBy,
-        sortOrder: 'asc',
-        status: 'active'
-      }
-
-      // 添加筛选参数
-      if (selectedCategory !== '全部') {
-        params.category = selectedCategory
-      }
-
-      if (searchTerm) {
-        params.search = searchTerm
-      }
-
-      // 价格筛选
-      if (priceRange === 'free') {
-        params.priceMin = 0
-        params.priceMax = 0
-      } else if (priceRange === 'low') {
-        params.priceMax = 1500
-      } else if (priceRange === 'high') {
-        params.priceMin = 1500
-      }
-
-      const response = await api.get('/activities', { params })
-      setActivities(response.data.data)
-      setTotalItems(response.data.pagination?.totalItems || 0)
-      return true
-    } catch (error) {
-      console.log('API 不可用，使用模拟数据')
-      // API 不可用时回退到模拟数据
-      setActivities(activitiesData)
-      setTotalItems(activitiesData.length)
-      return false
+  // 原型筛选功能 - 清除筛选
+  const handleClearPrototypeFilter = (filterKey) => {
+    if (filterKey === 'category') {
+      setFilterCategory('全部')
+    } else if (filterKey === 'price') {
+      setFilterPrice('全部')
+    } else if (filterKey === 'day') {
+      setFilterDay(null)
+    } else if (filterKey === 'all') {
+      setFilterCategory('全部')
+      setFilterPrice('全部')
+      setFilterDay(null)
     }
   }
 
-  // 初始化时检查 API 是否可用
-  useEffect(() => {
-    fetchActivities().then(() => setLoading(false))
-  }, [])
-
-  // 本地过滤（用于实时搜索）
-  const filteredActivities = useMemo(() => {
-    let result = activities
+  // 原型筛选功能 - 应用筛选
+  const applyPrototypeFilters = (activitiesToFilter) => {
+    let result = activitiesToFilter
 
     // 分类筛选
-    if (selectedCategory !== '全部') {
-      result = result.filter(activity => activity.category === selectedCategory)
+    if (filterCategory !== '全部') {
+      result = result.filter(activity => activity.category === filterCategory)
     }
 
     // 价格筛选
-    if (priceRange === 'free') {
+    if (filterPrice === '免费') {
       result = result.filter(activity =>
         activity.price === '免费' || activity.price.includes('免费')
       )
-    } else if (priceRange === 'low') {
+    } else if (filterPrice === '1500以下') {
       result = result.filter(activity => {
         const price = parseInt(activity.price.replace(/[^\d]/g, '')) || 0
         return !activity.price.includes('免费') && price < 1500
       })
-    } else if (priceRange === 'high') {
+    } else if (filterPrice === '1500以上') {
       result = result.filter(activity => {
         const price = parseInt(activity.price.replace(/[^\d]/g, '')) || 0
         return price >= 1500
       })
     }
 
-    // 搜索
-    if (searchTerm) {
-      result = result.filter(activity =>
-        activity.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        activity.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        activity.location?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
+    // 日期筛选（根据星期几）- 更宽松的匹配
+    if (filterDay !== null) {
+      result = result.filter(activity => {
+        // 检查具体日期
+        if (activity.date && activity.date !== '') {
+          const date = new Date(activity.date)
+          if (!isNaN(date.getTime())) {
+            return date.getDay() === filterDay
+          }
+        }
+        // 检查星期数组（用于每周重复的活动）
+        if (activity.weekdays && activity.weekdays.length > 0) {
+          return activity.weekdays.includes(dayNames[filterDay])
+        }
+        return false
+      })
     }
-
-    // 排序
-    result.sort((a, b) => {
-      if (sortBy === 'date') {
-        return new Date(a.date) - new Date(b.date)
-      } else if (sortBy === 'price-low') {
-        const priceA = parseInt(a.price.replace(/[^\d]/g, '')) || 0
-        const priceB = parseInt(b.price.replace(/[^\d]/g, '')) || 0
-        return priceA - priceB
-      } else if (sortBy === 'price-high') {
-        const priceA = parseInt(a.price.replace(/[^\d]/g, '')) || 0
-        const priceB = parseInt(b.price.replace(/[^\d]/g, '')) || 0
-        return priceB - priceA
-      }
-      return 0
-    })
 
     return result
-  }, [activities, searchTerm, selectedCategory, priceRange, sortBy])
-
-  // 分页计算
-  const totalPages = Math.ceil(totalItems / itemsPerPage) || Math.ceil(filteredActivities.length / itemsPerPage)
-
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value)
-    setCurrentPage(1)
   }
 
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category)
-    setCurrentPage(1)
-  }
+  const categories = getCategories()
 
-  const handlePriceRangeChange = (range) => {
-    setPriceRange(range)
-    setCurrentPage(1)
-  }
-
-  const handleSortChange = (sort) => {
-    setSortBy(sort)
-  }
-
-  // 清除筛选
-  const handleClearFilter = (filterType) => {
-    if (filterType === 'category') {
-      setSelectedCategory('全部')
-    } else if (filterType === 'price') {
-      setPriceRange('all')
-    } else if (filterType === 'search') {
-      setSearchTerm('')
-    } else if (filterType === 'all') {
-      setSelectedCategory('全部')
-      setPriceRange('all')
-      setSearchTerm('')
+  const fetchActivities = async () => {
+    try {
+      // 获取所有活动，不分页
+      const response = await api.get('/activities', {
+        params: {
+          status: 'active',
+          limit: 1000 // 获取所有活动
+        }
+      })
+      setActivities(response.data.data)
+      setTotalItems(response.data.pagination?.totalItems || response.data.data.length)
+      console.log('已加载活动数量:', response.data.data.length)
+      return true
+    } catch (error) {
+      console.error('获取活动数据失败:', error)
+      setActivities([])
+      setTotalItems(0)
+      return false
     }
-    setCurrentPage(1)
   }
 
-  // 获取当前筛选条件
-  const getActiveFilters = () => {
-    const filters = []
-    if (selectedCategory !== '全部') {
-      filters.push({ type: 'category', label: selectedCategory, key: '分类' })
+  // 获取活动数据并初始化
+  useEffect(() => {
+    const init = async () => {
+      await fetchActivities()
+      setLoading(false)
     }
-    if (priceRange !== 'all') {
-      const priceLabels = {
-        'free': '免费',
-        'low': '1500฿以下',
-        'high': '1500฿以上'
-      }
-      filters.push({ type: 'price', label: priceLabels[priceRange], key: '价格' })
+    init()
+  }, [])
+
+  // 翻页时滚动到顶部
+  useEffect(() => {
+    if (totalItems > 0) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
-    if (searchTerm) {
-      filters.push({ type: 'search', label: searchTerm, key: '搜索' })
-    }
-    return filters
-  }
+  }, [currentPage])
 
   const handlePageChange = (page) => {
     setCurrentPage(page)
@@ -327,76 +257,6 @@ function App() {
     setImageLoadStatus(prev => ({ ...prev, [activityId]: false }))
   }
 
-  // 渲染列表视图
-  const renderListView = () => {
-    const allActivities = weeklyScheduleData.flatMap(week => week.activities)
-
-    return (
-      <div className="schedule-list-compact">
-        {allActivities.map(activity => (
-          <div key={activity.id} className="schedule-item-compact">
-            <div className="activity-info">
-              <div className="activity-header-row">
-                <span
-                  className="category-tag-mini"
-                  style={{ backgroundColor: getCategoryColor(activity.category) }}
-                >
-                  {activity.category}
-                </span>
-                <span className="activity-time-mini">{activity.time}</span>
-              </div>
-              <h4 className="activity-title-mini">{activity.title}</h4>
-              <div className="activity-location-mini">📍 {activity.location}</div>
-              <div className="activity-price-mini">{activity.price}</div>
-            </div>
-            {activity.enrolled && activity.capacity && (
-              <div className="enrollment-mini">
-                {activity.enrolled}/{activity.capacity}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  // 渲染日历视图
-  const renderCalendarView = () => {
-    return (
-      <div className="schedule-calendar-compact">
-        {weeklyScheduleData.map((week, weekIndex) => (
-          <div key={weekIndex} className="week-section">
-            <div className="week-title">{week.week}</div>
-            <div className="days-grid">
-              {dayNames.map((dayName, dayIndex) => {
-                const dayActivities = week.activities.filter(a => a.dayOfWeek === dayIndex)
-                return (
-                  <div
-                    key={dayName}
-                    className={`day-cell ${dayActivities.length > 0 ? 'has-activities' : ''}`}
-                  >
-                    <div className="day-name">{dayName}</div>
-                    {dayActivities.map(activity => (
-                      <div
-                        key={activity.id}
-                        className="activity-chip"
-                        style={{ borderLeftColor: getCategoryColor(activity.category) }}
-                        onClick={() => handleActivityClick(activity)}
-                      >
-                        <div className="chip-time">{activity.time}</div>
-                        <div className="chip-title">{activity.title}</div>
-                      </div>
-                    ))}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
   if (loading && activities.length === 0) {
     return (
       <div className="app">
@@ -408,6 +268,11 @@ function App() {
     )
   }
 
+  // 原型筛选功能 - 获取活动数量
+  const filteredActivitiesForDisplay = useMemo(() => {
+    return applyPrototypeFilters(activities)
+  }, [activities, filterCategory, filterPrice, filterDay])
+
   return (
     <div className="app">
       <header>
@@ -415,149 +280,116 @@ function App() {
           <h1>✨ 清迈活动探索</h1>
           <p>发现泰北玫瑰城的精彩体验</p>
         </div>
-
-        {/* 搜索栏和操作区 */}
-        <div className="header-actions">
-          {/* 搜索框 */}
-          <div className="search-section-inline">
-            <div className="search-icon">🔍</div>
-            <input
-              type="text"
-              placeholder="搜索活动、地点、关键词..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              className="search-input-inline"
-            />
-          </div>
-
-          {/* 查看课表按钮 */}
-          <button
-            className={`schedule-link-inline ${showSchedule ? 'active' : ''}`}
-            onClick={() => setShowSchedule(!showSchedule)}
-          >
-            📅 {showSchedule ? '隐藏课表' : '查看周课表'}
-          </button>
-        </div>
-
-        {/* 周课表面板 */}
-        {showSchedule && (
-          <div className="schedule-panel">
-            <div className="schedule-panel-header">
-              <h3>🗓️ 本周课程安排</h3>
-              <div className="view-toggle">
-                <button
-                  className={`view-btn ${scheduleView === 'list' ? 'active' : ''}`}
-                  onClick={() => setScheduleView('list')}
-                >
-                  📋 列表
-                </button>
-                <button
-                  className={`view-btn ${scheduleView === 'calendar' ? 'active' : ''}`}
-                  onClick={() => setScheduleView('calendar')}
-                >
-                  📅 日历
-                </button>
-              </div>
-            </div>
-
-            <div className="schedule-panel-content">
-              {scheduleView === 'list' ? renderListView() : renderCalendarView()}
-            </div>
-          </div>
-        )}
-
         <div className="header-decoration"></div>
       </header>
 
-      <div className="container">
+      {/* 固定顶部筛选栏（原型功能） */}
+      <div className="fixed-filter-bar">
+        <div className="fixed-filter-container">
+          {/* 筛选条件 */}
+          <div className="filter-row">
+            <div className="filter-group-inline">
+              <span className="filter-label-inline">分类:</span>
+              <div className="filter-chips-inline">
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    className={`filter-chip-yellow ${filterCategory === cat ? 'active' : ''}`}
+                    onClick={() => setFilterCategory(cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {/* 筛选区域 */}
-        <div className="filters-section">
-          <div className="filter-group">
-            <h4 className="filter-label">分类</h4>
-            <div className="filter-chips">
-              {categories.map(category => (
-                <button
-                  key={category}
-                  className={`filter-chip ${selectedCategory === category ? 'active' : ''}`}
-                  onClick={() => handleCategoryChange(category)}
-                >
-                  {category}
+            <div className="filter-group-inline">
+              <span className="filter-label-inline">价格:</span>
+              <div className="filter-chips-inline">
+                {['全部', '免费', '1500以下', '1500以上'].map(price => (
+                  <button
+                    key={price}
+                    className={`filter-chip-yellow ${filterPrice === price ? 'active' : ''}`}
+                    onClick={() => setFilterPrice(price)}
+                  >
+                    {price === '全部' ? '全部' : (price === '免费' ? '🆓 免费' : (price === '1500以下' ? '💰 1500以下' : '💎 1500以上'))}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 活跃筛选标签 */}
+          {(filterCategory !== '全部' || filterPrice !== '全部' || filterDay !== null) && (
+            <div className="filter-tags-row">
+              <div className="filter-tags">
+                {filterCategory !== '全部' && (
+                  <div className="filter-tag">
+                    <span>分类: {filterCategory}</span>
+                    <button onClick={() => handleClearPrototypeFilter('category')}>✕</button>
+                  </div>
+                )}
+                {filterPrice !== '全部' && (
+                  <div className="filter-tag">
+                    <span>价格: {filterPrice}</span>
+                    <button onClick={() => handleClearPrototypeFilter('price')}>✕</button>
+                  </div>
+                )}
+                {filterDay !== null && (
+                  <div className="filter-tag">
+                    <span>日期: {dayNames[filterDay]}</span>
+                    <button onClick={() => handleClearPrototypeFilter('day')}>✕</button>
+                  </div>
+                )}
+                <button className="clear-all-btn" onClick={() => handleClearPrototypeFilter('all')}>
+                  清除全部
                 </button>
-              ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div className="filter-group">
-            <h4 className="filter-label">价格</h4>
-            <div className="filter-chips">
+          {/* Tab切换和结果统计 */}
+          <div className="tab-header-row">
+            <div className="view-tabs">
               <button
-                className={`filter-chip ${priceRange === 'all' ? 'active' : ''}`}
-                onClick={() => handlePriceRangeChange('all')}
+                className={`tab-button ${mainViewMode === 'grid' ? 'active' : ''}`}
+                onClick={() => setMainViewMode('grid')}
               >
-                全部
+                📋 网格视图
               </button>
               <button
-                className={`filter-chip ${priceRange === 'free' ? 'active' : ''}`}
-                onClick={() => handlePriceRangeChange('free')}
+                className={`tab-button ${mainViewMode === 'calendar' ? 'active' : ''}`}
+                onClick={() => setMainViewMode('calendar')}
               >
-                🆓 免费
+                📅 周视图
               </button>
               <button
-                className={`filter-chip ${priceRange === 'low' ? 'active' : ''}`}
-                onClick={() => handlePriceRangeChange('low')}
+                className={`tab-button ${mainViewMode === 'monthly' ? 'active' : ''}`}
+                onClick={() => setMainViewMode('monthly')}
               >
-                💰 1500฿以下
+                📆 月课表
               </button>
-              <button
-                className={`filter-chip ${priceRange === 'high' ? 'active' : ''}`}
-                onClick={() => handlePriceRangeChange('high')}
+              <a
+                href="/schedule"
+                className="tab-button external-link"
+                style={{ textDecoration: 'none', display: 'inline-block' }}
               >
-                💎 1500฿以上
-              </button>
+                🔗 完整日历
+              </a>
             </div>
-          </div>
-
-          <div className="filter-group sort-group">
-            <h4 className="filter-label">排序</h4>
-            <select value={sortBy} onChange={(e) => handleSortChange(e.target.value)} className="sort-select">
-              <option value="date">按日期 ↑</option>
-              <option value="price-low">价格：低到高</option>
-              <option value="price-high">价格：高到低</option>
-            </select>
-          </div>
-
-          <div className="results-count">
-            <span className="count-number">{totalItems || filteredActivities.length}</span>
-            <span>个活动</span>
+            <div className="result-count">
+              共 <span className="count-number">{filteredActivitiesForDisplay.length}</span> 个活动
+              {process.env.NODE_ENV === 'development' && (
+                <span style={{ fontSize: '12px', marginLeft: '10px', opacity: 0.7 }}>
+                  (总数据: {activities.length})
+                </span>
+              )}
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* 筛选条件标签 */}
-        {getActiveFilters().length > 0 && (
-          <div className="active-filters">
-            <div className="filter-tags">
-              {getActiveFilters().map(filter => (
-                <div key={filter.type} className="filter-tag">
-                  <span className="tag-label">{filter.key}: {filter.label}</span>
-                  <button
-                    className="tag-remove"
-                    onClick={() => handleClearFilter(filter.type)}
-                    aria-label={`清除${filter.key}筛选`}
-                  >
-                    ✕
-                  </button>
-                </div>
-              ))}
-              <button
-                className="clear-all-btn"
-                onClick={() => handleClearFilter('all')}
-              >
-                清除全部
-              </button>
-            </div>
-          </div>
-        )}
+      <div className="container" style={{ marginTop: '280px' }}>
 
         {/* 活动详情弹窗 */}
         {selectedActivity && (
@@ -640,72 +472,168 @@ function App() {
           </div>
         )}
 
-        {/* 活动列表 */}
-        {filteredActivities.length > 0 ? (
-          <div className="activities-grid">
-            {filteredActivities.map(activity => (
-              <div
-                key={activity.id || activity._id}
-                className="activity-card"
-                onClick={() => handleActivityClick(activity)}
-              >
-                <div className="card-image-container">
-                  {!imageLoadStatus[activity.id || activity._id] && (
-                    <div className="image-placeholder">
-                      <div className="placeholder-spinner"></div>
-                    </div>
-                  )}
-                  <img
-                    src={getActivityImage(activity)}
-                    alt={activity.title}
-                    className={`activity-image ${imageLoadStatus[activity.id || activity._id] ? 'loaded' : 'loading'}`}
-                    onError={handleImageError}
-                    onLoadStart={() => handleImageLoadStart(activity.id || activity._id)}
-                    onLoad={() => handleImageLoad(activity.id || activity._id)}
-                    loading="lazy"
-                    decoding="async"
-                    {...getImageSrcSet(getActivityImage(activity))}
-                  />
-                  <div
-                    className="category-badge"
-                    style={{ backgroundColor: getCategoryColor(activity.category) }}
-                  >
-                    {activity.category}
-                  </div>
-                </div>
-                <div className="card-content">
-                  <h3>{activity.title}</h3>
-                  <div className="card-meta">
-                    <div className="meta-item">
-                      <span>📅</span>
-                      <span>{formatDate(activity.date)}</span>
-                    </div>
-                    <div className="meta-item">
-                      <span>⏰</span>
-                      <span>{formatTime(activity)}</span>
-                    </div>
-                  </div>
-                  <div className="card-location">📍 {activity.location}</div>
-                  <div className="card-footer">
-                    <div className="price-tag">{activity.price}</div>
-                    {activity.maxParticipants > 0 && (
-                      <div className="participant-status">
-                        <span className="status-dot"></span>
-                        <span>{activity.currentParticipants}/{activity.maxParticipants}</span>
+        {/* 主视图：网格、日历或月课表 */}
+        {mainViewMode === 'grid' ? (
+          // 网格视图
+          filteredActivitiesForDisplay.length > 0 ? (
+            <div className="activities-grid">
+              {filteredActivitiesForDisplay
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map(activity => (
+                <div
+                  key={activity.id || activity._id}
+                  className="activity-card"
+                  onClick={() => handleActivityClick(activity)}
+                >
+                  <div className="card-image-container">
+                    {!imageLoadStatus[activity.id || activity._id] && (
+                      <div className="image-placeholder">
+                        <div className="placeholder-spinner"></div>
                       </div>
                     )}
+                    <img
+                      src={getActivityImage(activity)}
+                      alt={activity.title}
+                      className={`activity-image ${imageLoadStatus[activity.id || activity._id] ? 'loaded' : 'loading'}`}
+                      onError={handleImageError}
+                      onLoadStart={() => handleImageLoadStart(activity.id || activity._id)}
+                      onLoad={() => handleImageLoad(activity.id || activity._id)}
+                      loading="lazy"
+                      decoding="async"
+                      {...getImageSrcSet(getActivityImage(activity))}
+                    />
+                    <div
+                      className="category-badge"
+                      style={{ backgroundColor: getCategoryColor(activity.category) }}
+                    >
+                      {activity.category}
+                    </div>
+                  </div>
+                  <div className="card-content">
+                    <h3>{activity.title}</h3>
+                    <div className="card-meta">
+                      <div className="meta-item">
+                        <span>📅</span>
+                        <span>{formatDate(activity.date)}</span>
+                      </div>
+                      <div className="meta-item">
+                        <span>⏰</span>
+                        <span>{formatTime(activity)}</span>
+                      </div>
+                    </div>
+                    <div className="card-location">📍 {activity.location}</div>
+                    <div className="card-footer">
+                      <div className="price-tag">{activity.price}</div>
+                      {activity.maxParticipants > 0 && (
+                        <div className="participant-status">
+                          <span className="status-dot"></span>
+                          <span>{activity.currentParticipants}/{activity.maxParticipants}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          ) : (
+            <div className="no-results">
+              <div className="no-results-icon">🔍</div>
+              <h3>没有找到符合条件的活动</h3>
+              <p>试试调整筛选条件</p>
+            </div>
+          )
+        ) : mainViewMode === 'calendar' ? (
+          // 日历视图（原型功能）
+          <div className="main-calendar-view">
+            <div className="calendar-grid">
+              {dayNames.map((dayName, dayIndex) => {
+                const dayActivities = filteredActivitiesForDisplay.filter(activity => {
+                  // 检查具体日期
+                  if (activity.date) {
+                    const date = new Date(activity.date)
+                    if (!isNaN(date.getTime())) {
+                      return date.getDay() === dayIndex
+                    }
+                  }
+                  // 检查星期数组（每周重复的活动）
+                  if (activity.weekdays && activity.weekdays.length > 0) {
+                    return activity.weekdays.includes(dayName)
+                  }
+                  return false
+                })
+
+                const isDaySelected = filterDay === dayIndex
+                const hasActivities = dayActivities.length > 0
+
+                return (
+                  <div
+                    key={dayName}
+                    className={`calendar-day-cell ${hasActivities ? 'has-activities' : ''} ${isDaySelected ? 'selected' : ''} ${filterDay !== null && !isDaySelected ? 'dimmed' : ''}`}
+                    onClick={() => filterDay === dayIndex ? handleClearPrototypeFilter('day') : setFilterDay(dayIndex)}
+                  >
+                    <div className="day-header">
+                      <div className="day-name">{dayName}</div>
+                      <div className="day-count">{dayActivities.length}</div>
+                    </div>
+                    <div className="day-activities-list">
+                      {dayActivities.slice(0, 5).map(activity => (
+                        <div
+                          key={activity.id || activity._id}
+                          className="mini-activity-chip"
+                          style={{ borderLeftColor: getCategoryColor(activity.category) }}
+                        >
+                          <div className="chip-time">{activity.time || formatTime(activity)}</div>
+                          <div className="chip-title">{activity.title}</div>
+                        </div>
+                      ))}
+                      {dayActivities.length > 5 && (
+                        <div className="more-activities">
+                          还有 {dayActivities.length - 5} 个活动...
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ) : mainViewMode === 'monthly' ? (
+          // 月课表视图
+          <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '20px' }}>📆</div>
+            <h2 style={{ fontSize: '2rem', marginBottom: '20px' }}>月课表</h2>
+            <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '30px' }}>
+              查看完整月度活动安排
+            </p>
+            <a
+              href="/schedule"
+              style={{
+                display: 'inline-block',
+                padding: '15px 40px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                textDecoration: 'none',
+                borderRadius: '30px',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
+                transition: 'all 0.3s'
+              }}
+              onMouseOver={(e) => e.target.style.transform = 'translateY(-2px)'}
+              onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
+            >
+              前往完整日历页面 →
+            </a>
+            <div style={{ marginTop: '40px', padding: '30px', background: '#f8f9fa', borderRadius: '12px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+              <h3 style={{ marginBottom: '15px', color: '#667eea' }}>💡 功能说明</h3>
+              <div style={{ textAlign: 'left', lineHeight: '1.8' }}>
+                <p>✨ 周视图：查看本周活动安排</p>
+                <p>📋 列表视图：查看所有活动列表</p>
+                <p>📆 月课表：查看月度活动安排</p>
               </div>
-            ))}
+            </div>
           </div>
-        ) : (
-          <div className="no-results">
-            <div className="no-results-icon">🔍</div>
-            <h3>{loading ? '加载中...' : '没有找到符合条件的活动'}</h3>
-            {!loading && <p>试试调整筛选条件或使用其他关键词</p>}
-          </div>
-        )}
+        ) : null}
 
         {/* 分页 */}
         {totalPages > 1 && (
