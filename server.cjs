@@ -1,4 +1,64 @@
 require('dotenv').config();
+
+// =====================================================
+// 日志工具（生产环境自动禁用调试日志）
+// =====================================================
+
+const isProduction = process.env.NODE_ENV === 'production';
+const isDevelopment = process.env.NODE_ENV === 'development' || !process.env.NODE_ENV;
+
+/**
+ * 日志工具对象
+ * 在生产环境中禁用调试日志，仅保留错误和警告
+ */
+const logger = {
+  /**
+   * 调试日志 - 仅开发环境
+   */
+  debug: function(...args) {
+    if (!isProduction) {
+      console.log('[DEBUG]', ...args);
+    }
+  },
+
+  /**
+   * 信息日志 - 始终记录
+   */
+  info: function(...args) {
+    console.log('[INFO]', ...args);
+  },
+
+  /**
+   * 警告日志 - 始终记录
+   */
+  warn: function(...args) {
+    console.warn('[WARN]', ...args);
+  },
+
+  /**
+   * 错误日志 - 始终记录
+   */
+  error: function(...args) {
+    console.error('[ERROR]', ...args);
+  },
+
+  /**
+   * 成功日志 - 仅开发环境
+   */
+  success: function(...args) {
+    if (!isProduction) {
+      console.log('✅', ...args);
+    }
+  }
+};
+
+// 记录启动环境
+if (isProduction) {
+  console.log('🚀 生产环境模式 - 调试日志已禁用');
+} else {
+  console.log('🛠️  开发环境模式 - 所有日志已启用');
+}
+
 const express = require('express');
 const axios = require('axios');
 const fs = require('fs');
@@ -361,6 +421,239 @@ function tryCatch(res, operationName, fn) {
     sendErrorResponse(res, error, 500);
   }
 }
+
+// =====================================================
+// 认证授权中间件
+// =====================================================
+
+/**
+ * 从环境变量或使用默认API密钥
+ * 生产环境必须设置ADMIN_API_KEY环境变量
+ */
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'dev-api-key-change-in-production';
+
+/**
+ * API密钥认证中间件
+ * 验证请求头中的X-API-Key
+ */
+function requireApiKey(req, res, next) {
+  const apiKey = req.headers['x-api-key'];
+
+  // 检查API密钥是否存在
+  if (!apiKey) {
+    return res.status(401).json({
+      success: false,
+      error: 'Unauthorized',
+      message: '缺少API密钥，请在请求头中提供 X-API-Key'
+    });
+  }
+
+  // 验证API密钥
+  if (apiKey !== ADMIN_API_KEY) {
+    return res.status(403).json({
+      success: false,
+      error: 'Forbidden',
+      message: 'API密钥无效'
+    });
+  }
+
+  // 认证成功，记录日志并继续
+  console.log(`✅ API认证成功: ${req.method} ${req.url}`);
+  next();
+}
+
+/**
+ * 可选的API密钥认证
+ * 如果提供了密钥则验证，否则继续
+ * 用于某些需要区分用户和匿名请求的场景
+ */
+function optionalApiKey(req, res, next) {
+  const apiKey = req.headers['x-api-key'];
+
+  if (apiKey && apiKey !== ADMIN_API_KEY) {
+    return res.status(403).json({
+      success: false,
+      error: 'Forbidden',
+      message: 'API密钥无效'
+    });
+  }
+
+  next();
+}
+
+// 启动时检查API密钥配置
+if (ADMIN_API_KEY === 'dev-api-key-change-in-production' && process.env.NODE_ENV === 'production') {
+  console.warn('⚠️  警告: 使用默认API密钥！请在生产环境设置 ADMIN_API_KEY 环境变量');
+} else {
+  console.log('🔐 API认证已启用');
+}
+
+// =====================================================
+// 速率限制中间件（防止DDoS攻击）
+// =====================================================
+
+/**
+ * 简单的内存速率限制器
+ * 使用IP地址作为标识符
+ */
+class RateLimiter {
+  constructor(windowMs = 15 * 60 * 1000, maxRequests = 100) {
+    this.windowMs = windowMs; // 时间窗口（毫秒）
+    this.maxRequests = maxRequests; // 最大请求数
+    this.requests = new Map(); // 存储请求记录 { IP: [{timestamp, count}] }
+    this.cleanupInterval = setInterval(() => this.cleanup(), 60 * 1000); // 每分钟清理一次过期记录
+  }
+
+  /**
+   * 检查是否超过速率限制
+   * @param {string} ip - 客户端IP地址
+   * @returns {Object} - {allowed: boolean, remaining: number}
+   */
+  check(ip) {
+    const now = Date.now();
+    const windowStart = now - this.windowMs;
+
+    // 获取该IP的请求记录
+    let ipRequests = this.requests.get(ip);
+
+    if (!ipRequests) {
+      // 首次请求
+      this.requests.set(ip, [{ timestamp: now, count: 1 }]);
+      return { allowed: true, remaining: this.maxRequests - 1 };
+    }
+
+    // 过滤掉时间窗口外的旧请求
+    ipRequests = ipRequests.filter(req => req.timestamp > windowStart);
+
+    // 计算当前窗口内的总请求数
+    const totalCount = ipRequests.reduce((sum, req) => sum + req.count, 0);
+
+    if (totalCount >= this.maxRequests) {
+      // 超过限制
+      return { allowed: false, remaining: 0 };
+    }
+
+    // 未超过限制，记录此次请求
+    // 如果最后一秒内有请求，增加计数；否则添加新记录
+    const lastSecond = Math.floor(now / 1000);
+    const lastReq = ipRequests[ipRequests.length - 1];
+    const lastReqSecond = lastReq ? Math.floor(lastReq.timestamp / 1000) : -1;
+
+    if (lastReqSecond === lastSecond) {
+      lastReq.count++;
+    } else {
+      ipRequests.push({ timestamp: now, count: 1 });
+    }
+
+    this.requests.set(ip, ipRequests);
+    return { allowed: true, remaining: this.maxRequests - totalCount - 1 };
+  }
+
+  /**
+   * 清理过期的请求记录
+   */
+  cleanup() {
+    const now = Date.now();
+    const windowStart = now - this.windowMs;
+
+    for (const [ip, requests] of this.requests.entries()) {
+      const validRequests = requests.filter(req => req.timestamp > windowStart);
+
+      if (validRequests.length === 0) {
+        // 没有有效请求，删除该IP的记录
+        this.requests.delete(ip);
+      } else {
+        this.requests.set(ip, validRequests);
+      }
+    }
+  }
+
+  /**
+   * 重置指定IP的速率限制
+   */
+  reset(ip) {
+    this.requests.delete(ip);
+  }
+
+  /**
+   * 停止清理定时器
+   */
+  destroy() {
+    clearInterval(this.cleanupInterval);
+  }
+}
+
+// 创建速率限制器实例
+const generalLimiter = new RateLimiter(15 * 60 * 1000, 100); // 15分钟100次请求
+const writeLimiter = new RateLimiter(15 * 60 * 1000, 20); // 15分钟20次写操作
+const strictLimiter = new RateLimiter(60 * 1000, 10); // 1分钟10次请求（用于敏感操作）
+
+/**
+ * 通用速率限制中间件
+ */
+function rateLimit(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress;
+  const result = generalLimiter.check(ip);
+
+  // 设置速率限制响应头
+  res.setHeader('X-RateLimit-Limit', generalLimiter.maxRequests);
+  res.setHeader('X-RateLimit-Remaining', result.remaining);
+  res.setHeader('X-RateLimit-Reset', Date.now() + generalLimiter.windowMs);
+
+  if (!result.allowed) {
+    return res.status(429).json({
+      success: false,
+      error: 'Too Many Requests',
+      message: '请求过于频繁，请稍后再试',
+      retryAfter: Math.ceil(generalLimiter.windowMs / 1000)
+    });
+  }
+
+  next();
+}
+
+/**
+ * 写操作速率限制中间件
+ */
+function writeRateLimit(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress;
+  const result = writeLimiter.check(ip);
+
+  if (!result.allowed) {
+    return res.status(429).json({
+      success: false,
+      error: 'Too Many Requests',
+      message: '写操作过于频繁，请稍后再试',
+      retryAfter: Math.ceil(writeLimiter.windowMs / 1000)
+    });
+  }
+
+  next();
+}
+
+/**
+ * 严格速率限制中间件（用于敏感操作）
+ */
+function strictRateLimit(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress;
+  const result = strictLimiter.check(ip);
+
+  if (!result.allowed) {
+    return res.status(429).json({
+      success: false,
+      error: 'Too Many Requests',
+      message: '操作过于频繁，请稍后再试',
+      retryAfter: Math.ceil(strictLimiter.windowMs / 1000)
+    });
+  }
+
+  next();
+}
+
+console.log('🚦 速率限制已启用:');
+console.log('  - 通用限制: 100次/15分钟');
+console.log('  - 写操作限制: 20次/15分钟');
+console.log('  - 严格限制: 10次/分钟');
   // Multer文件上传错误
   if (err.code === 'LIMIT_FILE_SIZE') {
     return sendErrorResponse(res, new Error('文件大小超过限制（最大2MB）'), 400);
@@ -435,7 +728,7 @@ const upload = multer({
   }
 });
 
-// 读取数据
+// 读取数据（同步版本 - 保持向后兼容）
 const readData = () => {
   try {
     const data = fs.readFileSync(DATA_FILE, 'utf8');
@@ -445,7 +738,17 @@ const readData = () => {
   }
 };
 
-// 写入数据
+// 读取数据（异步版本 - 推荐用于新代码）
+const readDataAsync = async () => {
+  try {
+    const data = await fs.promises.readFile(DATA_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return [];
+  }
+};
+
+// 写入数据（同步版本 - 保持向后兼容）
 const writeData = (data) => {
   fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 
@@ -466,6 +769,30 @@ const writeData = (data) => {
       count: data.length
     };
     fs.writeFileSync(VERSION_FILE, JSON.stringify(version, null, 2));
+  }
+};
+
+// 写入数据（异步版本 - 推荐用于新代码，性能更好）
+const writeDataAsync = async (data) => {
+  await fs.promises.writeFile(DATA_FILE, JSON.stringify(data, null, 2));
+
+  // 更新数据版本号 - 使用应用版本号
+  try {
+    const appVersion = await fs.promises.readFile(APP_VERSION_FILE, 'utf8');
+    const version = {
+      version: JSON.parse(appVersion).version,
+      timestamp: new Date().toISOString(),
+      count: data.length
+    };
+    await fs.promises.writeFile(VERSION_FILE, JSON.stringify(version, null, 2));
+  } catch (error) {
+    // 如果读取应用版本失败，使用时间戳
+    const version = {
+      version: Date.now(),
+      timestamp: new Date().toISOString(),
+      count: data.length
+    };
+    await fs.promises.writeFile(VERSION_FILE, JSON.stringify(version, null, 2));
   }
 };
 
@@ -541,6 +868,58 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
+  next();
+});
+
+// 应用通用速率限制到所有API路由
+app.use('/api/', rateLimit);
+
+// =====================================================
+// 请求日志和监控中间件
+// =====================================================
+
+/**
+ * 请求日志中间件
+ * 记录所有API请求的详细信息
+ */
+app.use('/api/', (req, res, next) => {
+  const startTime = Date.now();
+
+  // 记录请求开始
+  logger.debug(`${req.method} ${req.url}`);
+
+  // 监听响应完成事件
+  res.on('finish', () => {
+    const duration = Date.now() - startTime;
+    const { method, url, ip } = req;
+    const { statusCode } = res;
+
+    // 记录请求完成
+    const logData = {
+      method,
+      url,
+      statusCode,
+      duration: `${duration}ms`,
+      ip: ip || req.connection.remoteAddress,
+      timestamp: new Date().toISOString()
+    };
+
+    // 仅在开发环境记录详细信息
+    if (isDevelopment) {
+      logger.debug(JSON.stringify(logData));
+    }
+
+    // 记录慢请求（超过1秒）
+    if (duration > 1000) {
+      logger.warn(`慢请求检测: ${method} ${url} - ${duration}ms`);
+    }
+
+    // 记录错误请求（4xx, 5xx）
+    if (statusCode >= 400) {
+      logger.warn(`错误请求: ${method} ${url} - ${statusCode}`);
+    }
+  });
+
   next();
 });
 
@@ -717,7 +1096,7 @@ app.get('/api/activities/:id', (req, res) => {
 });
 
 // POST /api/activities - 创建新活动
-app.post('/api/activities', (req, res) => {
+app.post('/api/activities', requireApiKey, (req, res) => {
   const {
     title, description, category,
     date, time, duration,
@@ -779,7 +1158,7 @@ app.post('/api/activities', (req, res) => {
 });
 
 // PUT /api/activities/:id - 更新活动
-app.put('/api/activities/:id', (req, res) => {
+app.put('/api/activities/:id', requireApiKey, (req, res) => {
   const items = readData();
   const index = items.findIndex(i => i.id === req.params.id || i._id === req.params.id);
 
@@ -815,7 +1194,7 @@ app.put('/api/activities/:id', (req, res) => {
 });
 
 // DELETE /api/activities/:id - 删除活动
-app.delete('/api/activities/:id', (req, res) => {
+app.delete('/api/activities/:id', requireApiKey, (req, res) => {
   const items = readData();
   const index = items.findIndex(i => i.id === req.params.id || i._id === req.params.id);
 
@@ -904,7 +1283,7 @@ app.get('/api/items/:id', (req, res) => {
 });
 
 // POST /api/items - 创建新数据
-app.post('/api/items', (req, res) => {
+app.post('/api/items', requireApiKey, (req, res) => {
   const data = req.body;
 
   if (!data.title || !data.description) {
@@ -928,7 +1307,7 @@ app.post('/api/items', (req, res) => {
 });
 
 // PUT /api/items/:id - 更新数据
-app.put('/api/items/:id', (req, res) => {
+app.put('/api/items/:id', requireApiKey, (req, res) => {
   const items = readData();
   const index = items.findIndex(i => i.id === req.params.id);
 
@@ -953,7 +1332,7 @@ app.put('/api/items/:id', (req, res) => {
 });
 
 // DELETE /api/items/:id - 删除数据
-app.delete('/api/items/:id', (req, res) => {
+app.delete('/api/items/:id', requireApiKey, (req, res) => {
   const items = readData();
   const index = items.findIndex(i => i.id === req.params.id);
 
@@ -970,7 +1349,7 @@ app.delete('/api/items/:id', (req, res) => {
 // ========== 文件上传 API ==========
 
 // POST /api/upload - 上传单个图片
-app.post('/api/upload', upload.single('image'), (req, res) => {
+app.post('/api/upload', requireApiKey, upload.single('image'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: '没有上传文件' });
@@ -994,7 +1373,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
 });
 
 // DELETE /api/upload/:filename - 删除上传的图片
-app.delete('/api/upload/:filename', (req, res) => {
+app.delete('/api/upload/:filename', requireApiKey, (req, res) => {
   try {
     const filename = req.params.filename;
     const filePath = path.join(__dirname, 'uploads', filename);
@@ -1034,7 +1413,7 @@ const { exec } = require('child_process');
 /**
  * 从Excel导入数据到后台
  */
-app.post('/api/import-excel', async (req, res) => {
+app.post('/api/import-excel', requireApiKey, async (req, res) => {
   try {
     console.log('📥 开始从Excel导入数据...');
 
@@ -1085,7 +1464,7 @@ app.post('/api/import-excel', async (req, res) => {
 /**
  * 导出后台数据到Excel
  */
-app.post('/api/export-excel', async (req, res) => {
+app.post('/api/export-excel', requireApiKey, async (req, res) => {
   try {
     console.log('📤 开始导出数据到Excel...');
 
@@ -1204,7 +1583,7 @@ app.get('/api/guide', (req, res) => {
 /**
  * POST /api/guide - 保存攻略信息
  */
-app.post('/api/guide', (req, res) => {
+app.post('/api/guide', requireApiKey, (req, res) => {
   try {
     const { content } = req.body;
 
@@ -1331,7 +1710,7 @@ app.get('/api/requirements-log/recent', (req, res) => {
 /**
  * POST /api/requirements-log - 添加新的需求日志
  */
-app.post('/api/requirements-log', (req, res) => {
+app.post('/api/requirements-log', requireApiKey, (req, res) => {
   try {
     const { type, category, title, description, details, impact, relatedFiles } = req.body;
 
@@ -1398,7 +1777,7 @@ app.post('/api/requirements-log', (req, res) => {
 /**
  * PUT /api/requirements-log/:id - 更新需求日志
  */
-app.put('/api/requirements-log/:id', (req, res) => {
+app.put('/api/requirements-log/:id', requireApiKey, (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
@@ -1451,7 +1830,7 @@ app.put('/api/requirements-log/:id', (req, res) => {
 /**
  * DELETE /api/requirements-log/:id - 删除需求日志
  */
-app.delete('/api/requirements-log/:id', (req, res) => {
+app.delete('/api/requirements-log/:id', requireApiKey, (req, res) => {
   try {
     const { id } = req.params;
 
@@ -1733,7 +2112,7 @@ function mergeData(existingData, newItems) {
 /**
  * Webhook接收端 - 接收飞书多维表格的通知
  */
-app.post('/api/sync-from-feishu', async (req, res) => {
+app.post('/api/sync-from-feishu', requireApiKey, async (req, res) => {
   try {
     console.log('📬 收到飞书同步请求:', new Date().toISOString());
 
@@ -1763,7 +2142,7 @@ app.post('/api/sync-from-feishu', async (req, res) => {
 /**
  * 手动触发同步接口
  */
-app.post('/api/sync-manual', async (req, res) => {
+app.post('/api/sync-manual', requireApiKey, async (req, res) => {
   try {
     console.log('🔄 开始手动同步飞书数据...');
 
@@ -1789,7 +2168,7 @@ app.post('/api/sync-manual', async (req, res) => {
 /**
  * 自动修复API - 修复缺失的status字段
  */
-app.post('/api/fix-missing-status', (req, res) => {
+app.post('/api/fix-missing-status', requireApiKey, (req, res) => {
   try {
     console.log('🔧 开始修复缺失的status字段...');
     const data = readData();
@@ -1835,7 +2214,7 @@ app.post('/api/fix-missing-status', (req, res) => {
 /**
  * 自动修复API - 修复缺失的suspensionNote字段
  */
-app.post('/api/fix-suspension-notes', (req, res) => {
+app.post('/api/fix-suspension-notes', requireApiKey, (req, res) => {
   try {
     console.log('🔧 开始修复缺失的suspensionNote字段...');
     const data = readData();
@@ -1881,7 +2260,7 @@ app.post('/api/fix-suspension-notes', (req, res) => {
 /**
  * 自动修复API - 更新版本号
  */
-app.post('/api/update-version', (req, res) => {
+app.post('/api/update-version', requireApiKey, (req, res) => {
   try {
     console.log('🔧 更新版本信息...');
     const data = readData();
@@ -1930,7 +2309,7 @@ app.post('/api/update-version', (req, res) => {
 /**
  * 自动修复API - 综合修复（一键修复所有问题）
  */
-app.post('/api/auto-fix-all', async (req, res) => {
+app.post('/api/auto-fix-all', requireApiKey, async (req, res) => {
   try {
     console.log('🔧 开始自动修复所有问题...');
     const results = [];
