@@ -37,6 +37,49 @@
     })();
     </script>
     <style>
+        /* ========== CSS变量系统 ========== */
+        :root {
+            /* Spacing Scale */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 20px;
+            --space-2xl: 24px;
+
+            /* 移动端覆盖值 */
+            --space-mobile-xs: 2px;
+            --space-mobile-sm: 4px;
+            --space-mobile-md: 6px;
+            --space-mobile-lg: 8px;
+            --space-mobile-xl: 12px;
+            --space-mobile-2xl: 16px;
+
+            /* 布局尺寸 */
+            --space-header-height: 65px;
+            --space-tab-height: 50px;
+            --space-tab-padding-std: calc(var(--space-header-height) + var(--space-tab-height) + var(--space-md));
+            --space-tab-padding-tab4: calc(var(--space-header-height) + var(--space-tab-height));
+
+            /* Z-Index Layers */
+            --z-header: 1001;
+            --z-modal: 2000;
+            --z-toast: 3000;
+        }
+
+        /* 移动端变量覆盖 */
+        @media (max-width: 768px) {
+            :root {
+                --space-xs: var(--space-mobile-xs);
+                --space-sm: var(--space-mobile-sm);
+                --space-md: var(--space-mobile-md);
+                --space-lg: var(--space-mobile-lg);
+                --space-xl: var(--space-mobile-xl);
+                --space-2xl: var(--space-mobile-2xl);
+            }
+        }
+
+        /* ========== 原有样式 ========== */
         * {
             margin: 0;
             padding: 0;
@@ -1705,87 +1748,87 @@
 
             /* ========== 内容区适配所有固定元素 ========== */
             .tab-pane {
-                padding-top: 120px !important; /* 搜索框65px + Tab导航约50px + 适当间距 */
+                padding-top: var(--space-tab-padding-std) !important; /* 搜索框65px + Tab导航约50px + 适当间距 */
             }
 
             /* 攻略信息Tab没有日历头部，使用更小的padding */
-            #tab-4.tab-pane {
-                padding-top: 115px !important; /* 搜索框65px + Tab导航约50px */
+            #tab-5.tab-pane {
+                padding-top: var(--space-tab-padding-tab4) !important; /* 搜索框65px + Tab导航约50px */
             }
 
-            /* ========== 移动端间距优化 ========== */
+            /* ========== 移动端间距优化（使用CSS变量） ========== */
             /* 减少全局容器间距 */
             .container {
-                padding-left: 8px !important;
-                padding-right: 8px !important;
+                padding-left: var(--space-sm) !important;
+                padding-right: var(--space-sm) !important;
             }
 
             /* 优化筛选栏和结果栏间距 */
             .filter-section {
-                padding: 8px 12px !important;
-                margin-bottom: 4px !important;
+                padding: var(--space-md) var(--space-lg) !important;
+                margin-bottom: var(--space-xs) !important;
             }
 
             .results-count {
-                padding: 6px 12px !important;
-                margin-top: 4px !important;
-                margin-bottom: 4px !important;
+                padding: var(--space-mobile-md) var(--space-sm) !important;
+                margin-top: var(--space-xs) !important;
+                margin-bottom: var(--space-xs) !important;
                 font-size: 12px !important;
             }
 
             /* 优化日期单元格间距 */
             .day-cell {
-                padding: 8px !important;
-                margin-bottom: 6px !important;
+                padding: var(--space-sm) !important;
+                margin-bottom: var(--space-sm) !important;
             }
 
             /* 优化活动卡片间距 */
             .activity-card {
-                margin-bottom: 6px !important;
+                margin-bottom: var(--space-sm) !important;
             }
 
             .activity-chip {
-                padding: 6px 8px !important;
-                margin-bottom: 4px !important;
+                padding: var(--space-mobile-sm) var(--space-xs) !important;
+                margin-bottom: var(--space-xs) !important;
                 font-size: 11px !important;
             }
 
             /* 优化日历头部间距 */
             .calendar-header {
-                padding: 8px 12px 6px 12px !important;
-                margin-bottom: 6px !important;
+                padding: var(--space-sm) var(--space-lg) var(--space-xs) var(--space-lg) !important;
+                margin-bottom: var(--space-sm) !important;
             }
 
             .nav-row {
-                margin-bottom: 8px !important;
+                margin-bottom: var(--space-sm) !important;
             }
 
             .nav-btn {
-                padding: 6px 10px !important;
+                padding: var(--space-mobile-xs) var(--space-sm) !important;
                 font-size: 12px !important;
                 margin: 0 2px !important;
             }
 
             /* 优化日期表头间距 */
             .date-grid-header {
-                padding: 4px 8px !important;
-                gap: 6px !important;
+                padding: var(--space-xs) var(--space-sm) !important;
+                gap: var(--space-mobile-md) !important;
             }
 
             .date-cell-header {
-                padding: 6px 8px !important;
+                padding: var(--space-mobile-xs) var(--space-sm) !important;
                 min-width: 40px !important;
                 font-size: 11px !important;
             }
 
             /* 优化列表视图间距 */
             .schedule-list {
-                padding: 4px !important;
+                padding: var(--space-xs) !important;
             }
 
             .schedule-item {
-                padding: 8px 10px !important;
-                margin-bottom: 6px !important;
+                padding: var(--space-sm) var(--space-mobile-xs) !important;
+                margin-bottom: var(--space-sm) !important;
             }
         }
 
@@ -1947,7 +1990,7 @@
             </div>
         </div>
 
-        <!-- Tab导航（5个Tab） -->
+        <!-- Tab导航（6个Tab） -->
         <div class="tabs-nav">
             <div class="tab-item active" onclick="switchTab(0)">
                 <span class="tab-icon">📅</span>
@@ -1958,14 +2001,18 @@
                 <span>市集</span>
             </div>
             <div class="tab-item" onclick="switchTab(2)">
+                <span class="tab-icon">🎵</span>
+                <span>音乐</span>
+            </div>
+            <div class="tab-item" onclick="switchTab(3)">
                 <span class="tab-icon">⏰</span>
                 <span>灵活时间活动</span>
             </div>
-            <div class="tab-item" onclick="switchTab(3)">
+            <div class="tab-item" onclick="switchTab(4)">
                 <span class="tab-icon">🏪</span>
                 <span>活动网站</span>
             </div>
-            <div class="tab-item" onclick="switchTab(4)">
+            <div class="tab-item" onclick="switchTab(5)">
                 <span class="tab-icon">📖</span>
                 <span>攻略信息</span>
             </div>
@@ -2015,8 +2062,29 @@
                 </div>
             </div>
 
-            <!-- 灵活时间活动Tab -->
+            <!-- 音乐Tab -->
             <div id="tab-2" class="tab-pane">
+                <div class="calendar-header">
+                    <div class="nav-row">
+                        <div class="month-label">本周音乐活动</div>
+                        <div class="nav-buttons">
+                            <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
+                            <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
+                            <button class="nav-btn" onclick="navigateWeek(1)">下一周 →</button>
+                        </div>
+                    </div>
+                    <div class="date-grid-header" id="dateGridHeaderMusic">
+                        <!-- 日期表头将通过 JavaScript 动态生成 -->
+                    </div>
+                </div>
+
+                <div class="calendar-grid" id="calendarGridMusic">
+                    <!-- 动态生成日历内容 -->
+                </div>
+            </div>
+
+            <!-- 灵活时间活动Tab -->
+            <div id="tab-3" class="tab-pane">
                 <div class="calendar-header">
                     <div class="nav-row">
                         <div class="month-label">灵活时间活动</div>
@@ -2028,7 +2096,7 @@
             </div>
 
             <!-- 活动网站Tab -->
-            <div id="tab-3" class="tab-pane">
+            <div id="tab-4" class="tab-pane">
                 <div class="calendar-header">
                     <div class="nav-row">
                         <div class="month-label">活动网站</div>
@@ -2040,7 +2108,7 @@
             </div>
 
             <!-- 攻略信息Tab -->
-            <div id="tab-4" class="tab-pane">
+            <div id="tab-5" class="tab-pane">
                 <div class="guide-content" id="guideContent" style="padding-top: 12px;">
                     <!-- 动态加载攻略内容 -->
                 </div>
@@ -2448,10 +2516,122 @@
             return days && days.length > 0 ? days[0] : null;
         }
 
+        // =====================================================
+        // 时间排序工具函数
+        // =====================================================
+
+        /**
+         * 提取时间的开始部分
+         * @param {string} timeStr - 时间字符串，如 "16:00-19:00"
+         * @returns {object} - { hour, minute, original }
+         */
+        function extractStartTime(timeStr) {
+            if (!timeStr || timeStr === '灵活时间') {
+                return { hour: 99, minute: 99, original: timeStr || '灵活时间' };
+            }
+
+            // 提取第一个时间 HH:MM
+            const match = timeStr.match(/^(\d{1,2}):(\d{2})/);
+            if (match) {
+                return {
+                    hour: parseInt(match[1], 10),
+                    minute: parseInt(match[2], 10),
+                    original: timeStr
+                };
+            }
+
+            return { hour: 99, minute: 99, original: timeStr };
+        }
+
+        /**
+         * 提取时间的结束部分
+         * @param {string} timeStr - 时间字符串，如 "16:00-19:00"
+         * @returns {object} - { hour, minute, isOvernight }
+         */
+        function extractEndTime(timeStr) {
+            if (!timeStr || timeStr === '灵活时间') {
+                return { hour: 99, minute: 99, isOvernight: false, original: timeStr || '灵活时间' };
+            }
+
+            // 查找结束时间部分（第二个时间）
+            const parts = timeStr.split('-');
+            if (parts.length >= 2) {
+                const endTimeStr = parts[1].trim();
+                const match = endTimeStr.match(/^(\d{1,2}):(\d{2})/);
+                if (match) {
+                    let hour = parseInt(match[1], 10);
+                    let minute = parseInt(match[2], 10);
+                    let isOvernight = false;
+
+                    // 特殊处理：00:00 表示当天的24:00（最晚）
+                    if (hour === 0 && minute === 0) {
+                        hour = 24;
+                        minute = 0;
+                        isOvernight = true;
+                    }
+
+                    return { hour, minute, isOvernight, original: endTimeStr };
+                }
+            }
+
+            // 如果没有结束时间（单一时间点），返回开始时间
+            const start = extractStartTime(timeStr);
+            return { hour: start.hour, minute: start.minute, isOvernight: false, original: timeStr };
+        }
+
+        /**
+         * 比较两个时间字符串
+         * @param {string} timeA - 时间A
+         * @param {string} timeB - 时间B
+         * @returns {number} - -1 (A在前), 0 (相同), 1 (B在前)
+         */
+        function compareTimes(timeA, timeB) {
+            const extractedA = extractStartTime(timeA);
+            const extractedB = extractStartTime(timeB);
+
+            // 优先级1: 按开始时间的数字值比较
+            if (extractedA.hour !== extractedB.hour) {
+                return extractedA.hour - extractedB.hour;
+            }
+
+            if (extractedA.minute !== extractedB.minute) {
+                return extractedA.minute - extractedB.minute;
+            }
+
+            // 开始时间相同，继续比较
+            // 优先级2: 单一时间点排在时间段前面
+            const isRangeA = extractedA.original.includes('-');
+            const isRangeB = extractedB.original.includes('-');
+
+            if (isRangeA && !isRangeB) return 1;   // A是范围，B是点 → B在前
+            if (!isRangeA && isRangeB) return -1;  // A是点，B是范围 → A在前
+
+            // 优先级3: 如果都是时间段（或都是单一时间点），按结束时间排序
+            if (isRangeA && isRangeB) {
+                const endA = extractEndTime(extractedA.original);
+                const endB = extractEndTime(extractedB.original);
+
+                // 按结束时间排序（早结束的在前）
+                if (endA.hour !== endB.hour) {
+                    return endA.hour - endB.hour;
+                }
+
+                if (endA.minute !== endB.minute) {
+                    return endA.minute - endB.minute;
+                }
+
+                // 结束时间也相同，保持原顺序
+                return 0;
+            }
+
+            // 都是单一时间点，保持原顺序
+            return 0;
+        }
+
         // 更新Tab数量显示（仅用于控制台调试）
         function updateTabCounts() {
-            // 兴趣班：瑜伽、冥想、舞蹈、泰拳、音乐、文化艺术、健身
-            const interestCategories = ['瑜伽', '冥想', '舞蹈', '泰拳', '音乐', '文化艺术', '健身'];
+            // 兴趣班：瑜伽、冥想、舞蹈、泰拳、文化艺术、健身（排除音乐）
+            const interestCategories = ['瑜伽', '冥想', '舞蹈', '泰拳', '文化艺术', '健身'];
             const interestActivities = allActivities.filter(a =>
                 interestCategories.includes(a.category)
             );
@@ -2459,6 +2639,11 @@
             // 市集
             const marketActivities = allActivities.filter(a =>
                 a.category === '市集'
+            );
+
+            // 音乐
+            const musicActivities = allActivities.filter(a =>
+                a.category === '音乐'
             );
 
             // 灵活时间活动
@@ -2474,6 +2659,7 @@
             console.log('📊 Tab数量统计（控制台）:');
             console.log('  - 兴趣班:', interestActivities.length);
             console.log('  - 市集:', marketActivities.length);
+            console.log('  - 音乐:', musicActivities.length);
             console.log('  - 灵活时间活动:', flexibleActivities.length);
             console.log('  - 活动网站:', websiteActivities.length);
             console.log('  - 攻略信息: 1 (页面)');
@@ -2481,7 +2667,14 @@
 
         // 初始化分类筛选器
         function initCategoryFilters() {
-            const categories = [...new Set(allActivities.map(a => a.category))];
+            // 防御性检查：确保allActivities已加载
+            if (!allActivities || allActivities.length === 0) {
+                console.warn("⚠️ allActivities为空，100ms后重试初始化分类筛选器");
+                setTimeout(initCategoryFilters, 100);
+                return;
+            }
+
+            const categories = [...new Set(allActivities.map(a => a.category))].filter(cat => cat !== '市集' && cat !== '音乐');
             const container = document.getElementById('categoryChips');
 
             let html = '<div class="filter-chip active" onclick="setFilter(\'category\', \'全部\')">全部</div>';
@@ -2490,6 +2683,7 @@
             });
 
             container.innerHTML = html;
+            console.log("✅ 分类筛选器已初始化，共", categories.length, "个分类:", categories.join(', '));
         }
 
         // =====================================================
@@ -2509,15 +2703,17 @@
 
             // 根据当前Tab筛选数据
             switch(currentTab) {
-                case 0: // 兴趣班 - 排除法：排除市集和灵活时间活动
+                case 0: // 兴趣班 - 排除法：排除市集、音乐和灵活时间活动
                     filtered = filtered.filter(a => {
                         // 排除市集
                         if (a.category === '市集') return false;
+                        // 排除音乐
+                        if (a.category === '音乐') return false;
                         // 排除灵活时间活动
                         if (a.flexibleTime === '是' || a.time === '灵活时间') return false;
                         return true;
                     });
-                    console.log('📅 Tab筛选 - 兴趣班 (固定时间，排除市集):', filtered.length);
+                    console.log('📅 Tab筛选 - 兴趣班 (固定时间，排除市集、音乐):', filtered.length);
                     break;
 
                 case 1: // 市集
@@ -2525,13 +2721,18 @@
                     console.log('📋 Tab筛选 - 市集:', filtered.length);
                     break;
 
-                case 2: // 灵活时间活动
+                case 2: // 音乐
+                    filtered = filtered.filter(a => a.category === '音乐');
+                    console.log('🎵 Tab筛选 - 音乐:', filtered.length);
+                    break;
+
+                case 3: // 灵活时间活动
                     filtered = filtered.filter(a => a.flexibleTime === '是' || a.time === '灵活时间');
                     console.log('⏰ Tab筛选 - 灵活时间活动:', filtered.length);
                     break;
 
-                case 3: // 活动网站
-                    console.log('🏪 Tab 3 筛选开始，总数:', filtered.length);
+                case 4: // 活动网站
+                    console.log('🏪 Tab 4 筛选开始，总数:', filtered.length);
                     const beforeFilter = filtered.length;
                     filtered = filtered.filter(a => {
                         const hasSource = a.source && a.source.url && a.source.url.length > 0;
@@ -2546,7 +2747,7 @@
                     }
                     break;
 
-                case 4: // 攻略信息 - 不需要筛选
+                case 5: // 攻略信息 - 不需要筛选
                     console.log('📖 Tab筛选 - 攻略信息: 无需筛选');
                     return [];
             }
@@ -3065,16 +3266,20 @@
                     updateCalendarView(filtered);
                     break;
 
-                case 2: // 灵活时间活动 - 列表视图
+                case 2: // 音乐 - 日历视图
+                    updateCalendarView(filtered);
+                    break;
+
+                case 3: // 灵活时间活动 - 列表视图
                     updateListView(filtered, 'flexibleList');
                     break;
 
-                case 3: // 活动网站 - 网站卡片视图
-                    console.log('🏪 Tab 3 - 准备调用 updateWebsitesView，活动数:', filtered.length);
+                case 4: // 活动网站 - 网站卡片视图
+                    console.log('🏪 Tab 4 - 准备调用 updateWebsitesView，活动数:', filtered.length);
                     updateWebsitesView(filtered);
                     break;
 
-                case 4: // 攻略信息 - 富文本内容
+                case 5: // 攻略信息 - 富文本内容
                     loadGuideContent();
                     break;
             }
@@ -3116,9 +3321,20 @@
 
         function updateCalendarView(filtered) {
             // 根据当前Tab选择不同的容器
-            const gridId = currentTab === 1 ? 'calendarGridMarket' : 'calendarGrid';
+            let gridId, headerId;
+            if (currentTab === 1) {
+                gridId = 'calendarGridMarket';
+                headerId = 'dateGridHeaderMarket';
+            } else if (currentTab === 2) {
+                gridId = 'calendarGridMusic';
+                headerId = 'dateGridHeaderMusic';
+            } else {
+                gridId = 'calendarGrid';
+                headerId = 'dateGridHeader';
+            }
+
             const grid = document.getElementById(gridId);
-            const headerId = currentTab === 1 ? 'dateGridHeaderMarket' : 'dateGridHeader';
+            const header = document.getElementById(headerId);
 
             // 添加淡入动画类
             grid.style.opacity = '0';
@@ -3285,11 +3501,11 @@
             // 始终使用筛选后的活动
             let activitiesToShow = dayActivities;
 
-            // 按时间排序（较早的活动排在前面）
+            // 按时间排序（较早的活动排在前面）- 使用数字比较
             activitiesToShow = activitiesToShow.sort((a, b) => {
-                const timeA = a.time || a.startTime || '99:99';
-                const timeB = b.time || b.startTime || '99:99';
-                return timeA.localeCompare(timeB);
+                const timeA = a.time || a.startTime || '灵活时间';
+                const timeB = b.time || b.startTime || '灵活时间';
+                return compareTimes(timeA, timeB);
             });
 
             let chipsHtml = '';
@@ -3329,20 +3545,9 @@
                 return;
             }
 
-            // 按时间排序：早的时间排在前面
+            // 按时间排序：早的时间排在前面 - 使用数字比较
             const sortedFiltered = [...filtered].sort((a, b) => {
-                // 提取开始时间（例如：从"08:30-09:45"提取"08:30"）
-                const extractStartTime = (timeStr) => {
-                    if (!timeStr || timeStr === '灵活时间') return '99:99';
-                    const match = timeStr.match(/^(\d{1,2}):(\d{2})/);
-                    return match ? match[0] : '99:99';
-                };
-
-                const timeA = extractStartTime(a.time);
-                const timeB = extractStartTime(b.time);
-
-                // 按开始时间升序排列
-                return timeA.localeCompare(timeB);
+                return compareTimes(a.time, b.time);
             });
 
             let html = sortedFiltered.map(act => {

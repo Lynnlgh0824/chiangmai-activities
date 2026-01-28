@@ -394,30 +394,122 @@
     </div>
 
     <script>
-        // 测试套件配置
+        // 测试套件配置（基于6个Tab架构 - 2026-01-29更新）
         const testSuites = [
+            {
+                name: '6个Tab架构验证',
+                icon: '🔧',
+                file: 'test-tab-structure.cjs',
+                description: '验证6个Tab的完整结构',
+                tests: [
+                    'Tab数量检查（6个Tab）',
+                    'Tab导航容器存在',
+                    '所有Tab图标正确显示',
+                    'Tab索引0-5完整映射',
+                    'Tab内容区域完整（6个tab-pane）',
+                    'switchTab函数支持0-5索引'
+                ]
+            },
+            {
+                name: '兴趣班Tab功能测试',
+                icon: '📅',
+                file: 'test-interest-class-tab.cjs',
+                description: '测试Tab 0 - 兴趣班（包含瑜伽、冥想、舞蹈、泰拳、音乐等7个分类）',
+                tests: [
+                    '兴趣班Tab存在（Tab 0）',
+                    '兴趣班图标正确（📅）',
+                    '兴趣班Tab内容区域存在',
+                    'updateViews支持兴趣班Tab',
+                    'filterActivities支持兴趣班7个分类',
+                    '兴趣班日历视图显示',
+                    '兴趣班周日期表头生成',
+                    '兴趣班活动按时间排序'
+                ]
+            },
+            {
+                name: '市集Tab功能测试',
+                icon: '📋',
+                file: 'test-market-tab.cjs',
+                description: '测试Tab 1 - 市集（仅显示市集分类活动）',
+                tests: [
+                    '市集Tab存在（Tab 1）',
+                    '市集图标正确（📋）',
+                    '市集Tab内容区域存在',
+                    'updateViews支持市集Tab',
+                    'filterActivities仅显示市集分类',
+                    '市集列表视图显示',
+                    '市集活动按时间排序',
+                    '市集Tab排除其他分类'
+                ]
+            },
             {
                 name: '音乐Tab功能测试',
                 icon: '🎵',
                 file: 'test-music-tab.cjs',
+                description: '测试Tab 2 - 音乐（独立的音乐分类Tab）',
                 tests: [
-                    'Tab数量检查（6个）',
-                    '音乐Tab存在',
-                    '音乐图标正确',
-                    '音乐Tab内容区域',
+                    '音乐Tab存在（Tab 2）',
+                    '音乐图标正确（🎵）',
+                    '音乐Tab内容区域存在',
                     'updateViews支持音乐Tab',
-                    'filterActivities支持音乐Tab',
-                    '分类筛选器排除音乐',
-                    '兴趣班排除音乐',
-                    'Tab索引正确更新',
-                    'updateCalendarView支持音乐Tab',
-                    'Tab数量统计包含音乐'
+                    'filterActivities仅显示音乐分类',
+                    '音乐Tab独立于兴趣班',
+                    '音乐活动列表显示'
+                ]
+            },
+            {
+                name: '灵活时间活动Tab测试',
+                icon: '⏰',
+                file: 'test-flexible-time-tab.cjs',
+                description: '测试Tab 3 - 灵活时间活动（显示时间灵活的活动）',
+                tests: [
+                    '灵活时间Tab存在（Tab 3）',
+                    '灵活时间图标正确（⏰）',
+                    '灵活时间Tab内容区域存在',
+                    'updateViews支持灵活时间Tab',
+                    'filterActivities筛选灵活时间活动',
+                    '灵活时间活动识别逻辑',
+                    '灵活时间活动列表视图',
+                    '灵活时间活动数据验证'
+                ]
+            },
+            {
+                name: '活动网站Tab测试',
+                icon: '🏪',
+                file: 'test-website-tab.cjs',
+                description: '测试Tab 4 - 活动网站（显示有官方网站的活动）',
+                tests: [
+                    '活动网站Tab存在（Tab 4）',
+                    '活动网站图标正确（🏪）',
+                    '活动网站Tab内容区域存在',
+                    'updateViews支持活动网站Tab',
+                    'filterActivities筛选有URL的活动',
+                    '网站卡片视图显示',
+                    '点击打开官方网站功能',
+                    '网站链接验证'
+                ]
+            },
+            {
+                name: '攻略信息Tab测试',
+                icon: '📖',
+                file: 'test-guide-tab.cjs',
+                description: '测试Tab 5 - 攻略信息（显示旅行攻略）',
+                tests: [
+                    '攻略Tab存在（Tab 5）',
+                    '攻略图标正确（📖）',
+                    '攻略Tab内容区域存在',
+                    'updateViews支持攻略Tab',
+                    'API端点/api/guide可访问',
+                    '攻略数据加载',
+                    '富文本内容显示',
+                    '攻略信息完整性'
                 ]
             },
             {
                 name: '时间排序功能测试',
-                icon: '⏰',
+                icon: '⏱️',
                 file: 'test-time-sorting.cjs',
+                description: '测试所有Tab的活动时间排序功能',
                 tests: [
                     '时间排序函数存在',
                     '时间提取逻辑',
@@ -426,34 +518,39 @@
                     '时间段结束时间排序',
                     '时间格式支持',
                     '排序调用点',
-                    '日历视图排序'
+                    '日历视图排序',
+                    '列表视图排序'
                 ]
             },
             {
                 name: 'API端点测试',
                 icon: '🌐',
                 file: 'test-api-endpoints.cjs',
+                description: '测试后端API端点',
                 tests: [
                     'GET /api/health - 健康检查',
                     'GET /api/activities - 获取所有活动',
                     '数据结构验证',
                     'GET /api/categories - 获取分类',
                     '数据完整性验证',
-                    '灵活时间活动验证'
+                    '灵活时间活动验证',
+                    '6个Tab数据支持'
                 ]
             },
             {
                 name: '分类筛选测试',
                 icon: '🏷️',
                 file: 'test-category-filter.cjs',
+                description: '测试分类筛选器功能',
                 tests: [
                     '分类筛选器初始化',
-                    '排除市集分类',
-                    '排除音乐分类',
+                    '兴趣班7个分类筛选',
+                    '市集独立分类筛选',
+                    '音乐独立分类筛选',
                     '分类按钮点击处理',
                     '筛选器容器',
-                    '筛选逻辑',
-                    '分类字段',
+                    '筛选逻辑正确性',
+                    '分类字段完整性',
                     '全部分类选项'
                 ]
             },
@@ -461,19 +558,22 @@
                 name: '核心功能测试',
                 icon: '⚙️',
                 file: 'test-core-functions.cjs',
+                description: '测试核心功能完整性',
                 tests: [
                     'Tab切换函数',
                     '6个Tab全部存在',
                     '活动筛选函数',
                     '筛选器设置函数',
                     '日历视图更新函数',
+                    '列表视图更新函数',
                     '日期网格容器',
                     '数据加载逻辑',
                     '活动卡片渲染逻辑',
-                    'Tab内容区域',
+                    '6个Tab内容区域',
                     '时间排序逻辑',
                     '当前Tab状态',
-                    '当前筛选条件'
+                    '当前筛选条件',
+                    'Tab切换状态保持'
                 ]
             }
         ];
