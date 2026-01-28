@@ -1,9 +1,9 @@
-name: 每日自动提交和测试
+name: 每小时自动提交和测试
 
 on:
-  # 每天0点（UTC时间16:00 = 泰国时间0:00）
+  # 每小时运行一次（UTC时间）
   schedule:
-    - cron: '0 16 * * *'
+    - cron: '0 * * * *'
 
   # 手动触发
   workflow_dispatch:
@@ -107,11 +107,11 @@ jobs:
     - name: 检出代码
       uses: actions/checkout@v3
 
-    - name: 生成每日报告
+    - name: 生成每小时报告
       run: |
-        echo "# 每日自动提交报告" > daily-report.md
-        echo "" >> daily-report.md
-        echo "**生成时间**: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> daily-report.md
+        echo "# 每小时自动提交报告" > hourly-report.md
+        echo "" >> hourly-report.md
+        echo "**生成时间**: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> hourly-report.md
         echo "" >> daily-report.md
         echo "## 代码状态" >> daily-report.md
         echo "- 最新提交: $(git log -1 --pretty=format:'%h - %s')" >> daily-report.md
@@ -127,5 +127,5 @@ jobs:
     - name: 上传报告
       uses: actions/upload-artifact@v3
       with:
-        name: daily-report
-        path: daily-report.md
+        name: hourly-report
+        path: hourly-report.md
