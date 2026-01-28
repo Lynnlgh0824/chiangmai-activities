@@ -1,0 +1,147 @@
+{
+  "timestamp": "2026-01-28T20:53:35.710Z",
+  "summary": {
+    "totalMobileFeatures": 10,
+    "totalPCFeatures": 13,
+    "mobilePassRate": 97,
+    "pcPassRate": 93
+  },
+  "mobile": {
+    "deviceDetection": {
+      "hasUserAgentCheck": true,
+      "hasIsMobile": true,
+      "hasModeH5": false,
+      "score": 0.6666666666666666
+    },
+    "viewport": {
+      "hasDeviceWidth": true,
+      "hasViewportMeta": true,
+      "score": 1
+    },
+    "header": {
+      "hasFixedPosition": true,
+      "hasHiddenTitle": true,
+      "noBorderRadius": true,
+      "noBoxShadow": true,
+      "score": 1
+    },
+    "tabs": {
+      "hasHorizontalScroll": true,
+      "hasTouchScrolling": true,
+      "hasMinTouchSize": true,
+      "has6Tabs": true,
+      "score": 1
+    },
+    "search": {
+      "hasIconOnly": true,
+      "hasTouchHeight": true,
+      "hasDebounce": true,
+      "score": 1
+    },
+    "filter": {
+      "hasTightSpacing": true,
+      "hasVibrate": true,
+      "hasVibrateCall": true,
+      "score": 1
+    },
+    "modal": {
+      "hasMobileWidth": true,
+      "hasMobileHeight": true,
+      "hasCenterAlign": true,
+      "score": 1
+    },
+    "cssVars": {
+      "hasMobileOverride": true,
+      "hasHalfSpacing": true,
+      "hasStandardSpacing": true,
+      "score": 1
+    },
+    "performance": {
+      "hasInertialScroll": true,
+      "hasWordBreak": true,
+      "score": 1
+    },
+    "breakpoints": {
+      "has768px": true,
+      "has374px": true,
+      "score": 1
+    }
+  },
+  "pc": {
+    "deviceDetection": {
+      "hasModePC": false,
+      "hasCHIENGMAI_MODE": true,
+      "score": 0.5
+    },
+    "header": {
+      "hasRelativePosition": true,
+      "hasH1Title": true,
+      "hasBorderRadius": true,
+      "hasBoxShadow": true,
+      "score": 1
+    },
+    "tabs": {
+      "hasNoScroll": true,
+      "hasStandardSize": true,
+      "hasHover": true,
+      "score": 1
+    },
+    "search": {
+      "hasMaxWidth": true,
+      "hasTextButton": true,
+      "hasEnterKey": true,
+      "score": 1
+    },
+    "list": {
+      "hasStandardHeight": true,
+      "hasStandardPadding": true,
+      "hasHover": true,
+      "score": 1
+    },
+    "modal": {
+      "hasFixedWidth": true,
+      "hasStandardHeight": true,
+      "score": 1
+    },
+    "cssVars": {
+      "hasStandardVars": true,
+      "hasPCOnlyVars": true,
+      "score": 1
+    },
+    "performance": {
+      "hasTransform": true,
+      "hasTransition": true,
+      "score": 1
+    },
+    "largeScreen": {
+      "has1024px": true,
+      "has1920px": true,
+      "score": 1
+    },
+    "mouse": {
+      "hasScroll": true,
+      "hasInteraction": true,
+      "score": 1
+    },
+    "filter": {
+      "hasStandardSize": true,
+      "hasHover": true,
+      "score": 1
+    },
+    "keyboard": {
+      "hasTabSupport": false,
+      "hasEnterKey": true,
+      "score": 0.5
+    },
+    "layout": {
+      "hasMaxWidth": true,
+      "score": 1
+    }
+  },
+  "suggestions": {
+    "mobile": [
+      "建议完善设备检测功能"
+    ],
+    "pc": []
+  }
+}

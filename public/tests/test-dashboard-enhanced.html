@@ -345,6 +345,10 @@
                 <span>▶️</span>
                 <span>运行所有测试</span>
             </button>
+            <button class="btn btn-primary" id="updateRequirementsBtn" onclick="updateTestRequirements()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <span>🔄</span>
+                <span>更新需求</span>
+            </button>
             <button class="btn btn-secondary" onclick="location.reload()">
                 <span>🔄</span>
                 <span>重新加载</span>
@@ -575,6 +579,87 @@
                     '当前筛选条件',
                     'Tab切换状态保持'
                 ]
+            },
+            {
+                name: '移动端（H5）测试 - 增强版',
+                icon: '📱',
+                file: 'test-mobile-h5-enhanced.cjs',
+                description: '验证移动端特有功能 - 基于需求差异分析文档（27个测试）',
+                tests: [
+                    '1. 移动设备自动检测（User-Agent）',
+                    '2. H5模式标识（mode-h5类）',
+                    '3. 移动端viewport设置（width=device-width）',
+                    '4. 固定顶部Header（position: fixed）',
+                    '5. 隐藏标题节省空间（移动端）',
+                    '6. 移动端无圆角和无阴影',
+                    '7. Tab横向滚动（overflow-x: auto）',
+                    '8. Tab最小触摸尺寸（44px）',
+                    '9. 6个Tab完整配置',
+                    '10. 搜索仅显示图标（移动端）',
+                    '11. 搜索框44px触摸高度',
+                    '12. 搜索防抖优化（300ms）',
+                    '13. 筛选chip紧凑间距（移动端）',
+                    '14. 筛选振动反馈',
+                    '15. 移动端弹窗宽度（95vw, max 420px）',
+                    '16. 弹窗高度85vh（移动端）',
+                    '17. 弹窗居中对齐（移动端）',
+                    '18. 移动端CSS变量覆盖（≤768px）',
+                    '19. 间距减半优化（移动端）',
+                    '20. 活动卡片紧凑间距（移动端）',
+                    '21. 列表项极小padding（4-12px）',
+                    '22. iOS惯性滚动（-webkit-overflow-scrolling）',
+                    '23. 文本自动换行（word-break）',
+                    '24. 周导航按钮缩小尺寸（移动端）',
+                    '25. 日期表头压缩（移动端）',
+                    '26. 主要断点768px（移动端）',
+                    '27. 超小屏断点374px（极限优化）'
+                ]
+            },
+            {
+                name: 'PC端（桌面）测试 - 增强版',
+                icon: '💻',
+                file: 'test-pc-desktop-enhanced.cjs',
+                description: '验证PC端特有功能 - 基于需求差异分析文档（30个测试）',
+                tests: [
+                    '1. PC端模式标识（mode-pc类）',
+                    '2. 相对定位Header（position: relative）',
+                    '3. 显示h1标题（PC端）',
+                    '4. 容器圆角和阴影（PC端）',
+                    '5. Tab不滚动（overflow: hidden）',
+                    '6. 标准Tab尺寸（14px 24px）',
+                    '7. Tab悬停效果（:hover）',
+                    '8. 搜索框最大宽度400px（PC端）',
+                    '9. 显示搜索文字按钮（PC端）',
+                    '10. Enter键搜索支持',
+                    '11. 日历单元格标准高度（120px）',
+                    '12. 标准Padding（16-20px）',
+                    '13. 活动卡片Hover效果',
+                    '14. 弹窗固定宽度500px（PC端）',
+                    '15. 弹窗标准高度（80vh）',
+                    '16. 标准CSS变量（非移动端）',
+                    '17. 非移动端变量覆盖',
+                    '18. 硬件加速（transform）',
+                    '19. 过渡动画（transition）',
+                    '20. 大屏幕优化（>1024px）',
+                    '21. 超大屏优化（> 1920px）',
+                    '22. 鼠标滚轮支持',
+                    '23. 交互反馈（Hover + 点击）',
+                    '24. 筛选Chip标准尺寸（13px）',
+                    '25. 筛选器悬停预览',
+                    '26. Tab键支持',
+                    '27. Enter键确认',
+                    '28. 控制台错误处理',
+                    '29. 用户反馈机制',
+                    '30. 容器最大宽度1200px'
+                ]
+            },
+            {
+                name: 'Vitest单元测试',
+                icon: '🧪',
+                type: 'vitest',
+                description: '运行服务器端模块单元测试（Validator、RateLimiter等）',
+                endpoint: '/api/unit-tests/run',
+                tests: []
             }
         ];
 
@@ -699,6 +784,88 @@
             suiteBadge.textContent = '运行中';
             log(`开始测试套件: ${suite.name}`, 'info');
 
+            // 处理Vitest单元测试
+            if (suite.type === 'vitest') {
+                try {
+                    log(`调用API运行Vitest测试: ${suite.endpoint}`, 'info');
+
+                    const response = await fetch(suite.endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-API-Key': localStorage.getItem('apiKey') || 'dev-api-key-change-in-production'
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success && data.results) {
+                        // 动态生成测试项目
+                        suiteItems.innerHTML = '';
+
+                        data.results.forEach((result, idx) => {
+                            const testDiv = document.createElement('div');
+                            testDiv.className = 'test-item';
+
+                            const allPassed = result.tests.every(t => t.passed);
+                            testDiv.classList.add(allPassed ? 'pass' : 'fail');
+
+                            let testsHtml = result.tests.map(t =>
+                                `<div style="margin: 5px 0; padding: 8px; background: ${t.passed ? '#f0fff4' : '#fff5f5'}; border-radius: 4px;">
+                                    <span style="color: ${t.passed ? '#198754' : '#dc3545'}">${t.passed ? '✓' : '✗'}</span>
+                                    ${t.name}
+                                </div>`
+                            ).join('');
+
+                            testDiv.innerHTML = `
+                                <div class="test-item-header">
+                                    <h4>${result.name}</h4>
+                                    <span class="test-item-status ${allPassed ? 'badge-pass' : 'badge-fail'}">
+                                        <span class="${allPassed ? 'status-icon-pass' : 'status-icon-fail'}">${allPassed ? '✓' : '✗'}</span>
+                                        ${result.tests.filter(t => t.passed).length}/${result.tests.length}
+                                    </span>
+                                </div>
+                                <div class="test-details">${testsHtml}</div>
+                            `;
+
+                            suiteItems.appendChild(testDiv);
+                        });
+
+                        const passCount = data.summary.passed;
+                        const failCount = data.summary.failed;
+
+                        suiteBadge.className = failCount === 0 ? 'test-suite-badge badge-pass' : 'test-suite-badge badge-fail';
+                        suiteBadge.textContent = `${passCount}/${data.summary.total}`;
+
+                        log(`${suite.name} 完成: ${passCount} 通过, ${failCount} 失败`, failCount === 0 ? 'success' : 'error');
+
+                        return { passCount, failCount };
+                    } else {
+                        throw new Error(data.message || '运行Vitest测试失败');
+                    }
+                } catch (error) {
+                    log(`Vitest测试失败: ${error.message}`, 'error');
+                    suiteBadge.className = 'test-suite-badge badge-fail';
+                    suiteBadge.textContent = '运行失败';
+
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'test-item fail';
+                    errorDiv.innerHTML = `
+                        <div class="test-item-header">
+                            <h4>运行错误</h4>
+                            <span class="test-item-status badge-fail"><span class="status-icon-fail">✗</span> 失败</span>
+                        </div>
+                        <div class="test-details">${error.message}</div>
+                    `;
+                    suiteItems.appendChild(errorDiv);
+
+                    addError(suite.name, 'Vitest运行', error.message);
+
+                    return { passCount: 0, failCount: 1 };
+                }
+            }
+
+            // 原有的测试逻辑（.cjs文件测试）
             let passCount = 0;
             let failCount = 0;
 
@@ -739,6 +906,88 @@
             log(`${suite.name} 完成: ${passCount} 通过, ${failCount} 失败`, failCount === 0 ? 'success' : 'error');
 
             return { passCount, failCount };
+        }
+
+        /**
+         * 更新测试需求 - 扫描实际代码并生成更新建议
+         */
+        async function updateTestRequirements() {
+            const updateBtn = document.getElementById('updateRequirementsBtn');
+            const originalText = updateBtn.innerHTML;
+
+            try {
+                // 禁用按钮，显示加载状态
+                updateBtn.disabled = true;
+                updateBtn.innerHTML = '<span>⏳</span><span>扫描中...</span>';
+
+                log('========== 开始扫描测试需求 ==========', 'info');
+                log('正在分析实际代码实现...', 'info');
+
+                // 调用API
+                const response = await fetch('/api/test-update', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': 'chiengmai-2024-activities-api-key'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    log('✅ 测试需求扫描完成！', 'success');
+                    log(`移动端通过率: ${data.report.summary.mobilePassRate}%`, 'info');
+                    log(`PC端通过率: ${data.report.summary.pcPassRate}%`, 'info');
+                    log(`综合通过率: ${Math.round((data.report.summary.mobilePassRate + data.report.summary.pcPassRate) / 2)}%`, 'info');
+
+                    // 显示优化建议
+                    if (data.report.suggestions.mobile.length > 0 || data.report.suggestions.pc.length > 0) {
+                        log('', 'info');
+                        log('💡 优化建议:', 'warning');
+
+                        if (data.report.suggestions.mobile.length > 0) {
+                            log('移动端:', 'info');
+                            data.report.suggestions.mobile.forEach(s => log(`  - ${s}`, 'warning'));
+                        }
+
+                        if (data.report.suggestions.pc.length > 0) {
+                            log('PC端:', 'info');
+                            data.report.suggestions.pc.forEach(s => log(`  - ${s}`, 'warning'));
+                        }
+                    } else {
+                        log('✅ 所有功能实现良好，暂无优化建议', 'success');
+                    }
+
+                    log('', 'info');
+                    log('📄 详细报告已保存至: docs/TEST-UPDATE-REPORT.json', 'info');
+
+                    // 显示成功消息
+                    updateBtn.innerHTML = '<span>✅</span><span>扫描完成</span>';
+
+                    // 3秒后恢复按钮
+                    setTimeout(() => {
+                        updateBtn.disabled = false;
+                        updateBtn.innerHTML = originalText;
+                    }, 3000);
+
+                } else {
+                    throw new Error(data.message || '扫描失败');
+                }
+
+            } catch (error) {
+                log('❌ 测试需求扫描失败: ' + error.message, 'error');
+                console.error(error);
+
+                updateBtn.innerHTML = '<span>❌</span><span>扫描失败</span>';
+
+                // 3秒后恢复按钮
+                setTimeout(() => {
+                    updateBtn.disabled = false;
+                    updateBtn.innerHTML = originalText;
+                }, 3000);
+            }
+
+            log('========== 测试需求扫描结束 ==========', 'info');
         }
 
         async function runAllTests() {

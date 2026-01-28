@@ -2372,6 +2372,303 @@ app.post('/api/auto-fix-all', requireApiKey, async (req, res) => {
 });
 
 // =====================================================
+// 单元测试API - 运行Vitest单元测试
+// =====================================================
+/**
+ * GET /api/unit-tests/status
+ * 获取单元测试状态信息
+ */
+app.get('/api/unit-tests/status', (req, res) => {
+  try {
+    const { execSync } = require('child_process');
+    const fs = require('fs');
+    const path = require('path');
+
+    // 检查单元测试文件是否存在
+    const testDir = path.join(__dirname, '__tests__');
+    const hasTests = fs.existsSync(testDir);
+
+    if (!hasTests) {
+      return res.json({
+        success: true,
+        hasTests: false,
+        message: '暂无单元测试文件',
+        testFiles: []
+      });
+    }
+
+    // 列出所有测试文件
+    const testFiles = [];
+    const findTestFiles = (dir) => {
+      const files = fs.readdirSync(dir);
+      files.forEach(file => {
+        const fullPath = path.join(dir, file);
+        const stat = fs.statSync(fullPath);
+        if (stat.isDirectory()) {
+          findTestFiles(fullPath);
+        } else if (file.endsWith('.test.js') || file.endsWith('.spec.js')) {
+          testFiles.push(fullPath.replace(__dirname + '/', ''));
+        }
+      });
+    };
+
+    findTestFiles(testDir);
+
+    res.json({
+      success: true,
+      hasTests: true,
+      testFileCount: testFiles.length,
+      testFiles,
+      message: `找到 ${testFiles.length} 个单元测试文件`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: '获取测试状态失败: ' + error.message
+    });
+  }
+});
+
+/**
+ * POST /api/unit-tests/run
+ * 运行Vitest单元测试并返回结果
+ */
+app.post('/api/unit-tests/run', requireApiKey, async (req, res) => {
+  try {
+    const { execSync } = require('child_process');
+    const fs = require('fs');
+    const path = require('path');
+
+    console.log('🧪 开始运行单元测试...');
+
+    // 检查是否存在测试文件
+    const testDir = path.join(__dirname, '__tests__');
+    if (!fs.existsSync(testDir)) {
+      return res.json({
+        success: false,
+        message: '暂无单元测试文件',
+        results: []
+      });
+    }
+
+    // 运行Vitest并获取JSON输出
+    // 使用--reporter=verbose获取详细输出
+    const testOutput = execSync('npx vitest run --reporter=verbose 2>&1', {
+      encoding: 'utf8',
+      stdio: 'pipe'
+    });
+
+    // 解析测试输出
+    const lines = testOutput.split('\n');
+    const testResults = [];
+    let currentSuite = null;
+    let totalTests = 0;
+    let passedTests = 0;
+    let failedTests = 0;
+
+    lines.forEach(line => {
+      // 解析测试套件
+      const suiteMatch = line.match(/^(.*?)\s+>\s+(.*?)$/);
+      if (suiteMatch) {
+        currentSuite = {
+          name: suiteMatch[2].trim(),
+          tests: [],
+          status: 'pending'
+        };
+        testResults.push(currentSuite);
+      }
+
+      // 解析测试用例
+      if (line.includes('✓') || line.includes('✗')) {
+        const testPassed = line.includes('✓');
+        const testName = line.replace(/[✓✗]/, '').trim();
+
+        if (currentSuite) {
+          currentSuite.tests.push({
+            name: testName,
+            passed: testPassed,
+            duration: 0
+          });
+
+          if (testPassed) {
+            passedTests++;
+            currentSuite.status = 'pass';
+          } else {
+            failedTests++;
+            currentSuite.status = 'fail';
+          }
+          totalTests++;
+        }
+      }
+    });
+
+    console.log(`✅ 单元测试完成: ${passedTests}/${totalTests} 通过`);
+
+    res.json({
+      success: true,
+      message: `单元测试运行完成: ${passedTests}/${totalTests} 通过`,
+      summary: {
+        total: totalTests,
+        passed: passedTests,
+        failed: failedTests,
+        passRate: totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0
+      },
+      results: testResults,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    // 测试失败时，error.stdout包含测试输出
+    const output = error.stdout || '';
+    const lines = output.split('\n');
+
+    const testResults = [];
+    let currentSuite = null;
+    let totalTests = 0;
+    let passedTests = 0;
+    let failedTests = 0;
+
+    lines.forEach(line => {
+      const suiteMatch = line.match(/^(.*?)\s+>\s+(.*?)$/);
+      if (suiteMatch) {
+        currentSuite = {
+          name: suiteMatch[2].trim(),
+          tests: [],
+          status: 'pending'
+        };
+        testResults.push(currentSuite);
+      }
+
+      if (line.includes('✓') || line.includes('✗')) {
+        const testPassed = line.includes('✓');
+        const testName = line.replace(/[✓✗]/, '').trim();
+
+        if (currentSuite) {
+          currentSuite.tests.push({
+            name: testName,
+            passed: testPassed,
+            duration: 0
+          });
+
+          if (testPassed) {
+            passedTests++;
+          } else {
+            failedTests++;
+          }
+          totalTests++;
+        }
+      }
+    });
+
+    console.log(`⚠️  单元测试完成（有失败）: ${passedTests}/${totalTests} 通过`);
+
+    res.json({
+      success: true,
+      message: `单元测试运行完成: ${passedTests}/${totalTests} 通过 (${failedTests} 失败)`,
+      summary: {
+        total: totalTests,
+        passed: passedTests,
+        failed: failedTests,
+        passRate: totalTests > 0 ? Math.round((passedTests / totalTests) * 100) : 0
+      },
+      results: testResults,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// =====================================================
+// 测试需求自动更新API
+// =====================================================
+
+/**
+ * POST /api/test-update - 扫描实际代码并生成测试更新建议
+ */
+app.post('/api/test-update', requireApiKey, async (req, res) => {
+  try {
+    logger.info('开始扫描测试需求...');
+
+    const { execSync } = require('child_process');
+    const path = require('path');
+
+    // 运行扫描脚本
+    const scriptPath = path.join(__dirname, 'scripts', 'update-test-requirements.cjs');
+
+    try {
+      const output = execSync(`node "${scriptPath}"`, {
+        encoding: 'utf8',
+        stdio: 'pipe',
+        cwd: __dirname
+      });
+
+      // 读取生成的报告
+      const reportPath = path.join(__dirname, 'docs', 'TEST-UPDATE-REPORT.json');
+      const report = require(reportPath);
+
+      logger.info('测试需求扫描完成');
+
+      res.json({
+        success: true,
+        message: '测试需求扫描完成',
+        report: report,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      // 脚本执行错误
+      logger.error('测试需求扫描失败:', error.message);
+
+      res.status(500).json({
+        success: false,
+        message: '测试需求扫描失败: ' + error.message,
+        error: error.stdout || error.stderr
+      });
+    }
+  } catch (error) {
+    logger.error('测试需求更新API错误:', error);
+    res.status(500).json({
+      success: false,
+      message: '测试需求更新失败: ' + error.message
+    });
+  }
+});
+
+/**
+ * GET /api/test-update/status - 获取测试更新状态
+ */
+app.get('/api/test-update/status', (req, res) => {
+  try {
+    const path = require('path');
+    const reportPath = path.join(__dirname, 'docs', 'TEST-UPDATE-REPORT.json');
+
+    // 检查报告是否存在
+    const fs = require('fs');
+    if (fs.existsSync(reportPath)) {
+      const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+
+      res.json({
+        success: true,
+        hasReport: true,
+        lastUpdate: report.timestamp,
+        summary: report.summary,
+        suggestions: report.suggestions
+      });
+    } else {
+      res.json({
+        success: true,
+        hasReport: false,
+        message: '暂无测试更新报告，请先运行扫描'
+      });
+    }
+  } catch (error) {
+    logger.error('获取测试更新状态失败:', error);
+    res.status(500).json({
+      success: false,
+      message: '获取测试更新状态失败: ' + error.message
+    });
+  }
+});
+
+// =====================================================
 // 全局错误处理（必须在所有路由之后）
 // =====================================================
 app.use(globalErrorHandler);
