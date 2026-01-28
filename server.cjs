@@ -13,6 +13,379 @@ const VERSION_FILE = path.join(__dirname, 'data', 'version.json');
 const APP_VERSION_FILE = path.join(__dirname, 'app-version.json');
 const REQUIREMENTS_LOG_FILE = path.join(__dirname, 'data', 'requirements-log.json');
 
+// =====================================================
+// 输入验证模块（防止恶意数据注入）
+// =====================================================
+
+/**
+ * 验证器对象 - 提供各种数据验证函数
+ */
+const validator = {
+  /**
+   * 验证必填字段
+   */
+  required: (value, fieldName = '字段') => {
+    if (value === null || value === undefined || value === '') {
+      return { valid: false, error: `${fieldName}不能为空` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证字符串长度
+   */
+  length: (value, min, max, fieldName = '字段') => {
+    if (value === null || value === undefined) return { valid: true }; // 可选字段
+    const len = value.length;
+    if (len < min || len > max) {
+      return { valid: false, error: `${fieldName}长度必须在${min}-${max}个字符之间` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证是否为有效字符串
+   */
+  isString: (value, fieldName = '字段') => {
+    if (value === null || value === undefined) return { valid: true }; // 可选
+    if (typeof value !== 'string') {
+      return { valid: false, error: `${fieldName}必须是字符串` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证是否为数字
+   */
+  isNumber: (value, fieldName = '字段') => {
+    if (value === null || value === undefined) return { valid: true }; // 可选
+    if (typeof value !== 'number' || isNaN(value)) {
+      return { valid: false, error: `${fieldName}必须是数字` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证是否为布尔值
+   */
+  isBoolean: (value, fieldName = '字段') => {
+    if (value === null || value === undefined) return { valid: true }; // 可选
+    if (typeof value !== 'boolean') {
+      return { valid: false, error: `${fieldName}必须是布尔值` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证是否为数组
+   */
+  isArray: (value, fieldName = '字段') => {
+    if (value === null || value === undefined) return { valid: true }; // 可选
+    if (!Array.isArray(value)) {
+      return { valid: false, error: `${fieldName}必须是数组` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证URL格式
+   */
+  isURL: (value, fieldName = '字段') => {
+    if (!value || value === '') return { valid: true }; // 可选
+    try {
+      new URL(value);
+      // 拒绝危险协议
+      if (value.toLowerCase().startsWith('javascript:')) {
+        return { valid: false, error: `${fieldName}不能使用javascript协议` };
+      }
+      return { valid: true };
+    } catch (e) {
+      return { valid: false, error: `${fieldName}必须是有效的URL` };
+    }
+  },
+
+  /**
+   * 验证经纬度
+   */
+  isCoordinate: (value, fieldName = '坐标') => {
+    if (value === null || value === undefined || value === '') return { valid: true }; // 可选
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+      return { valid: false, error: `${fieldName}必须是数字` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证分类是否在允许列表中
+   */
+  isCategory: (value) => {
+    if (!value) return { valid: true }; // 可选
+    const allowedCategories = [
+      '瑜伽', '冥想', '舞蹈', '泰拳', '音乐', '文化艺术', '健身',
+      '市集', '灵活时间活动', '活动网站', '攻略信息', '其他'
+    ];
+    if (!allowedCategories.includes(value)) {
+      return { valid: false, error: `分类必须是以下之一：${allowedCategories.join(', ')}` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证价格格式
+   */
+  isPrice: (value, fieldName = '价格') => {
+    if (!value || value === '') return { valid: true }; // 可选
+    // 允许的格式：数字、货币符号+数字、"免费"、数字范围等
+    const pricePattern = /^[\d\s¥￥$€£฿.,+-]+|免费|待定|灵活时间$/;
+    if (!pricePattern.test(value)) {
+      return { valid: false, error: `${fieldName}格式无效` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 验证时间格式
+   */
+  isTime: (value, fieldName = '时间') => {
+    if (!value || value === '') return { valid: true }; // 可选
+    // 允许的格式：HH:MM、灵活时间、多时段等
+    const timePattern = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]|灵活时间|待定$/;
+    if (!timePattern.test(value.trim())) {
+      return { valid: false, error: `${fieldName}格式无效，应为HH:MM或"灵活时间"` };
+    }
+    return { valid: true };
+  },
+
+  /**
+   * 净化字符串（移除危险字符）
+   */
+  sanitize: (value) => {
+    if (typeof value !== 'string') return value;
+    // 移除控制字符（除了换行、制表符、回车）
+    return value.replace(/[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g, '');
+  },
+
+  /**
+   * 验证并清理活动数据
+   */
+  validateActivity: (data) => {
+    const errors = [];
+
+    // 验证标题
+    let result = validator.required(data.title, '标题');
+    if (!result.valid) errors.push(result.error);
+    result = validator.length(data.title, 1, 200, '标题');
+    if (!result.valid) errors.push(result.error);
+    result = validator.isString(data.title, '标题');
+    if (!result.valid) errors.push(result.error);
+
+    // 验证描述
+    result = validator.required(data.description, '描述');
+    if (!result.valid) errors.push(result.error);
+    result = validator.length(data.description, 1, 5000, '描述');
+    if (!result.valid) errors.push(result.error);
+    result = validator.isString(data.description, '描述');
+    if (!result.valid) errors.push(result.error);
+
+    // 验证分类（可选但必须在允许列表中）
+    if (data.category) {
+      result = validator.isCategory(data.category);
+      if (!result.valid) errors.push(result.error);
+    }
+
+    // 验证地点
+    if (data.location) {
+      result = validator.length(data.location, 0, 200, '地点');
+      if (!result.valid) errors.push(result.error);
+      result = validator.isString(data.location, '地点');
+      if (!result.valid) errors.push(result.error);
+    }
+
+    // 验证时间
+    if (data.time) {
+      result = validator.isTime(data.time, '时间');
+      if (!result.valid) errors.push(result.error);
+    }
+
+    // 验证价格
+    if (data.price) {
+      result = validator.isPrice(data.price, '价格');
+      if (!result.valid) errors.push(result.error);
+    }
+
+    // 验证坐标
+    if (data.latitude !== undefined && data.latitude !== null) {
+      result = validator.isCoordinate(data.latitude, '纬度');
+      if (!result.valid) errors.push(result.error);
+      const lat = parseFloat(data.latitude);
+      if (lat < -90 || lat > 90) {
+        errors.push('纬度必须在-90到90之间');
+      }
+    }
+
+    if (data.longitude !== undefined && data.longitude !== null) {
+      result = validator.isCoordinate(data.longitude, '经度');
+      if (!result.valid) errors.push(result.error);
+      const lon = parseFloat(data.longitude);
+      if (lon < -180 || lon > 180) {
+        errors.push('经度必须在-180到180之间');
+      }
+    }
+
+    // 验证URL
+    if (data.source && data.source.url) {
+      result = validator.isURL(data.source.url, '来源URL');
+      if (!result.valid) errors.push(result.error);
+    }
+
+    // 验证人数限制
+    if (data.maxParticipants !== undefined) {
+      result = validator.isNumber(data.maxParticipants, '最大人数');
+      if (!result.valid) errors.push(result.error);
+      if (data.maxParticipants < 0) {
+        errors.push('最大人数不能为负数');
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  },
+
+  /**
+   * 验证并清理攻略内容
+   */
+  validateGuide: (data) => {
+    const errors = [];
+
+    if (data.content !== undefined) {
+      let result = validator.required(data.content, '内容');
+      if (!result.valid) errors.push(result.error);
+      result = validator.isString(data.content, '内容');
+      if (!result.valid) errors.push(result.error);
+      // 限制内容长度，防止DoS
+      result = validator.length(data.content, 1, 100000, '内容'); // 100KB限制
+      if (!result.valid) errors.push(result.error);
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+};
+
+// =====================================================
+// 统一错误处理中间件（防止敏感信息泄露）
+// =====================================================
+
+/**
+ * 安全的错误响应函数
+ * 在生产环境中隐藏敏感的内部信息
+ */
+function sendErrorResponse(res, error, statusCode = 500) {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  // 记录完整错误到服务器日志
+  console.error('Error:', {
+    message: error.message,
+    stack: error.stack,
+    timestamp: new Date().toISOString()
+  });
+
+  // 返回给客户端的错误信息（根据环境）
+  const response = {
+    success: false,
+    message: isDevelopment ? error.message : '请求处理失败，请稍后重试'
+  };
+
+  // 仅在开发环境返回详细错误信息
+  if (isDevelopment) {
+    response.stack = error.stack;
+    response.details = error.toString();
+  }
+
+  res.status(statusCode).json(response);
+}
+
+/**
+ * 全局错误处理中间件
+ * 捕获所有未处理的错误
+ */
+function globalErrorHandler(err, req, res, next) {
+  // Multer文件上传错误
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return sendErrorResponse(res, new Error('文件大小超过限制（最大2MB）'), 400);
+  }
+  if (err.code === 'LIMIT_FILE_COUNT') {
+    return sendErrorResponse(res, new Error('文件数量超过限制'), 400);
+  }
+  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+    return sendErrorResponse(res, new Error('意外的文件字段'), 400);
+  }
+
+  // 验证错误
+  if (err.name === 'ValidationError') {
+    return sendErrorResponse(res, err, 400);
+  }
+
+  // JSON解析错误
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return sendErrorResponse(res, new Error('JSON格式错误'), 400);
+  }
+
+  // 其他未预期错误
+  sendErrorResponse(res, err, err.status || 500);
+}
+
+/**
+ * 包装异步路由处理器的辅助函数
+ * 自动捕获async/await错误
+ */
+function asyncHandler(fn) {
+  return (req, res, next) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+}
+
+/**
+ * Try-catch包装器
+ * 用于同步函数的错误处理
+ */
+function tryCatch(res, operationName, fn) {
+  try {
+    fn();
+  } catch (error) {
+    sendErrorResponse(res, error, 500);
+  }
+}
+  // Multer文件上传错误
+  if (err.code === 'LIMIT_FILE_SIZE') {
+    return sendErrorResponse(res, new Error('文件大小超过限制（最大2MB）'), 400);
+  }
+  if (err.code === 'LIMIT_FILE_COUNT') {
+    return sendErrorResponse(res, new Error('文件数量超过限制'), 400);
+  }
+  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+    return sendErrorResponse(res, new Error('意外的文件字段'), 400);
+  }
+
+  // 验证错误
+  if (err.name === 'ValidationError') {
+    return sendErrorResponse(res, err, 400);
+  }
+
+  // JSON解析错误
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    return sendErrorResponse(res, new Error('JSON格式错误'), 400);
+  }
+
+  // 其他未预期错误
+  sendErrorResponse(res, err, err.status || 500);
+}
+
 // 配置 multer 文件上传
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -27,15 +400,38 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024 // 5MB
+    fileSize: 2 * 1024 * 1024, // 降低到2MB，防止DoS攻击
+    files: 1 // 限制单次只能上传1个文件
   },
   fileFilter: function (req, file, cb) {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    if (allowedTypes.test(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('只支持图片文件 (jpeg, jpg, png, gif, webp)'));
+    // 安全性增强：多重验证
+
+    // 1. 检查文件扩展名
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    if (!allowedExts.includes(ext)) {
+      return cb(new Error(`不支持的文件扩展名: ${ext}。仅支持: ${allowedExts.join(', ')}`));
     }
+
+    // 2. 验证MIME类型
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedMimeTypes.includes(file.mimetype)) {
+      return cb(new Error(`不支持的MIME类型: ${file.mimetype}`));
+    }
+
+    // 3. 文件名安全检查（防止路径遍历攻击）
+    const originalname = file.originalname;
+    if (originalname.includes('..') || originalname.includes('/') || originalname.includes('\\')) {
+      return cb(new Error('文件名包含非法字符'));
+    }
+
+    // 4. 检查文件名长度
+    if (originalname.length > 255) {
+      return cb(new Error('文件名过长'));
+    }
+
+    // 所有检查通过
+    cb(null, true);
   }
 });
 
@@ -121,17 +517,26 @@ app.use((req, res, next) => {
     'https://chiengmai-activities.vercel.app'
   ];
 
-  // 检查是否在允许列表中或为 Vercel 子域名
-  if (allowedOrigins.includes(origin) || origin?.endsWith('.vercel.app')) {
+  // 安全性：仅允许列表中的来源或Vercel子域名
+  // 移除了危险的通配符 '*' 回退选项
+  if (origin && (allowedOrigins.includes(origin) || origin?.endsWith('.vercel.app'))) {
     res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Credentials', 'true');
+  } else if (!origin) {
+    // 同源请求（无origin头），允许继续但不设置CORS头
+    // 这种情况发生在直接从同域访问API时
   } else {
-    // 开发环境允许所有来源，生产环境应移除此行
-    res.header('Access-Control-Allow-Origin', '*');
+    // 不允许的跨域请求返回403错误
+    console.warn(`Blocked CORS request from: ${origin}`);
+    return res.status(403).json({
+      success: false,
+      error: 'Origin not allowed',
+      message: '此来源不允许访问API'
+    });
   }
 
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
 
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
@@ -324,8 +729,14 @@ app.post('/api/activities', (req, res) => {
     subCategory, language, tags
   } = req.body;
 
-  if (!title || !description) {
-    return res.status(400).json({ success: false, message: '标题和描述不能为空' });
+  // 安全性：输入验证
+  const validation = validator.validateActivity(req.body);
+  if (!validation.valid) {
+    return res.status(400).json({
+      success: false,
+      message: '输入验证失败',
+      errors: validation.errors
+    });
   }
 
   const items = readData();
@@ -374,6 +785,16 @@ app.put('/api/activities/:id', (req, res) => {
 
   if (index === -1) {
     return res.status(404).json({ success: false, message: '活动不存在' });
+  }
+
+  // 安全性：输入验证
+  const validation = validator.validateActivity(req.body);
+  if (!validation.valid) {
+    return res.status(400).json({
+      success: false,
+      message: '输入验证失败',
+      errors: validation.errors
+    });
   }
 
   // 允许部分更新
@@ -568,7 +989,7 @@ app.post('/api/upload', upload.single('image'), (req, res) => {
     });
   } catch (error) {
     console.error('上传失败:', error);
-    res.status(500).json({ success: false, message: '上传失败: ' + error.message });
+    sendErrorResponse(res, error, 500);
   }
 });
 
@@ -776,10 +1197,7 @@ app.get('/api/guide', (req, res) => {
     });
   } catch (error) {
     console.error('获取攻略信息失败:', error);
-    res.status(500).json({
-      success: false,
-      message: '获取攻略信息失败: ' + error.message
-    });
+    sendErrorResponse(res, error, 500);
   }
 });
 
@@ -792,10 +1210,13 @@ app.post('/api/guide', (req, res) => {
 
     console.log('📥 收到攻略保存请求，内容长度:', content?.length || 0);
 
-    if (content === undefined) {
+    // 安全性：输入验证
+    const validation = validator.validateGuide(req.body);
+    if (!validation.valid) {
       return res.status(400).json({
         success: false,
-        message: '缺少content字段'
+        message: '输入验证失败',
+        errors: validation.errors
       });
     }
 
@@ -1570,6 +1991,11 @@ app.post('/api/auto-fix-all', async (req, res) => {
     });
   }
 });
+
+// =====================================================
+// 全局错误处理（必须在所有路由之后）
+// =====================================================
+app.use(globalErrorHandler);
 
 app.listen(PORT, () => {
   console.log(`
