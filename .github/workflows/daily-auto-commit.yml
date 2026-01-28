@@ -1,9 +1,9 @@
-name: 每小时自动提交和测试
+name: 每6小时自动提交和测试
 
 on:
-  # 每小时运行一次（UTC时间）
+  # 每6小时运行一次（UTC时间）：0:00, 6:00, 12:00, 18:00
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 */6 * * *'
 
   # 手动触发
   workflow_dispatch:
@@ -107,25 +107,25 @@ jobs:
     - name: 检出代码
       uses: actions/checkout@v3
 
-    - name: 生成每小时报告
+    - name: 生成报告
       run: |
-        echo "# 每小时自动提交报告" > hourly-report.md
-        echo "" >> hourly-report.md
-        echo "**生成时间**: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> hourly-report.md
-        echo "" >> daily-report.md
-        echo "## 代码状态" >> daily-report.md
-        echo "- 最新提交: $(git log -1 --pretty=format:'%h - %s')" >> daily-report.md
-        echo "- 提交时间: $(git log -1 --pretty=format:'%ad')" >> daily-report.md
-        echo "" >> daily-report.md
-        echo "## 建议" >> daily-report.md
-        echo "1. 检查本地是否有未提交的更改" >> daily-report.md
-        echo "2. 运行测试验证功能" >> daily-report.md
-        echo "3. 如果有重要更新，请手动提交" >> daily-report.md
-        echo "" >> daily-report.md
-        cat daily-report.md
+        echo "# 自动提交报告" > report.md
+        echo "" >> report.md
+        echo "**生成时间**: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> report.md
+        echo "" >> report.md
+        echo "## 代码状态" >> report.md
+        echo "- 最新提交: $(git log -1 --pretty=format:'%h - %s')" >> report.md
+        echo "- 提交时间: $(git log -1 --pretty=format:'%ad')" >> report.md
+        echo "" >> report.md
+        echo "## 建议" >> report.md
+        echo "1. 检查本地是否有未提交的更改" >> report.md
+        echo "2. 运行测试验证功能" >> report.md
+        echo "3. 如果有重要更新，请手动提交" >> report.md
+        echo "" >> report.md
+        cat report.md
 
     - name: 上传报告
       uses: actions/upload-artifact@v3
       with:
-        name: hourly-report
-        path: hourly-report.md
+        name: scheduled-report
+        path: report.md
