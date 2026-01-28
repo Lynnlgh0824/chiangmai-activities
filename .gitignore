@@ -1,12 +1,95 @@
+# ==========================================
+# 依赖和构建产物
+# ==========================================
 node_modules/
+dist/
+build/
+.cache/
+
+# ==========================================
+# 敏感配置文件（最重要！）
+# ==========================================
 .env
+.env.local
+.env.production
+.env.development
+.env.*.local
+*.pem
+*.key
+*.crt
+*.jks
+*.keystore
+credentials.json
+service-account.json
+secrets/
+
+# ==========================================
+# 私有文档目录（不提交到Git）
+# ==========================================
+internal-notes/
+daily-logs/
+private-logs/
+
+# ==========================================
+# 数据文件
+# ==========================================
 data/*.json
 uploads/
+*.xlsx
+*.xls
+
+# ==========================================
+# 日志和临时文件
+# ==========================================
 *.log
-.DS_Store
-debug_admin.html
+logs/
 *.backup
 *.old
 *.tmp
-*.xlsx
- uploads/*.xlsx
+*.swp
+*.swo
+
+# ==========================================
+# 系统文件
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ==========================================
+# IDE和编辑器
+# ==========================================
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.iml
+
+# ==========================================
+# macOS 特定文件
+# ==========================================
+.AppleDouble
+.LSOverride
+
+# ==========================================
+# 备份文件
+# ==========================================
+*.bak
+*.backup
+
+# ==========================================
+# 测试和调试
+# ==========================================
+debug_admin.html
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
