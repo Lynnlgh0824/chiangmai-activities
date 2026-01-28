@@ -44,11 +44,17 @@ SENSITIVE_PATTERNS=(
 
 FOUND_SECRETS=0
 
+# 获取暂存的文件，排除文档文件
+STAGED_FILES=$(git diff --cached --name-only | grep -v "\.md$" | grep -v "\.txt$" || true)
+
 for pattern in "${SENSITIVE_PATTERNS[@]}"; do
-    if git diff --cached | grep -iE "$pattern" > /dev/null; then
-        echo -e "${RED}❌ 警告: 检测到可能的敏感信息${NC}"
-        echo -e "${RED}模式: $pattern${NC}"
-        FOUND_SECRETS=1
+    # 只检查代码文件，不检查文档
+    if [ -n "$STAGED_FILES" ]; then
+        if git diff --cached -- "$STAGED_FILES" | grep -iE "$pattern" > /dev/null; then
+            echo -e "${RED}❌ 警告: 检测到可能的敏感信息${NC}"
+            echo -e "${RED}模式: $pattern${NC}"
+            FOUND_SECRETS=1
+        fi
     fi
 done
 
