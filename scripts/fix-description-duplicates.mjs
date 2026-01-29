@@ -1,9 +1,11 @@
 #!/usr/bin/env node
-
 /**
- * 修复描述中的重复符号和重复文本
- * - 去掉标签后内容行开头的重复图标
- * - 去掉完全重复的段落
+ * 修复活动描述中的重复字段
+ *
+ * 用途：自动去除描述中重复的字段标签和内容
+ * 运行：node scripts/fix-description-duplicates.mjs
+ *
+ * ⚠️  注意：运行前请备份数据文件！
  */
 
 import fs from 'fs';
@@ -12,110 +14,153 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '..');
 
-const itemsJsonPath = path.join(__dirname, '../data/items.json');
+console.log('🔧 活动描述重复修复工具\n');
+console.log('=' .repeat(60));
 
-// 读取数据
-const items = JSON.parse(fs.readFileSync(itemsJsonPath, 'utf-8'));
+// 查找数据文件
+const possibleDataPaths = [
+    path.join(projectRoot, 'data', 'activities.json'),
+    path.join(projectRoot, 'public', 'data', 'activities.json'),
+    path.join(projectRoot, 'activities.json'),
+];
 
-console.log('📊 开始修复描述中的重复符号和文本...\n');
-console.log(`原始数据: ${items.length} 个活动\n`);
+let dataFile = null;
+let activities = [];
 
-let fixCount = 0;
-const details = [];
+for (const filePath of possibleDataPaths) {
+    try {
+        const stats = fs.statSync(filePath);
+        if (stats.isFile()) {
+            dataFile = filePath;
+            activities = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+            console.log('✅ 找到数据文件: ${filePath}');
+            console.log('📊 总活动数: ${activities.length}\n');
+            break;
+        }
+    } catch (error) {
+        // 文件不存在，继续查找
+    }
+}
 
-// =====================================================
-// 修复逻辑
-// =====================================================
+if (!dataFile) {
+    console.error('❌ 未找到活动数据文件');
+    process.exit(1);
+}
 
-items.forEach((item, index) => {
-    if (!item.description) return;
+// 创建备份
+const backupFile = dataFile + '.backup.' + Date.now();
+console.log('💾 创建备份...');
+fs.copyFileSync(dataFile, backupFile);
+console.log('✅ 备份已保存: ${backupFile}\n');
 
-    const originalDesc = item.description;
-    let fixedDesc = item.description;
-    let hasChanges = false;
+// 去重函数
+function fixDescriptionDuplicates(description) {
+    if (!description) return description;
 
-    // 1. 修复：标签后内容行开头的重复图标
-    // 例如："⚠️ 注意事项：\n⚠️ 严格戒律..." → "⚠️ 注意事项：\n严格戒律..."
-    const iconPatterns = [
-        { regex: /([⚠️👥✨📚🌐💰🌐📞⏰])\s*注意事项[：:]\s*\n\s*[⚠️]\s*/g, icon: '⚠️', label: '注意事项' },
-        { regex: /([⚠️👥✨📚🌐💰🌐📞⏰])\s*适合人群[：:]\s*\n\s*[👥]\s*/g, icon: '👥', label: '适合人群' },
-        { regex: /([⚠️👥✨📚🌐💰🌐📞⏰])\s*活动特点[：:]\s*\n\s*[✨]\s*/g, icon: '✨', label: '活动特点' },
-        { regex: /([⚠️👥✨📚🌐💰🌐📞⏰])\s*课程周期[：:]\s*\n\s*[📚]\s*/g, icon: '📚', label: '课程周期' },
-        { regex: /([⚠️👥✨📚🌐💰🌐📞⏰])\s*语言[：:]\s*\n\s*[🌐]\s*/g, icon: '🌐', label: '语言' },
-        { regex: /([⚠️👥✨📚🌐💰🌐📞⏰])\s*费用[：:]\s*\n\s*[💰]\s*/g, icon: '💰', label: '费用' },
+    let fixed = description;
+
+    // 定义需要去重的字段
+    const deduplicateFields = [
+        { name: '适合人群', icon: '👥' },
+        { name: '活动特点', icon: '✨' },
+        { name: '课程周期', icon: '📚' },
+        { name: '标准课程周期', icon: '📚' },
+        { name: '语言', icon: '🌐' },
+        { name: '费用', icon: '💰' },
+        { name: '注意事项', icon: '⚠️' },
+        { name: '联系方式', icon: '📞' },
+        { name: '官网', icon: '🌐' }
     ];
 
-    iconPatterns.forEach(({ regex, icon, label }) => {
-        const matches = fixedDesc.match(regex);
-        if (matches) {
-            // 替换：标签行保留，删除内容行开头的图标
-            fixedDesc = fixedDesc.replace(regex, `${icon} ${label}：\n`);
-            hasChanges = true;
+    // 对每个字段进行去重
+    deduplicateFields.forEach(field => {
+        // 匹配所有出现的字段标签
+        const regex = new RegExp(
+            '(?:' + field.icon + '\\s*)?' + field.name + '[：:]\\s*.*?(?=\\n|$)',
+            'gi'
+        );
+
+        const matches = fixed.match(regex);
+
+        if (matches && matches.length > 1) {
+            // 只保留第一次出现的内容
+            const firstMatch = matches[0];
+            
+            // 移除所有匹配
+            fixed = fixed.replace(regex, '');
+            
+            // 将第一次出现的内容添加回原位置
+            fixed = firstMatch + '\n' + fixed;
         }
     });
 
-    // 2. 通用修复：删除标签后紧接着的重复图标
-    // 匹配模式：图标+标签+换行+空格+相同图标
-    const generalPattern = /([⚠️👥✨📚🌐💰🌐📞⏰])\s*([^：:\n]+)[：:]\s*\n\s*\1\s+/g;
-    if (generalPattern.test(fixedDesc)) {
-        fixedDesc = fixedDesc.replace(generalPattern, (match, icon, label) => {
-            return `${icon} ${label}：\n`;
-        });
-        hasChanges = true;
-    }
+    // 清理多余空行
+    fixed = fixed.replace(/\n{3,}/g, '\n\n');
+    fixed = fixed.trim();
 
-    // 3. 删除完全重复的连续段落
-    const lines = fixedDesc.split('\n').filter(line => line.trim());
-    const uniqueLines = [];
-    let lastLine = '';
+    return fixed;
+}
 
-    for (const line of lines) {
-        const trimmed = line.trim();
-        if (trimmed !== lastLine) {
-            uniqueLines.push(line);
-            lastLine = trimmed;
-        } else {
-            hasChanges = true; // 检测到重复行
+// 修复每个活动的描述
+let fixedCount = 0;
+const fixDetails = [];
+
+console.log('🔧 开始修复...\n');
+
+activities.forEach((act, index) => {
+    if (!act.description) return;
+
+    const originalDesc = act.description;
+    const fixedDesc = fixDescriptionDuplicates(act.description);
+
+    if (originalDesc !== fixedDesc) {
+        fixedCount++;
+        act.description = fixedDesc;
+
+        if (fixDetails.length < 5) {
+            fixDetails.push({
+                title: act.title,
+                id: act.id || act.originalId,
+                originalLength: originalDesc.length,
+                fixedLength: fixedDesc.length,
+                reduction: originalDesc.length - fixedDesc.length
+            });
         }
     }
 
-    fixedDesc = uniqueLines.join('\n');
-
-    // 4. 清理多余的空行
-    fixedDesc = fixedDesc.replace(/\n\s*\n\s*\n/g, '\n\n').trim();
-
-    if (hasChanges) {
-        item.description = fixedDesc;
-        fixCount++;
-        details.push({
-            id: item.id || item.activityNumber,
-            title: item.title,
-            original: originalDesc.substring(0, 100),
-            fixed: fixedDesc.substring(0, 100)
-        });
+    // 显示进度
+    if ((index + 1) % 100 === 0) {
+        console.log('进度: ${index + 1}/${activities.length}');
     }
 });
 
-console.log('✅ 修复完成:\n');
-console.log(`   修复数量: ${fixCount} 个活动\n`);
+console.log('\n✅ 修复完成！\n');
+console.log('📊 修复统计:');
+console.log('   总活动数: ${activities.length}');
+console.log('   已修复活动: ${fixedCount}');
+console.log('   修复率: ${((fixedCount / activities.length) * 100).toFixed(2)}%\n');
 
-if (details.length > 0) {
-    console.log('📝 修复详情（前5个）:\n');
-    details.slice(0, 5).forEach((detail, i) => {
-        console.log(`[${i+1}] [${detail.id}] ${detail.title}`);
-        console.log(`   修复前: ${detail.original}...`);
-        console.log(`   修复后: ${detail.fixed}...`);
+if (fixDetails.length > 0) {
+    console.log('🔍 修复示例（前5个）:\n');
+    fixDetails.forEach((detail, index) => {
+        console.log('${index + 1}. ${detail.title} (ID: ${detail.id})');
+        console.log('   原长度: ${detail.originalLength} 字符');
+        console.log('   新长度: ${detail.fixedLength} 字符');
+        console.log('   减少: ${detail.reduction} 字符');
         console.log('');
     });
 }
 
-// =====================================================
 // 保存修复后的数据
-// =====================================================
+console.log('💾 保存修复后的数据...');
+fs.writeFileSync(dataFile, JSON.stringify(activities, null, 2), 'utf-8');
+console.log('✅ 数据已保存: ${dataFile}\n');
 
-fs.writeFileSync(itemsJsonPath, JSON.stringify(items, null, 2), 'utf-8');
-
-console.log(`\n✅ 数据已保存到 items.json`);
-console.log(`\n💡 建议：运行以下命令重新导出Excel:`);
-console.log(`   npm run export-to-excel`);
+console.log('=' .repeat(60));
+console.log('\n✅ 全部完成！');
+console.log('\n💡 提示：');
+console.log('   - 原始数据已备份');
+console.log('   - 如需回滚，使用备份文件');
+console.log('   - 建议刷新浏览器查看修复效果\n');
