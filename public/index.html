@@ -153,17 +153,25 @@
          */
         const UIStateManager = {
             // 当前 UI 状态
-            currentState: 'ui-calendar',
+            currentState: null,
+            isInitialized: false,
 
             /**
-             * 初始化 UI 状态
+             * 初始化 UI 状态（只执行一次）
              * @param {string} initialState - 初始状态（'ui-calendar' 或 'ui-list'）
              */
             init(initialState = 'ui-calendar') {
+                // 防止重复初始化
+                if (this.isInitialized) {
+                    console.log('⏸️ UI 状态已初始化，跳过重复初始化');
+                    return;
+                }
+
                 // 确保 body 上只有一个 ui-xxx class
                 document.body.classList.remove('ui-calendar', 'ui-list');
                 document.body.classList.add(initialState);
                 this.currentState = initialState;
+                this.isInitialized = true;
                 console.log('🏛️ UI 状态初始化:', initialState);
             },
 
@@ -172,15 +180,22 @@
              * @param {string} newState - 新状态（'ui-calendar' 或 'ui-list'）
              */
             switchState(newState) {
-                if (this.currentState === newState) {
-                    console.log('⏸️ UI 状态未改变:', newState);
+                // 确保 UI 状态已初始化
+                if (!this.isInitialized) {
+                    console.warn('⚠️ UI 状态未初始化，先执行 init()');
+                    this.init(newState);
                     return;
                 }
 
-                // ✅ 使用 replace 确保只有一个 ui-xxx class
+                if (this.currentState === newState) {
+                    return; // 静默跳过，避免日志过多
+                }
+
+                const oldState = this.currentState;
+                // 使用 replace 确保只有一个 ui-xxx class
                 document.body.classList.replace(this.currentState, newState);
                 this.currentState = newState;
-                console.log('🔄 UI 状态切换:', this.currentState, '→', newState);
+                console.log('🔄 UI 状态切换:', oldState, '→', newState);
 
                 // 触发 UI 状态切换事件
                 window.dispatchEvent(new CustomEvent('uiStateChanged', {
@@ -1076,6 +1091,110 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        /* ========== 信息层级优化标准 ========== */
+        /*
+         * 📐 四层文字层级系统
+         * L1: 活动标题 16px/600/深色 - 核心信息
+         * L2: 时间&地点 13px/常规/灰 - 辅助信息
+         * L3: 价格 14px/600/强调色 - 决策信息
+         * L4: 补充说明 12-13px/灰 - 背景信息
+         */
+
+        /* L1: 活动标题（已在上面定义，保持不变） */
+        .schedule-item-title {
+            /* L1层级：活动标题 */
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        /* L2: 时间&地点元信息 */
+        .schedule-item-meta {
+            /* L2层级：降权，不抢戏 */
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .meta-time,
+        .meta-location {
+            /* L2层级：统一的图标+文本样式 */
+            font-size: 13px;
+            color: #666;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* L3: 价格强调（决策关键信息） */
+        .schedule-item-price {
+            /* L3层级：视觉强调 */
+            font-size: 14px;
+            font-weight: 600;
+            color: #667eea; /* 强调色 */
+            line-height: 1.4;
+            margin-top: 2px;
+        }
+
+        /* L3: 价格特殊标记 */
+        .schedule-item-price:contains("免费") {
+            color: #4CAF50; /* 免费用绿色强调 */
+        }
+
+        /* L4: 补充说明（低优先级） */
+        .activity-detail-card > div[style*="margin-top"] {
+            /* L4层级：最小化处理 */
+            font-size: 12px;
+            color: #999;
+            line-height: 1.4;
+        }
+
+        /* ========== 日历卡片内部元素优化 ========== */
+        /* 日历卡片标题（L1层级） */
+        .chip-title {
+            /* L1层级：日历卡片中的标题 */
+            font-weight: 600;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.3;
+            margin-bottom: 2px;
+        }
+
+        /* 日历卡片时间（L2层级） */
+        .activity-chip > div:last-child {
+            /* L2层级：日历卡片中的时间 */
+            font-size: 10px;
+            color: #666;
+            font-weight: 400;
+        }
+
+        /* ========== 中文+英文+数字混排优化 ========== */
+        /* 确保中文、英文、数字混排时的可读性 */
+        .schedule-item-title,
+        .chip-title {
+            /* 中文优先，英文数字不抢占视觉 */
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            letter-spacing: 0.01em; /* 轻微增加字间距 */
+        }
+
+        .meta-time,
+        .meta-location,
+        .schedule-item-meta {
+            /* 辅助信息使用较细字重 */
+            font-weight: 400;
+        }
+
+        .schedule-item-price {
+            /* 价格使用较粗字重 */
+            font-weight: 600;
+            font-feature-settings: "tnum"; /* 表格数字对齐 */
         }
 
         /* ========== 活动详情卡片完整防溢出CSS ========== */
@@ -3474,7 +3593,7 @@
     <!-- 🏛️ UI 状态架构 CSS（单一源原则） -->
     <link rel="stylesheet" href="css/ui-state-architecture.css">
 </head>
-<body class="ui-calendar">
+<body>
     <div class="container">
         <!-- 头部 -->
         <div class="header">
@@ -6049,14 +6168,21 @@
             // 清理自动滚动检测（避免冲突）
             cleanupH5ScrollObserver();
 
+            const isMobile = window.innerWidth <= 768;
+
             if (currentFilters.day === day) {
                 // 再次点击取消筛选，显示所有活动
                 console.log('✋ 取消日期筛选');
                 currentFilters.day = null;
                 lastSelectedDay = null;
 
+                // 🏛️ 切换回卡片态（仅在移动端）
+                if (isMobile && window.UIStateManager) {
+                    UIStateManager.switchState('ui-calendar');
+                }
+
                 // H5端：重新启用滚动自动选中
-                if (window.innerWidth <= 768) {
+                if (isMobile) {
                     console.log('🔄 重新启用H5滚动自动选中');
                     const gridId = currentTab === 1 ? 'dateGridMarket' : 'dateGrid';
                     // ✅ 延迟 1000ms，确保足够的保护时间
@@ -6069,6 +6195,11 @@
                 console.log('✅ 设置日期筛选:', day);
                 currentFilters.day = day;
                 lastSelectedDay = day;
+
+                // 🏛️ 切换到列表态（仅在移动端）
+                if (isMobile && window.UIStateManager) {
+                    UIStateManager.switchState('ui-list');
+                }
 
                 // 🆕 H5端：自动滚动到该日期组
                 if (window.innerWidth <= 768) {
@@ -6260,10 +6391,6 @@
             // 移动端：选择日期后显示单日详细视图
             // PC端：始终显示周视图，通过高亮显示选中日期
             if (isMobile && currentFilters.day !== null) {
-                // 🏛️ 切换到列表态
-                if (window.UIStateManager && !UIStateManager.isState('ui-list')) {
-                    UIStateManager.switchState('ui-list');
-                }
 
                 // H5端：使用列表视图显示选中日期的活动
                 grid.style.display = 'block';
@@ -6285,11 +6412,6 @@
                     </div>
                 `;
             } else {
-                // 🏛️ 切换到卡片态
-                if (window.UIStateManager && !UIStateManager.isState('ui-calendar')) {
-                    UIStateManager.switchState('ui-calendar');
-                }
-
                 // PC端或未选择日期：显示周视图（7天）
                 grid.style.display = 'grid';
                 grid.style.gridTemplateColumns = '';
