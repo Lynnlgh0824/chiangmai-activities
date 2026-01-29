@@ -92,6 +92,86 @@
         });
     })();
     </script>
+
+    <!-- ============================================================ -->
+    <!-- 🏛️ UI 状态管理系统（单一源原则） -->
+    <!-- ============================================================ -->
+    <script>
+    (function() {
+        'use strict';
+
+        /**
+         * UI 状态管理器
+         * 原则：UI 长什么样，只能由一个"状态 class"决定
+         */
+        const UIStateManager = {
+            // 当前 UI 状态
+            currentState: 'ui-calendar',
+
+            /**
+             * 初始化 UI 状态
+             * @param {string} initialState - 初始状态（'ui-calendar' 或 'ui-list'）
+             */
+            init(initialState = 'ui-calendar') {
+                // 确保 body 上只有一个 ui-xxx class
+                document.body.classList.remove('ui-calendar', 'ui-list');
+                document.body.classList.add(initialState);
+                this.currentState = initialState;
+                console.log('🏛️ UI 状态初始化:', initialState);
+            },
+
+            /**
+             * 切换 UI 状态
+             * @param {string} newState - 新状态（'ui-calendar' 或 'ui-list'）
+             */
+            switchState(newState) {
+                if (this.currentState === newState) {
+                    console.log('⏸️ UI 状态未改变:', newState);
+                    return;
+                }
+
+                // ✅ 使用 replace 确保只有一个 ui-xxx class
+                document.body.classList.replace(this.currentState, newState);
+                this.currentState = newState;
+                console.log('🔄 UI 状态切换:', this.currentState, '→', newState);
+
+                // 触发 UI 状态切换事件
+                window.dispatchEvent(new CustomEvent('uiStateChanged', {
+                    detail: { from: this.currentState, to: newState }
+                }));
+            },
+
+            /**
+             * 获取当前 UI 状态
+             * @returns {string}
+             */
+            getCurrentState() {
+                return this.currentState;
+            },
+
+            /**
+             * 检查是否为指定状态
+             * @param {string} state - 状态名称
+             * @returns {boolean}
+             */
+            isState(state) {
+                return this.currentState === state;
+            }
+        };
+
+        // 导出到全局
+        window.UIStateManager = UIStateManager;
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 根据视口宽度决定初始状态
+            const isMobile = window.innerWidth <= 768;
+            const initialState = isMobile ? 'ui-calendar' : 'ui-list';
+            UIStateManager.init(initialState);
+        });
+
+    })();
+    </script>
     <style>
         /* ========== CSS变量系统 ========== */
         :root {
@@ -3343,8 +3423,11 @@
 
     <!-- 🧹 Mobile Anti-Overflow 安全 CSS 清单 -->
     <link rel="stylesheet" href="css/mobile-safe.css">
+
+    <!-- 🏛️ UI 状态架构 CSS（单一源原则） -->
+    <link rel="stylesheet" href="css/ui-state-architecture.css">
 </head>
-<body>
+<body class="ui-calendar">
     <div class="container">
         <!-- 头部 -->
         <div class="header">
@@ -6130,6 +6213,11 @@
             // 移动端：选择日期后显示单日详细视图
             // PC端：始终显示周视图，通过高亮显示选中日期
             if (isMobile && currentFilters.day !== null) {
+                // 🏛️ 切换到列表态
+                if (window.UIStateManager && !UIStateManager.isState('ui-list')) {
+                    UIStateManager.switchState('ui-list');
+                }
+
                 // H5端：使用列表视图显示选中日期的活动
                 grid.style.display = 'block';
                 grid.style.gridTemplateColumns = '1fr';
@@ -6150,6 +6238,11 @@
                     </div>
                 `;
             } else {
+                // 🏛️ 切换到卡片态
+                if (window.UIStateManager && !UIStateManager.isState('ui-calendar')) {
+                    UIStateManager.switchState('ui-calendar');
+                }
+
                 // PC端或未选择日期：显示周视图（7天）
                 grid.style.display = 'grid';
                 grid.style.gridTemplateColumns = '';
