@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="max-age=300, must-revalidate">
     <title>Chiengmai Activities v1.0.7</title>
 
-    <!-- 修复浏览器扩展引起的runtime.lastError -->
+    <!-- 修复浏览器扩展引起的错误 -->
     <script>
     (function() {
         // 捕获并抑制浏览器扩展引起的错误
@@ -18,7 +18,9 @@
             if (typeof message === 'string' &&
                 (message.includes('runtime.lastError') ||
                  message.includes('message port closed') ||
-                 message.includes('extension'))) {
+                 message.includes('extension') ||
+                 message.includes('content.js') ||
+                 message.includes('chrome-extension'))) {
                 return; // 静默忽略
             }
             originalError.apply(console, args);
@@ -27,15 +29,38 @@
         // 捕获 window.onerror 中的扩展错误
         const originalOnError = window.onerror;
         window.onerror = function(message, source, lineno, colno, error) {
-            if (typeof message === 'string' &&
-                (message.includes('runtime.lastError') ||
-                 message.includes('message port closed'))) {
+            // 检查是否是浏览器扩展的错误
+            if (typeof message === 'string' && (
+                message.includes('runtime.lastError') ||
+                message.includes('message port closed') ||
+                message.includes('content.js') ||
+                message.includes('chrome-extension://') ||
+                (source && source.includes('chrome-extension://'))
+            )) {
                 return true; // 阻止默认错误处理
             }
             if (originalOnError) {
                 return originalOnError(message, source, lineno, colno, error);
             }
             return false;
+        };
+
+        // 捕获未处理的 Promise rejection（通常是扩展错误）
+        const originalOnUnhandled = window.onunhandledrejection;
+        window.onunhandledrejection = function(event) {
+            if (event.reason && event.reason.message) {
+                const msg = event.reason.message;
+                const source = event.reason.stack || '';
+                if (msg.includes('content.js') ||
+                    msg.includes('chrome-extension') ||
+                    source.includes('chrome-extension://')) {
+                    event.preventDefault(); // 阻止错误显示
+                    return;
+                }
+            }
+            if (originalOnUnhandled) {
+                return originalOnUnhandled(event);
+            }
         };
     })();
     </script>
