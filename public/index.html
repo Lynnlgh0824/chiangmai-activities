@@ -515,55 +515,12 @@
             display: block;
         }
 
-        /* 日历Tab */
-        .calendar-header {
-            margin-bottom: 20px;
-
-            /* ✅ 修复PC端日历容器溢出问题 */
-            max-width: 100%;
-            box-sizing: border-box;
-            overflow: hidden;
-        }
-
-        .nav-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .month-label {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .nav-btn {
-            padding: 6px 16px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: white;
-            color: #333;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.2s;
-        }
-
-        .nav-btn:hover {
-            background: #f5f5f5;
-        }
-
+        /* 日期表头样式 */
         .date-grid-header {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 8px;
             margin-bottom: 16px;
-
-            /* ✅ 修复PC端日历溢出问题 */
             max-width: 100%;
             box-sizing: border-box;
             overflow: hidden;
@@ -571,8 +528,8 @@
 
         .date-cell-header {
             padding: 8px 4px;
-            background: #E8F3FF; /* ✅ 未选中状态：浅蓝色背景 */
-            color: #667eea; /* ✅ 未选中状态：深蓝色文字 */
+            background: #E8F3FF;
+            color: #667eea;
             border-radius: 6px;
             text-align: center;
             display: flex;
@@ -585,67 +542,59 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             position: relative;
-            min-width: 44px; /* 移动端最小点击宽度 */
-            min-height: 44px; /* 移动端最小点击高度 */
+            min-width: 44px;
+            min-height: 44px;
             border: 2px solid transparent;
-
-            /* ✅ 修复PC端按钮溢出问题 */
             max-width: 100%;
             box-sizing: border-box;
-            flex: 1 1 auto; /* 弹性布局，均匀分布 */
+            flex: 1 1 auto;
         }
 
-        /* 数字日期样式 - 大号突出显示 */
         .date-number {
             font-size: 18px;
             font-weight: 700;
             line-height: 1.2;
-            color: inherit; /* ✅ 继承父元素颜色，支持选中/未选中状态 */
+            color: inherit;
         }
 
-        /* 星期标识样式 - 小号辅助显示 */
         .date-weekday {
             font-size: 11px;
             font-weight: 500;
             line-height: 1.2;
-            color: inherit; /* ✅ 继承父元素颜色，支持选中/未选中状态 */
-            opacity: 0.9; /* 稍微透明一些，形成层次 */
+            color: inherit;
+            opacity: 0.9;
         }
 
         .date-cell-header:active {
             transform: translateY(-1px) scale(0.98);
         }
 
-        /* ✅ 更新悬停状态以适配新配色 */
         .date-cell-header:hover {
-            background: #D0E1FF; /* ✅ 悬停时比未选中(#E8F3FF)稍深 */
-            color: #5568d3; /* ✅ 文字颜色也加深 */
+            background: #D0E1FF;
+            color: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
-        /* 统一的选中样式 - 深蓝色背景 + 白色文字 */
         .date-cell-header.selected-day {
-            background: #4080FF; /* ✅ 选中状态：深蓝色背景 */
-            color: white !important; /* ✅ 选中状态：白色文字 */
+            background: #4080FF;
+            color: white !important;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(64, 128, 255, 0.4); /* ✅ 调整阴影颜色匹配背景 */
+            box-shadow: 0 4px 12px rgba(64, 128, 255, 0.4);
             transform: scale(1.08);
             animation: selectPulse 0.3s ease;
-            border: 2px solid #4080FF; /* ✅ 边框颜色也使用深蓝色 */
+            border: 2px solid #4080FF;
         }
 
-        /* 今天的高亮样式 - 黄色边框指示 */
         .date-cell-header.today-header {
             border: 2px solid #ffc107;
         }
 
-        /* 今天且被选中 - 保持蓝色选中，加粗黄色边框 */
         .date-cell-header.today-header.selected-day {
-            background: #4080FF; /* ✅ 选中状态：深蓝色背景（与其他选中日期一致） */
-            color: white !important; /* ✅ 选中状态：白色文字 */
-            border: 3px solid #ffc107; /* ✅ 黄色边框表示"今天" */
-            box-shadow: 0 4px 16px rgba(64, 128, 255, 0.6), 0 0 0 2px rgba(255, 193, 7, 0.3); /* ✅ 调整阴影颜色 */
+            background: #4080FF;
+            color: white !important;
+            border: 3px solid #ffc107;
+            box-shadow: 0 4px 16px rgba(64, 128, 255, 0.6), 0 0 0 2px rgba(255, 193, 7, 0.3);
         }
 
         @keyframes selectPulse {
@@ -654,7 +603,6 @@
             100% { transform: scale(1.08); }
         }
 
-        /* Tooltip 提示 */
         .date-cell-header:hover::before {
             content: '点击查看当天活动';
             position: absolute;
@@ -2153,37 +2101,36 @@
                 100% { transform: scale(1.08); }
             }
 
-            /* 旧的日历优化样式保留 */
-
-            /* 周标题和导航按钮 - 移动端优化 */
-            .nav-row {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 8px;
+            /* 日期表头移动端优化 */
+            .date-grid-header {
+                gap: 4px !important;
+                margin-bottom: 12px !important;
+                padding: 0 8px !important;
             }
 
-            .month-label {
-                font-size: 15px;
-                font-weight: 600;
-                color: #333;
-                text-align: center;
-                padding: 8px;
-                background: #f5f5f5;
-                border-radius: 8px;
+            .date-cell-header {
+                padding: 6px 2px !important;
+                min-width: 40px !important;
+                min-height: 40px !important;
             }
 
-            .nav-buttons {
-                display: flex;
-                gap: 6px;
-                justify-content: space-between;
+            .date-number {
+                font-size: 16px !important;
             }
 
-            .nav-btn {
-                flex: 1;
-                padding: 8px 4px;
-                font-size: 12px;
-                min-height: 36px;
-                white-space: nowrap;
+            .date-weekday {
+                font-size: 10px !important;
+            }
+
+            /* 选中状态下的文字颜色继承白色 */
+            .date-cell-header.selected-day .date-number,
+            .date-cell-header.selected-day .date-weekday {
+                color: white !important;
+            }
+
+            /* 点击效果 */
+            .date-cell-header:active {
+                transform: scale(0.95) !important;
             }
 
             /* 日历网格 - 水平滚动保留7列（周视图） */
@@ -2742,47 +2689,6 @@
                 padding: var(--space-mobile-sm) var(--space-xs) !important;
                 margin-bottom: var(--space-xs) !important;
                 font-size: 11px !important;
-            }
-
-            /* 优化日历头部间距 */
-            .calendar-header {
-                padding: var(--space-sm) var(--space-lg) var(--space-xs) var(--space-lg) !important;
-                margin-bottom: var(--space-sm) !important;
-            }
-
-            .nav-row {
-                margin-bottom: var(--space-sm) !important;
-            }
-
-            .nav-btn {
-                padding: var(--space-mobile-xs) var(--space-sm) !important;
-                font-size: 12px !important;
-                margin: 0 2px !important;
-            }
-
-            /* 优化日期表头间距 */
-            .date-grid-header {
-                padding: var(--space-xs) var(--space-sm) !important;
-                gap: var(--space-mobile-md) !important;
-
-                /* ✅ 修复日历溢出问题 */
-                max-width: 100% !important;
-                width: 100% !important;
-                box-sizing: border-box !important;
-
-                /* ✅ 确保横向滚动正常工作 */
-                flex-shrink: 0 !important;
-            }
-
-            .date-cell-header {
-                padding: var(--space-mobile-xs) var(--space-sm) !important;
-                min-width: 40px !important;
-                max-width: 50px !important; /* ✅ 超小屏幕减小最大宽度 */
-                flex-shrink: 0 !important; /* ✅ 禁止收缩 */
-                font-size: 11px !important;
-
-                /* ✅ 修复单个按钮溢出问题 */
-                box-sizing: border-box !important;
             }
 
             /* 优化列表视图间距 */
@@ -3536,20 +3442,9 @@
         <div class="tab-content">
             <!-- 兴趣班Tab -->
             <div id="tab-0" class="tab-pane active">
-                <div class="calendar-header">
-                    <div class="nav-row">
-                        <div class="month-label" id="monthLabel"><!-- ✅ JavaScript动态更新日期 --></div>
-                        <div class="nav-buttons">
-                            <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
-                            <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
-                            <button class="nav-btn" onclick="navigateWeek(1)">下一周 →</button>
-                        </div>
-                    </div>
-                    <div class="date-grid-header" id="dateGridHeader">
-                        <!-- 日期表头将通过 JavaScript 动态生成 -->
-                    </div>
+                <div class="date-grid-header" id="dateGridHeader">
+                    <!-- 日期表头将通过 JavaScript 动态生成 -->
                 </div>
-
                 <div class="calendar-grid" id="calendarGrid">
                     <!-- 动态生成日历内容 -->
                 </div>
@@ -3557,20 +3452,9 @@
 
             <!-- 市集Tab -->
             <div id="tab-1" class="tab-pane">
-                <div class="calendar-header">
-                    <div class="nav-row">
-                        <div class="month-label" id="monthLabelMarket"><!-- ✅ JavaScript动态更新日期 --></div>
-                        <div class="nav-buttons">
-                            <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
-                            <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
-                            <button class="nav-btn" onclick="navigateWeek(1)">下一周 →</button>
-                        </div>
-                    </div>
-                    <div class="date-grid-header" id="dateGridHeaderMarket">
-                        <!-- 日期表头将通过 JavaScript 动态生成 -->
-                    </div>
+                <div class="date-grid-header" id="dateGridHeaderMarket">
+                    <!-- 日期表头将通过 JavaScript 动态生成 -->
                 </div>
-
                 <div class="calendar-grid" id="calendarGridMarket">
                     <!-- 动态生成日历内容 -->
                 </div>
@@ -3578,20 +3462,9 @@
 
             <!-- 音乐Tab -->
             <div id="tab-2" class="tab-pane">
-                <div class="calendar-header">
-                    <div class="nav-row">
-                        <div class="month-label" id="monthLabelMusic"><!-- ✅ JavaScript动态更新日期 --></div>
-                        <div class="nav-buttons">
-                            <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
-                            <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
-                            <button class="nav-btn" onclick="navigateWeek(1)">下一周 →</button>
-                        </div>
-                    </div>
-                    <div class="date-grid-header" id="dateGridHeaderMusic">
-                        <!-- 日期表头将通过 JavaScript 动态生成 -->
-                    </div>
+                <div class="date-grid-header" id="dateGridHeaderMusic">
+                    <!-- 日期表头将通过 JavaScript 动态生成 -->
                 </div>
-
                 <div class="calendar-grid" id="calendarGridMusic">
                     <!-- 动态生成日历内容 -->
                 </div>
@@ -5990,20 +5863,6 @@
          * @param {string} gridId - 网格容器ID
          */
         function updateDateHighlight(day, gridId) {
-            // 获取所有日期表头按钮
-            const headerId = gridId === 'calendarGridMarket' ? 'dateGridHeaderMarket' : 'dateGridHeader';
-            const dateButtons = document.querySelectorAll(`#${headerId} .date-cell-header`);
-
-            // 更新日期按钮高亮状态
-            dateButtons.forEach(btn => {
-                const btnDay = parseInt(btn.getAttribute('data-day'));
-                if (btnDay === day) {
-                    btn.classList.add('selected-day');
-                } else {
-                    btn.classList.remove('selected-day');
-                }
-            });
-
             // 更新活动卡片高亮状态
             const activityCards = document.querySelectorAll(`#${gridId} .activity-card`);
             activityCards.forEach(card => {
@@ -6297,63 +6156,20 @@
 
             // 更新日期高亮状态
             updateDateHighlight();
-
-            // 更新标题标签
-            updateMonthLabel();
-        }
-
-        // 更新标题标签（当选择某个日期时）
-        function updateMonthLabel() {
-            // ✅ 更新所有三个tab的标题标签
-            const labels = {
-                interest: document.getElementById('monthLabel'),
-                market: document.getElementById('monthLabelMarket'),
-                music: document.getElementById('monthLabelMusic')
-            };
-
-            if (currentFilters.day !== null) {
-                // 查找对应日期的详细信息
-                const dateInfo = weekDates.find(d => d.day === currentFilters.day);
-                if (dateInfo) {
-                    // 格式化月份和日期为两位数（如 01-21）
-                    const monthStr = String(dateInfo.month).padStart(2, '0');
-                    const dateStr = String(dateInfo.date).padStart(2, '0');
-                    const dateText = `📅 ${monthStr}-${dateStr}`;
-
-                    if (labels.interest) labels.interest.textContent = `${dateText}的活动`;
-                    if (labels.market) labels.market.textContent = `${dateText}的市集`;
-                    if (labels.music) labels.music.textContent = `${dateText}的音乐`;
-                } else {
-                    const dayText = `📅 ${dayNames[currentFilters.day]}`;
-
-                    if (labels.interest) labels.interest.textContent = `${dayText}的活动`;
-                    if (labels.market) labels.market.textContent = `${dayText}的市集`;
-                    if (labels.music) labels.music.textContent = `${dayText}的音乐`;
-                }
-            } else {
-                // ✅ 未选择日期时，不显示任何内容（避免与tab导航重复）
-                if (labels.interest) labels.interest.textContent = '';
-                if (labels.market) labels.market.textContent = '';
-                if (labels.music) labels.music.textContent = '';
-            }
         }
 
         function updateCalendarView(filtered) {
             // 根据当前Tab选择不同的容器
-            let gridId, headerId;
+            let gridId;
             if (currentTab === 1) {
                 gridId = 'calendarGridMarket';
-                headerId = 'dateGridHeaderMarket';
             } else if (currentTab === 2) {
                 gridId = 'calendarGridMusic';
-                headerId = 'dateGridHeaderMusic';
             } else {
                 gridId = 'calendarGrid';
-                headerId = 'dateGridHeader';
             }
 
             const grid = document.getElementById(gridId);
-            const header = document.getElementById(headerId);
 
             // 添加淡入动画类
             grid.style.opacity = '0';
@@ -6407,6 +6223,8 @@
             }, 50);
 
             // 更新日期表头
+            const headerId = gridId === 'calendarGridMarket' ? 'dateGridHeaderMarket' :
+                            gridId === 'calendarGridMusic' ? 'dateGridHeaderMusic' : 'dateGridHeader';
             updateDateHeaders(headerId);
 
             // 为每一天添加点击事件（仅在周视图时）
@@ -6996,70 +6814,6 @@
         }
 
         // =====================================================
-        // 周导航
-        // =====================================================
-
-        // 切换周（direction: -1 上一周, 1 下一周）
-        function navigateWeek(direction) {
-            // 更新周偏移量
-            currentWeekOffset += direction;
-
-            // 清除日期筛选（因为切换周后，之前的日期选择不再适用）
-            currentFilters.day = null;
-
-            // 重新生成日期表头
-            updateDateHeaders('dateGridHeader');
-            updateDateHeaders('dateGridHeaderMarket');
-
-            // 重新渲染视图
-            updateViews();
-
-            // 移动端：如果是本周，自动滚动到今天
-            if (window.innerWidth <= 768 && currentWeekOffset === 0) {
-                setTimeout(() => {
-                    const todayHeader = document.querySelector('.date-cell-header.today-header');
-                    if (todayHeader) {
-                        todayHeader.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'nearest',
-                            inline: 'center'
-                        });
-                    }
-                }, 100);
-            }
-        }
-
-        // 回到本周
-        function goToThisWeek() {
-            // 重置周偏移量
-            currentWeekOffset = 0;
-
-            // 清除日期筛选
-            currentFilters.day = null;
-
-            // 重新生成日期表头
-            updateDateHeaders('dateGridHeader');
-            updateDateHeaders('dateGridHeaderMarket');
-
-            // 重新渲染视图
-            updateViews();
-
-            // 移动端：自动滚动到今天
-            if (window.innerWidth <= 768) {
-                setTimeout(() => {
-                    const todayHeader = document.querySelector('.date-cell-header.today-header');
-                    if (todayHeader) {
-                        todayHeader.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'nearest',
-                            inline: 'center'
-                        });
-                    }
-                }, 100);
-            }
-        }
-
-        // =====================================================
         // 活动详情弹窗
         // =====================================================
 
@@ -7306,7 +7060,7 @@
 
         // 更新日期表头
         function updateDateHeaders(headerId = 'dateGridHeader') {
-            weekDates = generateWeekDates(currentWeekOffset); // 使用当前偏移量
+            weekDates = generateWeekDates(currentWeekOffset);
             const headerContainer = document.getElementById(headerId);
 
             if (!headerContainer) return;
@@ -7327,41 +7081,6 @@
             });
 
             headerContainer.innerHTML = html;
-
-            // 更新周标题显示
-            updateWeekTitle();
-        }
-
-        // 更新周标题显示
-        function updateWeekTitle() {
-            // ✅ 更新所有三个tab的标题标签
-            const labels = {
-                interest: document.getElementById('monthLabel'),
-                market: document.getElementById('monthLabelMarket'),
-                music: document.getElementById('monthLabelMusic')
-            };
-
-            const firstDay = weekDates[0];
-            const lastDay = weekDates[6];
-
-            let title = '';
-            if (currentWeekOffset === 0) {
-                title = '本周';
-            } else if (currentWeekOffset === -1) {
-                title = '上周';
-            } else if (currentWeekOffset === 1) {
-                title = '下周';
-            } else {
-                const weekNum = currentWeekOffset > 0 ? `+${currentWeekOffset}` : currentWeekOffset;
-                title = `${weekNum}周`;
-            }
-
-            const dateRange = `(${firstDay.month}/${firstDay.date} - ${lastDay.month}/${lastDay.date})`;
-
-            // ✅ 为每个tab设置相应的标题
-            if (labels.interest) labels.interest.textContent = `${title}活动 ${dateRange}`;
-            if (labels.market) labels.market.textContent = `${title}市集 ${dateRange}`;
-            if (labels.music) labels.music.textContent = `${title}音乐 ${dateRange}`;
         }
 
         // 页面加载时获取数据
@@ -7370,22 +7089,9 @@
             await checkAppVersion();
 
             // 更新日期表头
-            updateDateHeaders();
-
-            // 移动端：将今天滚动到视图中心
-            if (window.innerWidth <= 768) {
-                const todayHeader = document.querySelector('.date-cell-header.today-header');
-                if (todayHeader) {
-                    // 延迟一点确保DOM完全渲染
-                    setTimeout(() => {
-                        todayHeader.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'nearest',
-                            inline: 'center'
-                        });
-                    }, 100);
-                }
-            }
+            updateDateHeaders('dateGridHeader');
+            updateDateHeaders('dateGridHeaderMarket');
+            updateDateHeaders('dateGridHeaderMusic');
 
             // 获取活动数据
             fetchActivities();
