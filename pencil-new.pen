@@ -1,0 +1,1272 @@
+{
+  "version": "2.6",
+  "children": [
+    {
+      "type": "frame",
+      "id": "bi8Au",
+      "x": 0,
+      "y": 0,
+      "name": "Frame",
+      "clip": true,
+      "width": 3262,
+      "height": 1020,
+      "fill": "#FFFFFF",
+      "layout": "none"
+    },
+    {
+      "type": "frame",
+      "id": "ZBeHM",
+      "x": 100,
+      "y": 100,
+      "name": "iPhone 12 Pro",
+      "width": 375,
+      "height": 812,
+      "fill": "#f5f5f5",
+      "cornerRadius": 40,
+      "stroke": {
+        "thickness": 2
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "zrZCD",
+          "name": "Status Bar",
+          "width": 375,
+          "height": 44,
+          "fill": "#000000",
+          "cornerRadius": [
+            40,
+            40,
+            0,
+            0
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "iRco6",
+          "name": "Search Section",
+          "width": 375,
+          "height": 52,
+          "fill": "#ffffff",
+          "stroke": {
+            "thickness": 1
+          },
+          "children": [
+            {
+              "type": "text",
+              "id": "lrxgk",
+              "name": "Search Icon",
+              "fill": "#999",
+              "content": "🔍",
+              "fontFamily": "Inter",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "61Bxq",
+              "name": "Search Placeholder",
+              "fill": "#999",
+              "content": "搜索活动、地点...",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "YOT8V",
+          "name": "Tab Navigation",
+          "width": 375,
+          "height": 48,
+          "fill": "#ffffff",
+          "stroke": {
+            "thickness": 1
+          }
+        },
+        {
+          "type": "frame",
+          "id": "qXNCL",
+          "name": "Date Grid Header",
+          "width": 375,
+          "height": 140,
+          "fill": "#667eea",
+          "children": [
+            {
+              "type": "frame",
+              "id": "IENXf",
+              "name": "Date Grid",
+              "width": 375,
+              "height": 140
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "MjcCK",
+          "name": "Activity List",
+          "width": 375,
+          "height": 528,
+          "fill": "#f8f9fa"
+        },
+        {
+          "type": "ellipse",
+          "id": "WPqJI",
+          "name": "Filter Button",
+          "fill": "#667eea",
+          "width": 54,
+          "height": 54,
+          "stroke": {
+            "thickness": 2
+          }
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Y13uu",
+      "x": 100,
+      "y": 50,
+      "name": "iPhone 12 Pro - 移动端主页",
+      "width": 375,
+      "height": 812,
+      "fill": "#f5f5f5",
+      "cornerRadius": 40,
+      "stroke": {
+        "thickness": 3
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "SOycW",
+          "name": "Status Bar",
+          "width": 375,
+          "height": 44,
+          "fill": "#000000",
+          "cornerRadius": [
+            40,
+            40,
+            0,
+            0
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "F5iHU",
+              "name": "Time",
+              "fill": "#ffffff",
+              "content": "9:41",
+              "fontFamily": "Inter",
+              "fontSize": 15,
+              "fontWeight": "600"
+            },
+            {
+              "type": "text",
+              "id": "AvY9L",
+              "name": "Signal",
+              "fill": "#ffffff",
+              "content": "📶",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "m9E5X",
+              "name": "Battery",
+              "fill": "#ffffff",
+              "content": "🔋",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XxPNx",
+          "name": "Search Section - Fixed",
+          "width": 375,
+          "height": 65,
+          "fill": "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          "stroke": {
+            "thickness": 0
+          },
+          "children": [
+            {
+              "type": "frame",
+              "id": "K4M63",
+              "name": "Search Box",
+              "width": 351,
+              "height": 44,
+              "fill": "#ffffff",
+              "cornerRadius": 22,
+              "stroke": {
+                "thickness": 1
+              },
+              "children": [
+                {
+                  "type": "text",
+                  "id": "J4T6q",
+                  "name": "Search Icon",
+                  "fill": "#999999",
+                  "content": "🔍",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "M8OVL",
+                  "name": "Placeholder",
+                  "fill": "#999999",
+                  "content": "搜索活动、地点...",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Lep3z",
+          "name": "Tab Navigation - Fixed",
+          "width": 375,
+          "height": 50,
+          "fill": "#ffffff",
+          "stroke": {
+            "thickness": 1
+          },
+          "children": [
+            {
+              "type": "frame",
+              "id": "OvNCv",
+              "name": "Tab - 兴趣班 (Active)",
+              "width": 75,
+              "height": 50,
+              "fill": "#667eea",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "61Ae0",
+                  "name": "Tab Text",
+                  "fill": "#ffffff",
+                  "content": "兴趣班",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "JaZE9",
+              "name": "Tab - 市集",
+              "width": 75,
+              "height": 50,
+              "fill": "#ffffff",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "67YWV",
+                  "name": "Tab Text",
+                  "fill": "#666666",
+                  "content": "市集",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "yjyHf",
+              "name": "Tab - 音乐",
+              "width": 75,
+              "height": 50,
+              "fill": "#ffffff",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gg2Is",
+                  "name": "Tab Text",
+                  "fill": "#666666",
+                  "content": "音乐",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GRdOI",
+              "name": "Tab - 灵活时间",
+              "width": 75,
+              "height": 50,
+              "fill": "#ffffff",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "eEBxN",
+                  "name": "Tab Text",
+                  "fill": "#666666",
+                  "content": "灵活时间",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "WSBzE",
+              "name": "Tab - 网站",
+              "width": 75,
+              "height": 50,
+              "fill": "#ffffff",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "q5SND",
+                  "name": "Tab Text",
+                  "fill": "#666666",
+                  "content": "网站",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "rpmhb",
+          "name": "Date Filter Header - Fixed",
+          "width": 375,
+          "height": 140,
+          "fill": "#667eea",
+          "stroke": {
+            "thickness": 1
+          },
+          "children": [
+            {
+              "type": "text",
+              "id": "k5ibf",
+              "name": "Date Title",
+              "fill": "#ffffff",
+              "content": "选择日期查看活动",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            },
+            {
+              "type": "frame",
+              "id": "L6VZu",
+              "name": "Date Grid - 3 Columns",
+              "width": 359,
+              "height": 92,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "eTa6k",
+                  "name": "Monday - Selected",
+                  "width": 111,
+                  "height": 92,
+                  "fill": "linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 3
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "QolSm",
+                      "name": "Date Number",
+                      "fill": "#333333",
+                      "content": "26",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "s7BIU",
+                      "name": "Weekday",
+                      "fill": "#333333",
+                      "content": "周一 ✓",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "KQTtH",
+                  "name": "Tuesday",
+                  "width": 111,
+                  "height": 92,
+                  "fill": "#7c8ef5",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 1
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "klqV6",
+                      "name": "Date Number",
+                      "fill": "#ffffff",
+                      "content": "27",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "DPgkV",
+                      "name": "Weekday",
+                      "fill": "#ffffff",
+                      "content": "周二",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TxFgU",
+                  "name": "Wednesday",
+                  "width": 111,
+                  "height": 92,
+                  "fill": "#7c8ef5",
+                  "cornerRadius": 12,
+                  "stroke": {
+                    "thickness": 1
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "bmmV4",
+                      "name": "Date Number",
+                      "fill": "#ffffff",
+                      "content": "28",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 18,
+                      "fontWeight": "700"
+                    },
+                    {
+                      "type": "text",
+                      "id": "hB8Ms",
+                      "name": "Weekday",
+                      "fill": "#ffffff",
+                      "content": "周三",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "500"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "8vO9D",
+                  "name": "Date Row 2",
+                  "width": 359,
+                  "height": 92
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "UiHUc",
+          "name": "Filter Status Banner",
+          "width": 375,
+          "height": 36,
+          "fill": "#fff3e0",
+          "stroke": {
+            "thickness": 1
+          },
+          "children": [
+            {
+              "type": "text",
+              "id": "t36Rf",
+              "name": "Status Text",
+              "fill": "#f57c00",
+              "content": "📅 显示周一的活动",
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "500"
+            },
+            {
+              "type": "frame",
+              "id": "Xqa0Y",
+              "name": "Clear Button",
+              "width": 79,
+              "height": 24,
+              "fill": "#ffffff",
+              "cornerRadius": 12,
+              "stroke": {
+                "thickness": 1
+              },
+              "children": [
+                {
+                  "type": "text",
+                  "id": "SwDPa",
+                  "name": "Clear Text",
+                  "fill": "#f57c00",
+                  "content": "清除",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "500"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "3yRDe",
+          "name": "Activity List - Scrollable",
+          "width": 375,
+          "height": 477,
+          "fill": "#f8f9fa",
+          "children": [
+            {
+              "type": "frame",
+              "id": "m0fq0",
+              "name": "Monday Group - Selected (Sticky)",
+              "width": 359,
+              "height": 280,
+              "fill": "linear-gradient(135deg, #ffd700 0%, #ffed4e 100%)",
+              "cornerRadius": 12,
+              "stroke": {
+                "thickness": 2
+              },
+              "children": [
+                {
+                  "type": "text",
+                  "id": "o9v8E",
+                  "name": "Group Title",
+                  "fill": "#333333",
+                  "content": "📅 周一 (3个活动)",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "frame",
+                  "id": "6iIb3",
+                  "name": "Activity Card 1",
+                  "width": 335,
+                  "height": 68,
+                  "fill": "#ffffff",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 1
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "5pdSR",
+                      "name": "Time",
+                      "fill": "#667eea",
+                      "content": "09:00",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "rrvE2",
+                      "name": "Title",
+                      "fill": "#333333",
+                      "content": "⭐ 瑜伽晨练",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "hbKbO",
+                      "name": "Location",
+                      "fill": "#666666",
+                      "content": "📍 Yoga Plus Studio",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "E60sP",
+                  "name": "Activity Card 2",
+                  "width": 335,
+                  "height": 68,
+                  "fill": "#ffffff",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 1
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "lLNxl",
+                      "name": "Time",
+                      "fill": "#667eea",
+                      "content": "14:00",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ZkcfG",
+                      "name": "Title",
+                      "fill": "#333333",
+                      "content": "⭐ 泰拳训练",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "XBC8L",
+                      "name": "Location",
+                      "fill": "#666666",
+                      "content": "📍 Tiger Muay Thai",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "TOZal",
+                  "name": "Activity Card 3",
+                  "width": 335,
+                  "height": 68,
+                  "fill": "#ffffff",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 1
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tQ4Ds",
+                      "name": "Time",
+                      "fill": "#667eea",
+                      "content": "18:30",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "9CHlm",
+                      "name": "Title",
+                      "fill": "#333333",
+                      "content": "⭐ 冥想课程",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "M8rKd",
+                      "name": "Location",
+                      "fill": "#666666",
+                      "content": "📍 Mindfulness Centre",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "cX7Z3",
+              "name": "Tuesday Group - Normal",
+              "width": 359,
+              "height": 180,
+              "fill": "#f8f9fa",
+              "cornerRadius": 12,
+              "stroke": {
+                "thickness": 1
+              },
+              "children": [
+                {
+                  "type": "text",
+                  "id": "4MwN2",
+                  "name": "Group Title",
+                  "fill": "#666666",
+                  "content": "📅 周二 (2个活动)",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "ksYXH",
+                  "name": "Activity Card 4",
+                  "width": 335,
+                  "height": 60,
+                  "fill": "#ffffff",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 1
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "FEeZx",
+                      "name": "Time",
+                      "fill": "#667eea",
+                      "content": "10:00",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "DFpdg",
+                      "name": "Title",
+                      "fill": "#333333",
+                      "content": "健身训练",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "WCr5M",
+                  "name": "Activity Card 5",
+                  "width": 335,
+                  "height": 60,
+                  "fill": "#ffffff",
+                  "cornerRadius": 8,
+                  "stroke": {
+                    "thickness": 1
+                  },
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "5fSvK",
+                      "name": "Time",
+                      "fill": "#667eea",
+                      "content": "16:00",
+                      "fontFamily": "Inter",
+                      "fontSize": 13,
+                      "fontWeight": "600"
+                    },
+                    {
+                      "type": "text",
+                      "id": "DbIWH",
+                      "name": "Title",
+                      "fill": "#333333",
+                      "content": "文化艺术课",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ellipse",
+          "id": "DCirq",
+          "name": "Filter FAB",
+          "fill": "#667eea",
+          "width": 54,
+          "height": 54,
+          "stroke": {
+            "thickness": 2
+          }
+        },
+        {
+          "type": "frame",
+          "id": "cKGB8",
+          "name": "Scroll Indicator",
+          "width": 4,
+          "height": 40,
+          "fill": "#e0e0e0",
+          "cornerRadius": 2
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "UhYC7",
+      "x": 500,
+      "y": 50,
+      "name": "iPhone 12 Pro - 筛选弹窗",
+      "width": 375,
+      "height": 812,
+      "fill": "#f5f5f5",
+      "cornerRadius": 40,
+      "stroke": {
+        "thickness": 3
+      },
+      "children": [
+        {
+          "type": "frame",
+          "id": "jcv8O",
+          "name": "Overlay - Semi-transparent",
+          "width": 375,
+          "height": 812,
+          "fill": "rgba(0, 0, 0, 0.5)",
+          "cornerRadius": 40
+        },
+        {
+          "type": "frame",
+          "id": "lDPhR",
+          "name": "Filter Sheet - Bottom Sheet",
+          "width": 375,
+          "height": 500,
+          "fill": "#ffffff",
+          "cornerRadius": [
+            16,
+            16,
+            0,
+            0
+          ],
+          "stroke": {
+            "thickness": 1
+          },
+          "children": [
+            {
+              "type": "frame",
+              "id": "42aNz",
+              "name": "Drag Handle",
+              "width": 80,
+              "height": 4,
+              "fill": "#e0e0e0",
+              "cornerRadius": 2
+            },
+            {
+              "type": "text",
+              "id": "Ix5eI",
+              "name": "Sheet Title",
+              "fill": "#333333",
+              "content": "筛选活动",
+              "fontFamily": "Inter",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "frame",
+              "id": "RqE3I",
+              "name": "Category Section",
+              "width": 343,
+              "height": 120,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Fi5Rb",
+                  "name": "Category Title",
+                  "fill": "#666666",
+                  "content": "分类",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "iDpKW",
+                  "name": "Category Row 1",
+                  "width": 343,
+                  "height": 36,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "PvPuB",
+                      "name": "Chip - 全部 (Active)",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#667eea",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "dco9b",
+                          "name": "Chip Text",
+                          "fill": "#ffffff",
+                          "content": "全部",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Mwyhj",
+                      "name": "Chip - 运动",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qPhJF",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "运动",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "9ULkv",
+                      "name": "Chip - 健身",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Fpzjo",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "健身",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "KByQ7",
+                      "name": "Chip - 冥想",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "D5oVi",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "冥想",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "wm2Kw",
+                  "name": "Category Row 2",
+                  "width": 343,
+                  "height": 36,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "mFqMO",
+                      "name": "Chip - 泰拳",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "6eUru",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "泰拳",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YeOvl",
+                      "name": "Chip - 徒步",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Ex9sZ",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "徒步",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "r0xJC",
+                      "name": "Chip - 文化艺术",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "jQy9z",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "文化艺术",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lelUT",
+                      "name": "Chip - 舞蹈",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "RtvR6",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "舞蹈",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "w8lUQ",
+              "name": "Price Section",
+              "width": 343,
+              "height": 80,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "3i7lF",
+                  "name": "Price Title",
+                  "fill": "#666666",
+                  "content": "价格",
+                  "fontFamily": "Inter",
+                  "fontSize": 15,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "WcJIv",
+                  "name": "Price Row",
+                  "width": 343,
+                  "height": 36,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "fJklV",
+                      "name": "Chip - 全部 (Active)",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#667eea",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "6SNP2",
+                          "name": "Chip Text",
+                          "fill": "#ffffff",
+                          "content": "全部",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "XLXqJ",
+                      "name": "Chip - 免费",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Byl7Y",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "免费",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lAmHY",
+                      "name": "Chip - <500",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "HlH4X",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "<500฿",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mUsJR",
+                      "name": "Chip - <1000",
+                      "width": 80,
+                      "height": 36,
+                      "fill": "#f0f0f0",
+                      "cornerRadius": 18,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ILpPv",
+                          "name": "Chip Text",
+                          "fill": "#666666",
+                          "content": "<1000฿",
+                          "textAlign": "center",
+                          "fontFamily": "Inter",
+                          "fontSize": 13,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "URC1D",
+              "name": "Button Section",
+              "width": 343,
+              "height": 64,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "GtKkg",
+                  "name": "Cancel Button",
+                  "width": 165,
+                  "height": 48,
+                  "fill": "#f0f0f0",
+                  "cornerRadius": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "I6sfD",
+                      "name": "Button Text",
+                      "fill": "#666666",
+                      "content": "取消",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "7vzGo",
+                  "name": "Confirm Button",
+                  "width": 165,
+                  "height": 48,
+                  "fill": "#667eea",
+                  "cornerRadius": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "LOZmX",
+                      "name": "Button Text",
+                      "fill": "#ffffff",
+                      "content": "确认",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

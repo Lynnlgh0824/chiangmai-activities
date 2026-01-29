@@ -62,7 +62,7 @@
             /* Z-Index Layers */
             --z-header: 1001;
             --z-modal: 2000;
-            --z-toast: 3000;
+            /* --z-toast: 3000; */ /* ❌ 已移除：不再使用toast组件 (2026-01-29) */
         }
 
         /* 移动端变量覆盖 */
@@ -97,6 +97,10 @@
             border-radius: 12px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.1);
             overflow: hidden;
+
+            /* ✅ 溢出保护 */
+            box-sizing: border-box;
+            width: 100%;
         }
 
         /* 头部 */
@@ -108,6 +112,12 @@
             align-items: center;
             justify-content: space-between;
             gap: 30px;
+
+            /* ✅ 溢出保护 */
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
         }
 
         .header h1 {
@@ -475,6 +485,11 @@
         /* 日历Tab */
         .calendar-header {
             margin-bottom: 20px;
+
+            /* ✅ 修复PC端日历容器溢出问题 */
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .nav-row {
@@ -514,6 +529,11 @@
             grid-template-columns: repeat(7, 1fr);
             gap: 8px;
             margin-bottom: 16px;
+
+            /* ✅ 修复PC端日历溢出问题 */
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         .date-cell-header {
@@ -532,12 +552,30 @@
             -webkit-tap-highlight-color: transparent;
             touch-action: manipulation;
             position: relative;
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.2;
             min-width: 44px; /* 移动端最小点击宽度 */
             min-height: 44px; /* 移动端最小点击高度 */
             border: 2px solid transparent;
+
+            /* ✅ 修复PC端按钮溢出问题 */
+            max-width: 100%;
+            box-sizing: border-box;
+            flex: 1 1 auto; /* 弹性布局，均匀分布 */
+        }
+
+        /* 数字日期样式 - 大号突出显示 */
+        .date-number {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: white;
+        }
+
+        /* 星期标识样式 - 小号辅助显示 */
+        .date-weekday {
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.2;
+            color: rgba(255, 255, 255, 0.9);
         }
 
         .date-cell-header:active {
@@ -767,13 +805,288 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 12px; /* 减少间距使列表更紧凑 */
+
+            /* ✅ 修复列表容器横向溢出问题 */
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
+        /* ========== 活动卡片完整防溢出CSS ========== */
+
+        /* 1. 父容器兜底 */
+        .schedule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px; /* 减少间距使列表更紧凑 */
+
+            /* ✅ 父容器兜底：彻底禁止横向溢出 */
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden; /* 禁止横向溢出 */
+            overflow-y: visible;
+            padding: 0 8px; /* 左右留白，避免卡片贴边 */
+            width: 100%;
+        }
+
+        /* 2. 卡片核心防溢出 */
         .schedule-item {
             background: white;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            padding: 12px; /* 减少padding使列表更紧凑 */
+            padding: 12px;
+
+            /* ✅ 卡片核心防溢出 */
+            max-width: 100%;
+            width: 100%; /* 确保卡片宽度不超过父容器 */
+            box-sizing: border-box; /* border和padding不会撑大卡片 */
+            overflow: hidden; /* 隐藏溢出内容 */
+
+            /* Flex布局确保内容不溢出 */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* 3. 内容防溢出 */
+        .schedule-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+
+            /* ✅ 内容防溢出 */
+            overflow: hidden;
+            flex-shrink: 0; /* 防止被压缩 */
+        }
+
+        /* ========== 标题和描述防溢出 ========== */
+
+        /* 标题防溢出 */
+        .schedule-item-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 4px;
+
+            /* ✅ 标题防溢出 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap; /* 单行显示，超出省略 */
+            max-width: 100%;
+            line-height: 1.4;
+        }
+
+        /* 描述防溢出 */
+        .schedule-item-meta,
+        .schedule-item-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+
+            /* ✅ 描述防溢出 */
+            overflow: hidden;
+            word-wrap: break-word; /* 长单词换行 */
+            word-break: break-word; /* 强制换行 */
+            max-width: 100%;
+        }
+
+        /* 多行文本省略（活动描述） */
+        .schedule-item-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* 限制2行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ========== 活动详情卡片完整防溢出CSS ========== */
+
+        /* 1. 活动详情卡片核心防溢出 */
+        .activity-detail-card {
+            /* ✅ 卡片核心防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+
+            /* Flex布局确保内容不溢出 */
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 6px !important;
+        }
+
+        /* 2. 卡片标题防溢出 */
+        .activity-detail-card > div:first-child {
+            /* ✅ 标题防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            line-height: 1.4 !important;
+        }
+
+        /* 3. 卡片元信息防溢出（时间、地点、价格） */
+        .activity-detail-card > div[style*="display:flex"] {
+            /* ✅ 元信息容器防溢出 */
+            display: flex !important;
+            flex-wrap: wrap !important; /* 允许换行 */
+            gap: 8px !important;
+            overflow: hidden !important;
+            max-width: 100% !important;
+        }
+
+        .activity-detail-card > div[style*="display:flex"] > div {
+            /* ✅ 单个元信息防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            flex-shrink: 1 !important; /* 允许收缩 */
+        }
+
+        /* 4. 卡片描述防溢出 */
+        .activity-detail-card > div[style*="margin-top"] {
+            /* ✅ 描述防溢出 */
+            overflow: hidden !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+            max-width: 100% !important;
+            line-height: 1.5 !important;
+
+            /* 多行文本省略 */
+            display: -webkit-box !important;
+            -webkit-line-clamp: 3 !important; /* 限制3行 */
+            -webkit-box-orient: vertical !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* ========== 日期详情头部防溢出 ========== */
+        .day-detail-header {
+            /* ✅ 日期详情头部防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+
+            /* Flex布局确保内容不溢出 */
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .day-detail-header > div[style*="display:flex"] {
+            /* ✅ 日期详情头部内部容器防溢出 */
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            overflow: hidden !important;
+            max-width: 100% !important;
+        }
+
+        .day-detail-header > div[style*="display:flex"] > div:first-child {
+            /* ✅ 日期信息防溢出 */
+            overflow: hidden !important;
+            max-width: calc(100% - 80px) !important; /* 为返回按钮留出空间 */
+        }
+
+        .day-detail-header > div[style*="display:flex"] > div > div {
+            /* ✅ 日期文本防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+        }
+
+        /* ========== 日期详情活动容器防溢出 ========== */
+        .day-detail-container {
+            /* ✅ 日期详情容器防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        .day-detail-activities {
+            /* ✅ 日期详情活动列表防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        /* ========== 空状态提示防溢出 ========== */
+        .day-detail-empty {
+            /* ✅ 空状态提示防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* ========== 表格防溢出 ========== */
+        table {
+            /* ✅ 表格防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            table-layout: fixed !important; /* 固定布局，防止内容撑开表格 */
+        }
+
+        th, td {
+            /* ✅ 表头和单元格防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 表格链接防溢出 */
+        table a {
+            /* ✅ 表格链接防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            word-break: break-all !important;
+            max-width: 100% !important;
+            display: inline-block !important;
+        }
+
+        /* ========== 网站链接容器防溢出 ========== */
+        #websitesContainer {
+            /* ✅ 网站链接容器防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        #websitesContainer > div[style*="padding"] {
+            /* ✅ 网站链接内部容器防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        /* ========== 攻略容器防溢出 ========== */
+        #guidesContainer {
+            /* ✅ 攻略容器防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        /* ========== 活动网站视图分组容器防溢出 ========== */
+        #websitesContainer h3 {
+            /* ✅ 分组标题防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+        }
+
+        /* 多行文本省略 */
+        .schedule-item-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* 限制3行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .schedule-item-header {
@@ -867,6 +1180,10 @@
             background: #f8f9fa;
             overflow: hidden;
             transition: all 0.3s ease;
+
+            /* ✅ 修复日期分组容器横向溢出问题 */
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         /* 选中的日期组 - 固定在顶部 + 高亮 */
@@ -967,6 +1284,65 @@
                 transform: scale(1.02);
                 box-shadow: 0 6px 24px rgba(102, 126, 234, 0.5);
             }
+        }
+
+        /* ========== 筛选状态横幅样式 ========== */
+        .filter-status-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-icon {
+            font-size: 18px;
+        }
+
+        .status-text {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-clear-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .status-clear-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-clear-btn:active {
+            transform: scale(0.9);
         }
 
         /* 筛选条件标签 */
@@ -1164,6 +1540,10 @@
             overflow-y: auto;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             animation: slideUp 0.3s ease;
+
+            /* ✅ 溢出保护 */
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         @keyframes slideUp {
@@ -1591,20 +1971,149 @@
                 border-radius: 16px;
             }
 
-            /* 日历优化 - 移动端水平滚动 */
+            /* ========== 日期标签栏移动端优化（修复样式错乱） ========== */
             .date-grid-header {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                padding-bottom: 8px;
+                /* ✅ 横向弹性布局 */
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: nowrap !important; /* 禁止换行，所有按钮在同一行 */
+
+                gap: 4px !important;
+                padding: 8px 4px !important;
+
+                /* ✅ 启用横向滚动（当按钮总宽度超出容器时） */
+                overflow-x: auto !important;
+                overflow-y: visible !important;
+                -webkit-overflow-scrolling: touch !important; /* iOS平滑滚动 */
+
+                margin-bottom: 12px !important;
+
+                /* ✅ 修复日历溢出问题 */
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+
+                /* ✅ 弹性布局优化，确保按钮均匀分布 */
+                justify-content: flex-start !important;
+                align-items: center !important;
+
+                /* 隐藏滚动条但保留功能 */
+                scrollbar-width: none; /* Firefox */
+                -ms-overflow-style: none; /* IE/Edge */
+            }
+
+            /* 隐藏滚动条（Chrome/Safari） */
+            .date-grid-header::-webkit-scrollbar {
+                display: none;
             }
 
             .date-cell-header {
-                min-width: 60px;
-                padding: 10px 6px;
-                font-size: 11px;
-                flex-direction: column;
-                gap: 2px;
+                /* ✅ 固定宽度，确保按钮不会变形 */
+                min-width: 48px !important; /* 最小宽度，确保触摸目标 */
+                width: auto !important; /* 自动宽度，基于内容 */
+                max-width: 60px !important; /* 最大宽度，防止过宽 */
+
+                flex-shrink: 0 !important; /* 禁止收缩，保持固定宽度 */
+
+                min-height: 44px !important;
+                padding: 8px 4px !important;
+                font-size: 11px !important;
+                font-weight: 500 !important;
+                border-radius: 6px !important;
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 2px !important;
+                background: #667eea !important;
+                color: white !important;
+                border: 2px solid transparent !important;
+                transition: all 0.2s ease !important;
+                cursor: pointer !important;
+                -webkit-tap-highlight-color: transparent !important;
+                touch-action: manipulation !important;
+                position: relative !important;
+
+                /* ✅ 修复单个按钮溢出问题 */
+                box-sizing: border-box !important;
             }
+
+            /* 选中状态 - 明显的金色高亮效果 */
+            .date-cell-header.selected-day {
+                background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%) !important;
+                color: #333 !important;
+                font-weight: 700 !important;
+                border: 3px solid #ff9800 !important;
+                box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5) !important;
+                transform: scale(1.05) !important;
+                z-index: 10 !important;
+                animation: mobileSelectPulse 0.3s ease !important;
+            }
+
+            /* 选中状态的✓标记 */
+            .date-cell-header.selected-day::after {
+                content: '✓';
+                position: absolute;
+                top: -4px;
+                right: -4px;
+                background: #ff9800;
+                color: white;
+                width: 16px;
+                height: 16px;
+                border-radius: 50%;
+                font-size: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            /* 今天的样式 */
+            .date-cell-header.today-header {
+                border: 2px solid #4caf50 !important;
+            }
+
+            /* 今天且被选中 */
+            .date-cell-header.today-header.selected-day {
+                border: 3px solid #4caf50 !important;
+                box-shadow: 0 4px 16px rgba(76, 175, 80, 0.5), 0 0 0 2px rgba(76, 175, 80, 0.3) !important;
+            }
+
+            /* ========== 移动端数字和星期样式 ========== */
+            .date-number {
+                font-size: 16px !important;
+                font-weight: 700 !important;
+                line-height: 1.2 !important;
+                color: white !important;
+            }
+
+            .date-weekday {
+                font-size: 10px !important;
+                font-weight: 500 !important;
+                line-height: 1.2 !important;
+                color: rgba(255, 255, 255, 0.9) !important;
+            }
+
+            /* 选中状态下的文字颜色调整 */
+            .date-cell-header.selected-day .date-number,
+            .date-cell-header.selected-day .date-weekday {
+                color: #333 !important;
+            }
+
+            /* 点击效果 */
+            .date-cell-header:active {
+                transform: scale(0.95) !important;
+            }
+
+            /* 选中脉冲动画 */
+            @keyframes mobileSelectPulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+                100% { transform: scale(1.05); }
+            }
+
+            /* 旧的日历优化样式保留 */
 
             /* 周标题和导航按钮 - 移动端优化 */
             .nav-row {
@@ -1751,14 +2260,55 @@
                 justify-content: center;
             }
 
-            /* 列表视图优化 */
+            /* ========== 列表视图优化 ========== */
             .schedule-list {
                 grid-template-columns: 1fr;
                 gap: 12px;
+
+                /* ✅ 父容器兜底：移动端彻底禁止横向溢出 */
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important; /* 禁止横向溢出 */
+                overflow-y: visible !important;
+                padding: 0 8px; /* 左右留白，避免卡片贴边 */
+                width: 100% !important;
             }
 
             .schedule-item {
                 padding: 12px;
+
+                /* ✅ 卡片核心防溢出：移动端强化 */
+                max-width: 100% !important;
+                width: 100% !important; /* 强制宽度100% */
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+
+                /* 4. 响应式适配：移动端调整 */
+                border-radius: 6px; /* 减小圆角 */
+                margin-bottom: 8px; /* 减小外边距 */
+            }
+
+            /* 3. 内容防溢出：移动端标题 */
+            .schedule-item-title {
+                font-size: 15px;
+                line-height: 1.4;
+
+                /* ✅ 标题防溢出 */
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                max-width: 100% !important;
+            }
+
+            /* 内容防溢出：移动端元信息 */
+            .schedule-item-meta {
+                font-size: 12px;
+                line-height: 1.5;
+
+                /* ✅ 内容防溢出 */
+                overflow: hidden !important;
+                word-wrap: break-word !important;
+                word-break: break-word !important;
             }
 
             .schedule-item-title {
@@ -1769,11 +2319,197 @@
                 font-size: 12px;
             }
 
+            /* ========== 日视图列表移动端强化防溢出 ========== */
+
+            /* 日视图容器强化 */
+            .day-detail-container {
+                /* ✅ 移动端强化：彻底禁止横向溢出 */
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important;
+                overflow-y: visible !important;
+                padding: 0 8px !important; /* 左右留白 */
+            }
+
+            /* 日视图头部强化 */
+            .day-detail-header {
+                /* ✅ 移动端强化：头部不溢出 */
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                padding: 12px !important; /* 减小padding */
+                margin-bottom: 8px !important;
+                border-radius: 8px !important;
+            }
+
+            /* 日视图头部内部容器 */
+            .day-detail-header > div[style*="display:flex"] {
+                /* ✅ 移动端强化：Flex布局不溢出 */
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                overflow: hidden !important;
+                max-width: 100% !important;
+            }
+
+            /* 日视图头部日期信息 */
+            .day-detail-header > div[style*="display:flex"] > div:first-child {
+                /* ✅ 移动端强化：日期信息不溢出 */
+                overflow: hidden !important;
+                max-width: calc(100% - 70px) !important; /* 为返回按钮留空间 */
+                flex-shrink: 1 !important;
+            }
+
+            /* 日视图头部日期文本 */
+            .day-detail-header > div[style*="display:flex"] > div > div {
+                /* ✅ 移动端强化：日期文本不溢出 */
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                max-width: 100% !important;
+                font-size: 16px !important; /* 减小字体 */
+            }
+
+            .day-detail-header > div[style*="display:flex"] > div > div:last-child {
+                font-size: 11px !important; /* 减小日期字体 */
+            }
+
+            /* 返回按钮移动端优化 */
+            .day-back-btn {
+                /* ✅ 移动端强化：返回按钮不挤压内容 */
+                flex-shrink: 0 !important;
+                min-width: 60px !important;
+                padding: 6px 12px !important;
+                font-size: 13px !important;
+                white-space: nowrap !important;
+            }
+
+            /* 日视图活动列表强化 */
+            .day-detail-activities {
+                /* ✅ 移动端强化：活动列表不溢出 */
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-x: hidden !important;
+                overflow-y: visible !important;
+            }
+
+            /* 活动详情卡片移动端强化 */
+            .activity-detail-card {
+                /* ✅ 移动端强化：卡片不溢出 */
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                padding: 10px !important; /* 减小padding */
+                margin-bottom: 8px !important;
+                border-radius: 8px !important;
+            }
+
+            /* 活动卡片标题强化 */
+            .activity-detail-card > div:first-child {
+                /* ✅ 移动端强化：标题不溢出 */
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                max-width: 100% !important;
+                font-size: 15px !important; /* 减小字体 */
+                line-height: 1.4 !important;
+                margin-bottom: 4px !important;
+            }
+
+            /* 活动卡片元信息容器强化 */
+            .activity-detail-card > div[style*="display:flex"] {
+                /* ✅ 移动端强化：元信息支持换行 */
+                display: flex !important;
+                flex-wrap: wrap !important; /* 允许换行 */
+                gap: 6px !important; /* 减小间距 */
+                overflow: hidden !important;
+                max-width: 100% !important;
+                font-size: 12px !important; /* 减小字体 */
+            }
+
+            /* 活动卡片单个元信息强化 */
+            .activity-detail-card > div[style*="display:flex"] > div {
+                /* ✅ 移动端强化：单个元信息不溢出 */
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                max-width: 100% !important;
+                flex-shrink: 1 !important; /* 允许收缩 */
+                min-width: 0 !important; /* 允许收缩到0 */
+            }
+
+            /* 活动卡片描述强化 */
+            .activity-detail-card > div[style*="margin-top"] {
+                /* ✅ 移动端强化：描述不溢出 */
+                overflow: hidden !important;
+                word-wrap: break-word !important;
+                word-break: break-word !important;
+                max-width: 100% !important;
+                font-size: 12px !important; /* 减小字体 */
+                line-height: 1.5 !important;
+                margin-top: 4px !important;
+
+                /* 多行文本省略 */
+                display: -webkit-box !important;
+                -webkit-line-clamp: 3 !important; /* 限制3行 */
+                -webkit-box-orient: vertical !important;
+                text-overflow: ellipsis !important;
+            }
+
+            /* 空状态提示移动端优化 */
+            .day-detail-empty {
+                /* ✅ 移动端强化：空状态不溢出 */
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                padding: 20px 16px !important; /* 减小padding */
+                font-size: 14px !important;
+                text-align: center !important;
+            }
+
+            /* ========== Flex布局兜底样式 ========== */
+
+            /* 容器Flex兜底 */
+            .container {
+                display: flex;
+                flex-direction: column;
+                overflow: hidden !important; /* 防止内容溢出 */
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* 日历Flex兜底 */
+            .calendar-grid {
+                display: flex !important;
+                flex-wrap: wrap !important; /* 允许换行 */
+                overflow: hidden !important;
+            }
+
+            .day-cell {
+                flex: 0 0 auto !important;
+                overflow: hidden !important;
+            }
+
             /* 移动端星期筛选标签优化 */
             .day-filter-chip {
                 padding: 5px 10px;
                 font-size: 11px;
                 min-height: 28px;
+            }
+
+            /* ========== 隐藏PC端特有的元素 ========== */
+
+            /* 隐藏左侧重复的时间内容（PC端元素） */
+            .day-detail-header {
+                display: none !important;
+            }
+
+            /* 隐藏返回按钮（PC端元素） */
+            .day-back-btn {
+                display: none !important;
             }
 
             /* 弹窗头部和主体优化 */
@@ -1801,16 +2537,43 @@
                 padding: 0 16px;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+
+                /* 关键兜底: 确保容器不会溢出 */
+                max-width: 100%;
+                width: 100%;
+
+                /* 关键兜底: Flex容器设置 */
+                display: flex;
+                flex-wrap: nowrap; /* 防止换行 */
+                overflow-x: auto;
+                overflow-y: hidden;
+
+                /* 隐藏滚动条但保留功能 */
+                scrollbar-width: none; /* Firefox */
+                -ms-overflow-style: none; /* IE/Edge */
+            }
+
+            /* 隐藏滚动条（Chrome/Safari） */
+            .tabs-nav::-webkit-scrollbar {
+                display: none;
             }
 
             .tab-item {
-                padding: 10px 12px;
+                padding: 10px 16px; /* 增加左右padding */
                 font-size: 13px;
-                white-space: normal; /* 允许文本换行 */
+                white-space: nowrap !important; /* 防止换行 */
                 text-align: center;
                 line-height: 1.3;
-                min-width: 60px;
-                flex-direction: column; /* 图标和文本垂直排列 */
+                min-width: fit-content;
+                max-width: 100px; /* 限制最大宽度 */
+                overflow: hidden;
+                text-overflow: ellipsis;
+                flex-shrink: 0;
+
+                /* 水平排列，避免换行 */
+                flex-direction: row !important;
+                align-items: center;
+                justify-content: center;
                 gap: 4px;
             }
 
@@ -1850,21 +2613,35 @@
                 right: 0 !important;
                 z-index: 999 !important;
                 background: white;
-                padding: 12px 16px 8px 16px;
+                padding: 8px 12px; /* 减小padding，修复间距过大 */
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+                /* ✅ 修复日历溢出问题 */
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
 
             /* ========== 内容区适配所有固定元素 ========== */
             .tab-pane {
-                padding-top: var(--space-tab-padding-std) !important; /* 搜索框65px + Tab导航约50px + 适当间距 */
+                /* ✅ 修正：搜索框65px + Tab导航50px + 日期筛选栏132px（减小padding后）+ 筛选状态提示36px = 283px */
+                padding-top: 283px !important;
             }
 
             /* 攻略信息Tab没有日历头部，使用更小的padding */
             #tab-5.tab-pane {
-                padding-top: var(--space-tab-padding-tab4) !important; /* 搜索框65px + Tab导航约50px */
+                /* 攻略Tab：搜索框65px + Tab导航50px = 115px */
+                padding-top: 115px !important;
             }
 
             /* ========== 移动端间距优化（使用CSS变量） ========== */
+
+            /* 隐藏顶部筛选区域（移动端使用浮动筛选按钮） */
+            .filter-section {
+                display: none !important;
+            }
+
             /* 减少全局容器间距 */
             .container {
                 padding-left: var(--space-sm) !important;
@@ -1894,11 +2671,23 @@
             .day-group {
                 margin: 0 -8px 16px -8px;
                 border-radius: 12px;
+
+                /* ✅ 修复移动端日期分组横向溢出问题 */
+                max-width: 100% !important;
+                width: calc(100% + 16px) !important; /* 抵消负边距 */
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
 
             .day-group-selected {
                 top: 120px;
                 margin: 0 -8px 20px -8px;
+
+                /* ✅ 修复选中组横向溢出问题 */
+                max-width: 100% !important;
+                width: calc(100% + 16px) !important; /* 抵消负边距 */
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
 
             .day-group-header {
@@ -1916,6 +2705,11 @@
             /* 优化活动卡片间距 */
             .activity-card {
                 margin-bottom: var(--space-sm) !important;
+
+                /* ✅ 修复活动卡片横向溢出问题 */
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
             }
 
             .activity-chip {
@@ -1944,12 +2738,25 @@
             .date-grid-header {
                 padding: var(--space-xs) var(--space-sm) !important;
                 gap: var(--space-mobile-md) !important;
+
+                /* ✅ 修复日历溢出问题 */
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+
+                /* ✅ 确保横向滚动正常工作 */
+                flex-shrink: 0 !important;
             }
 
             .date-cell-header {
                 padding: var(--space-mobile-xs) var(--space-sm) !important;
                 min-width: 40px !important;
+                max-width: 50px !important; /* ✅ 超小屏幕减小最大宽度 */
+                flex-shrink: 0 !important; /* ✅ 禁止收缩 */
                 font-size: 11px !important;
+
+                /* ✅ 修复单个按钮溢出问题 */
+                box-sizing: border-box !important;
             }
 
             /* 优化列表视图间距 */
@@ -1969,9 +2776,47 @@
                 font-size: 18px;
             }
 
+            /* 日期标签栏超小屏优化 */
+            .date-grid-header {
+                gap: 2px !important;
+                padding: 6px 2px !important;
+
+                /* ✅ 修复超小屏溢出问题 */
+                max-width: 100% !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+
+                /* ✅ 确保横向滚动正常工作 */
+                flex-shrink: 0 !important;
+            }
+
             .date-cell-header {
-                min-width: 50px;
-                font-size: 10px;
+                min-width: 36px !important; /* ✅ 超小屏幕进一步减小最小宽度 */
+                max-width: 45px !important; /* ✅ 超小屏幕减小最大宽度 */
+                min-height: 40px !important;
+                padding: 6px 2px !important;
+                font-size: 10px !important;
+
+                /* ✅ 修复超小屏按钮溢出问题 */
+                box-sizing: border-box !important;
+                flex-shrink: 0 !important; /* ✅ 禁止收缩 */
+            }
+
+            .date-cell-header.selected-day::after {
+                width: 14px;
+                height: 14px;
+                font-size: 9px;
+                top: -3px;
+                right: -3px;
+            }
+
+            /* 超小屏幕数字和星期样式 */
+            .date-number {
+                font-size: 14px !important;
+            }
+
+            .date-weekday {
+                font-size: 9px !important;
             }
 
             .filter-chip {
@@ -2257,6 +3102,9 @@
         }
 
         /* 2. Toast 提示系统 */
+        /* ========== 2. Toast 提示 ========== */
+        /* ❌ 已移除：不再使用全局toast组件 (2026-01-29) */
+        /*
         .toast {
             position: fixed;
             top: 50%;
@@ -2293,8 +3141,11 @@
         .toast.info {
             background: rgba(33, 150, 243, 0.95);
         }
+        */
 
-        /* 3. Dialog 确认弹窗 */
+        /* ========== 3. Dialog 确认弹窗 ========== */
+        /* ❌ 已移除：不再使用全局dialog-overlay组件 */
+        /*
         .dialog-overlay {
             position: fixed;
             top: 0;
@@ -2343,6 +3194,7 @@
             line-height: 1.5;
             margin-bottom: 20px;
         }
+        */
 
         .dialog-buttons {
             display: flex;
@@ -2370,7 +3222,9 @@
             color: white;
         }
 
-        /* 4. Loading 加载状态 */
+        /* ========== 4. Loading 加载状态 ========== */
+        /* ❌ 已移除：不再使用全局loading-overlay组件 */
+        /*
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -2407,6 +3261,7 @@
             font-size: 15px;
             color: #666;
         }
+        */
 
         /* 骨架屏 */
         .skeleton {
@@ -2444,7 +3299,9 @@
             width: 40%;
         }
 
-        /* 5. 下拉刷新 */
+        /* ========== 5. 下拉刷新 ========== */
+        /* ❌ 已移除：不再使用全局pull-indicator组件 */
+        /*
         .pull-to-refresh {
             position: relative;
             overflow: hidden;
@@ -2486,6 +3343,7 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
+        */
 
         /* 6. 空状态 */
         .empty-state {
@@ -2531,11 +3389,14 @@
                 max-height: 90vh;
             }
 
+            /* ❌ 已移除：不再使用全局toast组件 (2026-01-29) */
+            /*
             .toast {
                 max-width: 90%;
                 padding: 14px 20px;
                 font-size: 14px;
             }
+            */
 
             .dialog {
                 max-width: 280px;
@@ -2724,6 +3585,8 @@
                         <div class="month-label">灵活时间活动</div>
                     </div>
                 </div>
+                <!-- 筛选状态提示 -->
+                <div id="filterStatus" style="display: none; padding: 0 16px;"></div>
                 <div class="schedule-list" id="flexibleList">
                     <!-- 动态生成列表内容 -->
                 </div>
@@ -4889,8 +5752,8 @@
             currentFilters.day = day;
             lastSelectedDay = day;
 
-            // 显示自动选中提示
-            showAutoSelectToast(day);
+            // ❌ 删除自动选中提示（用户不需要看到这个提示）
+            // showAutoSelectToast(day);
 
             // 更新视图（会切换到单日详细视图）
             updateViews();
@@ -5116,6 +5979,59 @@
             console.log(`🎯 高亮日期: ${day} (${dayNames[day]})`);
         }
 
+        /**
+         * 更新筛选状态提示（新增）
+         */
+        function updateFilterStatus() {
+            const statusContainer = document.getElementById('filterStatus');
+            if (!statusContainer) return;
+
+            if (currentFilters.day !== null) {
+                const dayName = dayNames[currentFilters.day];
+                statusContainer.innerHTML = `
+                    <div class="filter-status-banner">
+                        <span class="status-icon">🔍</span>
+                        <span class="status-text">显示 ${dayName} 的活动</span>
+                        <button class="status-clear-btn" onclick="toggleDayFilter(null)" aria-label="清除筛选">✕</button>
+                    </div>
+                `;
+                statusContainer.style.display = 'block';
+            } else {
+                statusContainer.style.display = 'none';
+            }
+        }
+
+        /**
+         * 防抖动的布局更新函数
+         * 用于在筛选后强制浏览器重新计算布局，防止布局抖动
+         */
+        function createDebouncedLayoutUpdate() {
+            let timeoutId = null;
+            return function() {
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+                timeoutId = setTimeout(() => {
+                    // 强制浏览器重新计算布局
+                    document.body.offsetHeight;
+
+                    // 检查并修复可能的布局问题
+                    const fixedElements = document.querySelectorAll('[style*="position: fixed"]');
+                    fixedElements.forEach(el => {
+                        const rect = el.getBoundingClientRect();
+                        if (rect.width === 0 || rect.height === 0) {
+                            console.warn('⚠️ Fixed element has zero size:', el);
+                        }
+                    });
+
+                    console.log('✅ 布局重新计算完成');
+                }, 100);
+            };
+        }
+
+        // 创建防抖动布局更新实例
+        const debouncedLayoutUpdate = createDebouncedLayoutUpdate();
+
         function toggleDayFilter(day) {
             console.log('🗓️ 点击日期筛选:', day, `(${dayNames[day]})`);
             console.log('📍 当前筛选状态:', currentFilters);
@@ -5168,6 +6084,42 @@
 
             console.log('🆕 新的筛选状态:', currentFilters);
             updateViews();
+
+            // ✅ 立即更新日期高亮状态（修复核心问题）
+            updateDateHighlight();
+
+            // ✅ 更新筛选状态提示
+            updateFilterStatus();
+
+            // 🆕 触发布局重新计算（防止布局抖动）
+            if (window.innerWidth <= 768) {
+                // 强制浏览器重新计算布局
+                requestAnimationFrame(() => {
+                    // 触发重排
+                    document.body.offsetHeight;
+
+                    // 检查并修复可能的布局问题
+                    const tabPane = document.querySelector('.tab-pane.active');
+                    if (tabPane) {
+                        const computedStyle = window.getComputedStyle(tabPane);
+                        const paddingTop = parseInt(computedStyle.paddingTop);
+
+                        // 确保padding-top正确（约200px，为固定元素留出空间）
+                        if (paddingTop < 200) {
+                            tabPane.style.paddingTop = '200px';
+                        }
+                    }
+
+                    // 检查固定元素是否有正确尺寸
+                    const fixedElements = document.querySelectorAll('[style*="position: fixed"]');
+                    fixedElements.forEach(el => {
+                        const rect = el.getBoundingClientRect();
+                        if (rect.width === 0 || rect.height === 0) {
+                            console.warn('⚠️ Fixed element has zero size:', el);
+                        }
+                    });
+                });
+            }
 
             // 移动端：将选中的日期滚动到视图中心
             if (window.innerWidth <= 768) {
@@ -5903,6 +6855,12 @@
             document.querySelectorAll('.tab-item')[index].classList.add('active');
             document.getElementById('tab-' + index).classList.add('active');
 
+            // 🆕 更新筛选弹窗的分类选项（基于新Tab）
+            if (window.innerWidth <= 768) {
+                updateFilterSheetCategories(index);
+                console.log('✅ 已更新筛选弹窗分类，Tab:', index);
+            }
+
             // 根据Tab更新视图
             updateViews();
         }
@@ -6281,7 +7239,6 @@
 
             let html = '';
             weekDates.forEach(dateInfo => {
-                const dateText = `${dateInfo.date} ${dateInfo.dayName}`; // 格式: "19 周一"
                 const todayClass = dateInfo.isToday ? ' today-header' : '';
 
                 html += `
@@ -6289,7 +7246,8 @@
                          data-day="${dateInfo.day}"
                          onclick="toggleDayFilter(${dateInfo.day})"
                          title="点击筛选${dateInfo.dayName}">
-                        ${dateText}
+                        <span class="date-number">${dateInfo.date}</span>
+                        <span class="date-weekday">${dateInfo.dayName}</span>
                     </div>
                 `;
             });
@@ -6548,7 +7506,8 @@
             });
 
             updateFilterCount();
-            showToast('筛选已重置', 'info');
+            // showToast('筛选已重置', 'info'); // ❌ 已移除：不再使用toast (2026-01-29)
+            console.log('✅ 筛选已重置');
         }
 
         function applyFilters() {
@@ -6560,10 +7519,13 @@
             // TODO: 这里需要调用实际的筛选函数
             // 例如：filterActivitiesByOptions(selectedFilters);
 
-            showToast('筛选已应用', 'success');
+            // showToast('筛选已应用', 'success'); // ❌ 已移除：不再使用toast (2026-01-29)
+            console.log('✅ 筛选已应用:', selectedFilters);
         }
 
         // 2. Toast 提示系统
+        // ❌ 已移除：不再使用全局toast组件 (2026-01-29)
+        /*
         let toastTimeout = null;
 
         function showToast(message, type = 'info', duration = 2000) {
@@ -6586,38 +7548,15 @@
                 toast.classList.remove('show');
             }, duration);
         }
+        */
 
         // 3. Dialog 确认弹窗
-        function showDialog(title, message, onConfirm, onCancel) {
-            const overlay = document.getElementById('dialogOverlay');
-            const titleEl = document.getElementById('dialogTitle');
-            const messageEl = document.getElementById('dialogMessage');
-            const cancelBtn = document.getElementById('dialogCancel');
-            const confirmBtn = document.getElementById('dialogConfirm');
-
-            titleEl.textContent = title;
-            messageEl.textContent = message;
-
-            const close = () => {
-                overlay.classList.remove('active');
-                cancelBtn.onclick = null;
-                confirmBtn.onclick = null;
-            };
-
-            cancelBtn.onclick = () => {
-                close();
-                if (onCancel) onCancel();
-            };
-
-            confirmBtn.onclick = () => {
-                close();
-                if (onConfirm) onConfirm();
-            };
-
-            overlay.classList.add('active');
-        }
+        // ❌ 已移除：不再使用全局dialog-overlay组件 (2026-01-29)
+        // function showDialog(title, message, onConfirm, onCancel) { ... }
 
         // 4. Loading 加载状态
+        // ❌ 已移除：不再使用全局loading-overlay组件 (2026-01-29)
+        /*
         const loading = {
             element: null,
             textElement: null,
@@ -6647,8 +7586,11 @@
         function hideLoading() {
             loading.hide();
         }
+        */
 
         // 5. 下拉刷新
+        // ❌ 已移除：不再使用全局pull-indicator组件 (2026-01-29)
+        /*
         const pullToRefresh = {
             startY: 0,
             currentY: 0,
@@ -6745,6 +7687,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             pullToRefresh.init();
         });
+        */
 
         // 刷新回调函数（可被覆盖）
         let onRefresh = null;
@@ -6777,12 +7720,21 @@
             // 初始化 Bottom Sheet
             filterSheet.init();
 
+            // 🆕 初始化筛选弹窗分类（基于当前Tab）
+            if (window.innerWidth <= 768) {
+                updateFilterSheetCategories(currentTab);
+                console.log('✅ 筛选弹窗分类初始化完成，Tab:', currentTab);
+            }
+
             // 显示欢迎提示
+            // ❌ 已移除：不再使用toast提示 (2026-01-29)
+            /*
             setTimeout(() => {
                 if (window.CHIENGMAI_IS_MOBILE) {
                     showToast('👆 点击右下角按钮筛选活动', 'info', 3000);
                 }
             }, 1000);
+            */
         });
     </script>
 
@@ -6836,31 +7788,17 @@
     </div>
 
     <!-- 2. Toast 容器 -->
-    <div class="toast" id="toast"></div>
+    <!-- ❌ 已移除：不再使用全局toast组件 (2026-01-29) -->
+    <!-- <div class="toast" id="toast"></div> -->
 
     <!-- 3. Dialog 确认弹窗 -->
-    <div class="dialog-overlay" id="dialogOverlay">
-        <div class="dialog">
-            <h3 class="dialog-title" id="dialogTitle">确认</h3>
-            <p class="dialog-message" id="dialogMessage">确定要执行此操作吗？</p>
-            <div class="dialog-buttons">
-                <button class="dialog-button cancel" id="dialogCancel">取消</button>
-                <button class="dialog-button confirm" id="dialogConfirm">确定</button>
-            </div>
-        </div>
-    </div>
+    <!-- ❌ 已移除：不再使用全局dialog-overlay组件 (2026-01-29) -->
 
     <!-- 4. Loading 加载遮罩 -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="spinner"></div>
-        <div class="loading-text">加载中...</div>
-    </div>
+    <!-- ❌ 已移除：不再使用全局loading-overlay组件 (2026-01-29) -->
 
     <!-- 5. 下拉刷新指示器 -->
-    <div class="pull-indicator" id="pullIndicator">
-        <div class="pull-icon" id="pullIcon">↓</div>
-        <div class="pull-text" id="pullText">下拉刷新</div>
-    </div>
+    <!-- ❌ 已移除：不再使用全局pull-indicator组件 (2026-01-29) -->
 
 </body>
 </html>
