@@ -1,0 +1,220 @@
+/**
+ * ========================================
+ * 🧹 Mobile Anti-Overflow 安全 CSS 清单
+ * ========================================
+ * 目标：不管状态怎么切、DOM 怎么 show/hide，都绝对不横向溢出
+ * 适用：body.mode-h5.is-mobile → .container → tab → filters → list
+ *
+ * 创建时间：2026-01-30
+ * 作者：Claude Code
+ * ========================================
+ */
+
+/* ============================================================
+ * ① 全局兜底（必须有｜不讨论）
+ * ============================================================ */
+html, body {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 📌 作用：防止任何子元素把页面整体撑宽，移动端等价于安全气囊 */
+
+/* ============================================================
+ * ② container 层（隐形风险点）
+ * ============================================================ */
+body.mode-h5.is-mobile .container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+/* ❗ 原因：container 一旦没锁 width，里面 flex / absolute / translate 都可能外溢 */
+
+/* ============================================================
+ * ③ tab / pane 层（禁止内联 padding）
+ * ============================================================ */
+body.mode-h5.is-mobile .tab-pane {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    padding-top: var(--tab-offset, 16px); /* 使用 CSS 变量，禁止内联 style */
+}
+
+/* 📌 原则：tab-pane 永远不能参与横向尺寸计算 */
+
+/* ============================================================
+ * ④ active-filters（事故源头 - 永不超宽组件）
+ * ============================================================ */
+body.mode-h5.is-mobile .active-filters {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-wrap: wrap;        /* 🔥 必须：能 wrap 就别 scroll */
+    gap: 8px;
+
+    overflow-x: hidden;     /* 防止单条撑爆 */
+    padding: 8px 16px;      /* 使用固定 padding，禁止内联 style */
+}
+
+/* 🔥 筛选标签子元素保护 */
+body.mode-h5.is-mobile .active-filters > * {
+    max-width: calc(100vw - 48px); /* 减去左右 padding */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 1;         /* 允许收缩 */
+}
+
+/* 📌 心法：筛选条 ≠ 横向滚动容器，能 wrap 就别 scroll */
+
+/* ============================================================
+ * ⑤ 日期 / Tab 按钮区（隐性高危）
+ * ============================================================ */
+body.mode-h5.is-mobile .date-tabs,
+body.mode-h5.is-mobile .date-grid {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;       /* 可以横滚，但不撑页面 */
+    box-sizing: border-box;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* 隐藏滚动条但保留功能 */
+body.mode-h5.is-mobile .date-tabs::-webkit-scrollbar,
+body.mode-h5.is-mobile .date-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* 📌 区分清楚两种角色：
+ * 类型           | overflow
+ * 页面容器       | hidden
+ * 功能滚动区     | auto
+ */
+
+/* ============================================================
+ * ⑥ 列表卡片（防止内容撑爆）
+ * ============================================================ */
+body.mode-h5.is-mobile .card,
+body.mode-h5.is-mobile .list-item,
+body.mode-h5.is-mobile .activity-card,
+body.mode-h5.is-mobile .schedule-item {
+    max-width: 100%;
+    box-sizing: border-box;
+    min-width: 0;           /* 🔥 防 flex 子元素撑爆 */
+}
+
+/* 🔥 这是 90% flex 超宽 bug 的解药 */
+body.mode-h5.is-mobile .card *,
+body.mode-h5.is-mobile .list-item *,
+body.mode-h5.is-mobile .activity-card *,
+body.mode-h5.is-mobile .schedule-item * {
+    min-width: 0;
+}
+
+/* ============================================================
+ * ⑦ show / hide 状态（反复触发风险）
+ * ============================================================ */
+body.mode-h5.is-mobile .show {
+    display: flex;          /* 明确 layout */
+    max-width: 100%;
+}
+
+body.mode-h5.is-mobile .active-filters.show {
+    display: flex;
+    max-width: 100%;
+    width: 100%;
+}
+
+/* 📌 display 切换时，浏览器会重新算宽，不给上限 = 风险 */
+
+/* ============================================================
+ * ⑧ 开发态「溢出报警器」（仅开发环境）
+ * ============================================================
+ 用法：在 <body> 添加 class "debug-outline" 启用
+ ============================================================ */
+body.debug-outline * {
+    outline: 1px solid rgba(255, 0, 0, 0.1) !important;
+    outline-offset: -1px;
+}
+
+/* 超宽元素高亮（红色） */
+body.debug-outline *:where(
+    [style*="width"],
+    [style*="min-width"],
+    [style*="max-width"]
+) {
+    outline: 2px solid rgba(255, 0, 0, 0.3) !important;
+}
+
+/* 安全元素高亮（绿色） */
+body.debug-outline *:where(
+    [style*="overflow-x: hidden"],
+    .overflow-safe
+) {
+    outline: 1px solid rgba(0, 255, 0, 0.2) !important;
+}
+
+/* 📌 一眼就能看到谁在偷跑到右边 */
+
+/* ============================================================
+ * 🛡️ 额外的防御性规则
+ * ============================================================ */
+
+/* Flex 子元素通用保护 */
+body.mode-h5.is-mobile * {
+    min-width: 0;           /* 防止 flex 子元素内容撑爆 */
+    max-width: 100%;        /* 强制所有元素不超出父容器 */
+}
+
+/* 图片保护 */
+body.mode-h5.is-mobile img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* iframe 保护 */
+body.mode-h5.is-mobile iframe {
+    max-width: 100%;
+    border: none;
+}
+
+/* 表单元素保护 */
+body.mode-h5.is-mobile input,
+body.mode-h5.is-mobile select,
+body.mode-h5.is-mobile textarea,
+body.mode-h5.is-mobile button {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* ============================================================
+ * 🎯 CSS 变量定义
+ * ============================================================ */
+:root {
+    --tab-offset: 16px;
+    --filter-padding-x: 16px;
+    --filter-padding-y: 8px;
+}
+
+/* ============================================================
+ * ✅ 最终检查清单
+ * ============================================================
+ *
+ * ✅ html / body 有 overflow-x: hidden
+ * ✅ container 锁 width
+ * ✅ tab-pane 无内联 padding
+ * ✅ active-filters 支持 wrap
+ * ✅ 横向滚动区 ≠ 页面容器
+ * ✅ flex 子元素有 min-width: 0
+ *
+ * 🧠 一句话总结：
+ * 移动端只要"状态条 + flex + 未锁宽"，迟早横向溢出。
+ * ============================================================ */
