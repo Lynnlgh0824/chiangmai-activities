@@ -1240,57 +1240,6 @@
             margin-bottom: 20px;
         }
 
-        /* 日期组头部 */
-        .day-group-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 16px;
-            background: #fff;
-            border-left: 4px solid #667eea;
-            font-weight: 600;
-        }
-
-        .day-group-selected .day-group-header {
-            background: rgba(255, 255, 255, 0.95);
-            color: #667eea;
-            border-left-color: #ffd700;
-        }
-
-        .day-group-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .day-icon {
-            font-size: 18px;
-        }
-
-        .day-name {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .selected-badge {
-            background: #ffd700;
-            color: #333;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .day-count {
-            font-size: 13px;
-            color: #666;
-        }
-
-        .day-group-selected .day-count {
-            color: #667eea;
-            font-weight: 600;
-        }
-
         /* 日期组活动列表 */
         .day-group-activities {
             padding: 12px;
@@ -2656,10 +2605,6 @@
                 width: calc(100% + 16px) !important; /* 抵消负边距 */
                 box-sizing: border-box !important;
                 overflow: hidden !important;
-            }
-
-            .day-group-header {
-                padding: 10px 12px;
             }
 
             .day-group-activities {
@@ -5326,16 +5271,6 @@
 
                 html += `
                     <div class="${groupClass}" data-day="${day}">
-                        ${selectedDay === null ? `
-                        <div class="day-group-header">
-                            <div class="day-group-title">
-                                <span class="day-icon">${getDayIcon(day)}</span>
-                                <span class="day-name">${dayNames[day]}</span>
-                                ${isSelected ? '<span class="selected-badge">当前</span>' : ''}
-                            </div>
-                            <span class="day-count">${dayActivities.length}个活动</span>
-                        </div>
-                        ` : ''}
                         <div class="day-group-activities">
                             ${dayActivities.map(act => createScheduleItemHTML(act, isSelected)).join('')}
                         </div>
@@ -5344,14 +5279,6 @@
             });
 
             return html;
-        }
-
-        /**
-         * 获取日期图标
-         */
-        function getDayIcon(day) {
-            const icons = ['🌞', '📅', '📅', '📅', '📅', '📅', '🎉'];
-            return icons[day];
         }
 
         /**
