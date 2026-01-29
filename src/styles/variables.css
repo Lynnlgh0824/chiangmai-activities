@@ -1,0 +1,46 @@
+        :root {
+            /* Spacing Scale */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 12px;
+            --space-lg: 16px;
+            --space-xl: 20px;
+            --space-2xl: 24px;
+
+            /* 移动端覆盖值 */
+            --space-mobile-xs: 2px;
+            --space-mobile-sm: 4px;
+            --space-mobile-md: 6px;
+            --space-mobile-lg: 8px;
+            --space-mobile-xl: 12px;
+            --space-mobile-2xl: 16px;
+
+            /* 布局尺寸 */
+            --space-header-height: 65px;
+            --space-tab-height: 50px;
+            --space-tab-padding-std: calc(var(--space-header-height) + var(--space-tab-height) + var(--space-md));
+            --space-tab-padding-tab4: calc(var(--space-header-height) + var(--space-tab-height));
+
+            /* Z-Index Layers */
+            --z-header: 1001;
+            --z-modal: 2000;
+        }
+
+        /* 移动端变量覆盖 */
+        @media (max-width: 768px) {
+            :root {
+                --space-xs: var(--space-mobile-xs);
+                --space-sm: var(--space-mobile-sm);
+                --space-md: var(--space-mobile-md);
+                --space-lg: var(--space-mobile-lg);
+                --space-xl: var(--space-mobile-xl);
+                --space-2xl: var(--space-mobile-2xl);
+            }
+        }
+
+        /* ========== XS 断点（小屏手机优化） ========== */
+        /* SeaStar 同款：374px 以上应用特定样式 */
+        @media (min-width: 374px) {
+            /* 在此处添加 xs 断点特有的样式 */
+        }
+

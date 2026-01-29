@@ -1,0 +1,1462 @@
+        /* Tab内容 */
+        .tab-content {
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        /* 攻略信息内容样式（与后台编辑器保持一致） */
+        .guide-content {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            padding: 12px 20px;
+        }
+
+        /* 攻略Tab的guide-content特殊样式 */
+        #tab-4 .guide-content {
+            padding: 12px 20px;
+        }
+
+        /* 日期详情标题栏 - 移动端固定顶部 */
+        .day-detail-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .day-back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            color: white;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .day-back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .day-back-btn:active {
+            transform: scale(0.95);
+        }
+
+        .day-detail-title {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .day-detail-content {
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .guide-content h1 {
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            margin: 12px 0 6px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+        }
+
+        .guide-content h2 {
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            margin: 10px 0 6px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+        }
+
+        .guide-content h3 {
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            margin: 10px 0 6px 0 !important;
+            line-height: 1.4 !important;
+            color: #333 !important;
+        }
+
+        .guide-content p {
+            margin: 6px 0 !important;
+            line-height: 1.6 !important;
+            font-size: 13px !important;
+            color: #333 !important;
+        }
+
+        .guide-content ul, .guide-content ol {
+            margin: 6px 0 !important;
+            padding-left: 20px !important;
+        }
+
+        .guide-content li {
+            margin: 3px 0 !important;
+            line-height: 1.5 !important;
+            font-size: 13px !important;
+            color: #333 !important;
+        }
+
+        .guide-content strong {
+            font-weight: 600 !important;
+        }
+
+        .guide-content table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+            margin: 10px 0 !important;
+            font-size: 13px !important;
+        }
+
+        .guide-content th, .guide-content td {
+            border: 1px solid #ddd !important;
+            padding: 6px 10px !important;
+            text-align: left !important;
+            line-height: 1.5 !important;
+            font-size: 13px !important;
+        }
+
+        .guide-content th {
+            background: #f5f5f5 !important;
+            font-weight: 600 !important;
+        }
+
+        /* 清除所有内联样式的字体大小和颜色 */
+        .guide-content * {
+            font-family: inherit !important;
+        }
+
+        .guide-content h1, .guide-content h2, .guide-content h3 {
+            font-size: inherit !important;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* 日期表头样式 */
+        .date-grid-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .date-cell-header {
+            padding: 8px 4px;
+            background: #E8F3FF;
+            color: #667eea;
+            border-radius: 6px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            position: relative;
+            min-width: 44px;
+            min-height: 44px;
+            border: 2px solid transparent;
+            max-width: 100%;
+            box-sizing: border-box;
+            flex: 1 1 auto;
+        }
+
+        .date-number {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: inherit;
+        }
+
+        .date-weekday {
+            font-size: 11px;
+            font-weight: 500;
+            line-height: 1.2;
+            color: inherit;
+            opacity: 0.9;
+        }
+
+        .date-cell-header:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .date-cell-header:hover {
+            background: #D0E1FF;
+            color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .date-cell-header.selected-day {
+            background: #4080FF;
+            color: white !important;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(64, 128, 255, 0.4);
+            transform: scale(1.08);
+            animation: selectPulse 0.3s ease;
+            border: 2px solid #4080FF;
+        }
+
+        .date-cell-header.today-header {
+            border: 2px solid #ffc107;
+        }
+
+        .date-cell-header.today-header.selected-day {
+            background: #4080FF;
+            color: white !important;
+            border: 3px solid #ffc107;
+            box-shadow: 0 4px 16px rgba(64, 128, 255, 0.6), 0 0 0 2px rgba(255, 193, 7, 0.3);
+        }
+
+        @keyframes selectPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+            100% { transform: scale(1.08); }
+        }
+
+        .date-cell-header:hover::before {
+            content: '点击查看当天活动';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            white-space: nowrap;
+            margin-bottom: 8px;
+            opacity: 0;
+            animation: tooltipFade 0.3s ease forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .date-cell-header:hover::after {
+            content: '';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #333;
+            margin-bottom: -4px;
+            opacity: 0;
+            animation: tooltipFade 0.3s ease forwards;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes tooltipFade {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-4px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .day-cell.dimmed {
+            opacity: 0.25;
+            pointer-events: none;
+            filter: grayscale(100%);
+            transform: scale(0.98);
+            transition: all 0.4s ease;
+        }
+
+        .day-cell {
+            transition: all 0.3s ease;
+        }
+
+        .day-cell:not(.dimmed):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day-cell {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 100px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .day-cell:not(.dimmed):hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        /* 选中的日期样式 - 统一样式 */
+        .day-cell.selected-day {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 100%);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            border-width: 2px;
+        }
+
+        /* 今天的日期单元格 - 黄色边框指示 */
+        .day-cell.today {
+            border-color: #ffc107;
+            border-width: 2px;
+        }
+
+        /* 今天且被选中 - 蓝色选中 + 黄色外发光 */
+        .day-cell.today.selected-day {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border: 2px solid #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4), 0 0 0 2px rgba(255, 193, 7, 0.3);
+        }
+
+        /* 点击提示 */
+        .day-cell:not(.dimmed):hover::after {
+            content: '点击筛选';
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            font-size: 10px;
+            color: #667eea;
+            opacity: 0.6;
+        }
+
+        .day-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin: 6px 0;
+            text-align: center;
+            position: relative;
+            padding-right: 0;
+        }
+
+        .day-cell.today .day-name {
+            color: #d4a017;
+            font-weight: 700;
+        }
+
+        .day-cell.selected-day .day-name {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .day-cell.today.selected-day .day-name {
+            color: #667eea;
+        }
+
+        .activity-chip {
+            background: white;
+            border-left: 3px solid #667eea;
+            padding: 6px 8px;
+            margin-bottom: 8px; /* 统一间隔 */
+            border-radius: 4px;
+            font-size: 11px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            /* 确保内部元素紧凑排列 */
+            display: flex;
+            flex-direction: column;
+            gap: 2px; /* 时间和标题之间的小间隔 */
+        }
+
+        /* 最后一个活动卡片不需要底部间隔 */
+        .activity-chip:last-child {
+            margin-bottom: 0;
+        }
+
+        /* 活动卡片内部元素样式 */
+        .activity-chip > div {
+            line-height: 1.4;
+        }
+
+        .chip-title {
+            line-height: 1.3;
+        }
+
+        .day-cell.today .activity-chip {
+            background: #ffffff;
+            border-left-width: 4px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .day-cell.today .activity-chip:hover {
+            transform: translateX(2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        /* 列表Tab */
+        .schedule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px; /* 减少间距使列表更紧凑 */
+
+            /* ✅ 修复列表容器横向溢出问题 */
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        /* ========== 活动卡片完整防溢出CSS ========== */
+
+        /* 1. 父容器兜底 */
+        .schedule-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 12px; /* 减少间距使列表更紧凑 */
+
+            /* ✅ 父容器兜底：彻底禁止横向溢出 */
+            max-width: 100%;
+            box-sizing: border-box;
+            overflow-x: hidden; /* 禁止横向溢出 */
+            overflow-y: visible;
+            padding: 0 8px; /* 左右留白，避免卡片贴边 */
+            width: 100%;
+        }
+
+        /* 2. 卡片核心防溢出 */
+        .schedule-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+
+            /* ✅ 卡片核心防溢出 */
+            max-width: 100%;
+            width: 100%; /* 确保卡片宽度不超过父容器 */
+            box-sizing: border-box; /* border和padding不会撑大卡片 */
+            overflow: hidden; /* 隐藏溢出内容 */
+
+            /* Flex布局确保内容不溢出 */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* 3. 内容防溢出 */
+        .schedule-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+
+            /* ✅ 内容防溢出 */
+            overflow: hidden;
+            flex-shrink: 0; /* 防止被压缩 */
+        }
+
+        /* ========== 标题和描述防溢出 ========== */
+
+        /* 标题防溢出 */
+        .schedule-item-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 4px;
+
+            /* ✅ 标题防溢出 - 支持最多2行 */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            line-height: 1.4;
+        }
+
+        /* 描述防溢出 */
+        .schedule-item-meta,
+        .schedule-item-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+
+            /* ✅ 描述防溢出 */
+            overflow: hidden;
+            word-wrap: break-word; /* 长单词换行 */
+            word-break: break-word; /* 强制换行 */
+            max-width: 100%;
+        }
+
+        /* 多行文本省略（活动描述） */
+        .schedule-item-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* 限制2行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ========== 活动详情卡片完整防溢出CSS ========== */
+
+        /* 1. 活动详情卡片核心防溢出 */
+        .activity-detail-card {
+            /* ✅ 卡片核心防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+
+            /* Flex布局确保内容不溢出 */
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 6px !important;
+        }
+
+        /* 2. 卡片标题防溢出 */
+        .activity-detail-card > div:first-child {
+            /* ✅ 标题防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            line-height: 1.4 !important;
+        }
+
+        /* 3. 卡片元信息防溢出（时间、地点、价格） */
+        .activity-detail-card > div[style*="display:flex"] {
+            /* ✅ 元信息容器防溢出 */
+            display: flex !important;
+            flex-wrap: wrap !important; /* 允许换行 */
+            gap: 8px !important;
+            overflow: hidden !important;
+            max-width: 100% !important;
+        }
+
+        .activity-detail-card > div[style*="display:flex"] > div {
+            /* ✅ 单个元信息防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+            flex-shrink: 1 !important; /* 允许收缩 */
+        }
+
+        /* 4. 卡片描述防溢出 */
+        .activity-detail-card > div[style*="margin-top"] {
+            /* ✅ 描述防溢出 */
+            overflow: hidden !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+            max-width: 100% !important;
+            line-height: 1.5 !important;
+
+            /* 多行文本省略 */
+            display: -webkit-box !important;
+            -webkit-line-clamp: 3 !important; /* 限制3行 */
+            -webkit-box-orient: vertical !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* ========== 日期详情头部防溢出 ========== */
+        .day-detail-header {
+            /* ✅ 日期详情头部防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+
+            /* Flex布局确保内容不溢出 */
+            display: flex !important;
+            flex-direction: column !important;
+        }
+
+        .day-detail-header > div[style*="display:flex"] {
+            /* ✅ 日期详情头部内部容器防溢出 */
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            overflow: hidden !important;
+            max-width: 100% !important;
+        }
+
+        .day-detail-header > div[style*="display:flex"] > div:first-child {
+            /* ✅ 日期信息防溢出 */
+            overflow: hidden !important;
+            max-width: calc(100% - 80px) !important; /* 为返回按钮留出空间 */
+        }
+
+        .day-detail-header > div[style*="display:flex"] > div > div {
+            /* ✅ 日期文本防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+        }
+
+        /* ========== 日期详情活动容器防溢出 ========== */
+        .day-detail-container {
+            /* ✅ 日期详情容器防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        .day-detail-activities {
+            /* ✅ 日期详情活动列表防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        /* ========== 空状态提示防溢出 ========== */
+        .day-detail-empty {
+            /* ✅ 空状态提示防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* ========== 表格防溢出 ========== */
+        table {
+            /* ✅ 表格防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            table-layout: fixed !important; /* 固定布局，防止内容撑开表格 */
+        }
+
+        th, td {
+            /* ✅ 表头和单元格防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            word-wrap: break-word !important;
+            word-break: break-word !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* 表格链接防溢出 */
+        table a {
+            /* ✅ 表格链接防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            word-break: break-all !important;
+            max-width: 100% !important;
+            display: inline-block !important;
+        }
+
+        /* ========== 网站链接容器防溢出 ========== */
+        #websitesContainer {
+            /* ✅ 网站链接容器防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        #websitesContainer > div[style*="padding"] {
+            /* ✅ 网站链接内部容器防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+        }
+
+        /* ========== 攻略容器防溢出 ========== */
+        #guidesContainer {
+            /* ✅ 攻略容器防溢出 */
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+        }
+
+        /* ========== 活动网站视图分组容器防溢出 ========== */
+        #websitesContainer h3 {
+            /* ✅ 分组标题防溢出 */
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: nowrap !important;
+            max-width: 100% !important;
+        }
+
+        /* 多行文本省略 */
+        .schedule-item-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* 限制3行 */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .schedule-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        /* 列表视图中的星期筛选标签 */
+        .day-filter-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 11px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            position: relative;
+        }
+
+        /* 添加点击提示图标 */
+        .day-filter-chip::before {
+            content: '🔍';
+            font-size: 9px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .day-filter-chip:hover::before {
+            opacity: 0.5;
+        }
+
+        .day-filter-chip:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .day-filter-chip:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        /* 如果当前筛选的星期匹配，显示高亮 */
+        .day-filter-chip.highlight {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .day-filter-chip.highlight::after {
+            content: '✓';
+            margin-left: 2px;
+            font-size: 10px;
+        }
+
+        .category-tag {
+            background: #667eea;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .schedule-item-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px; /* 减少间距 */
+        }
+
+        .schedule-item-meta {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* ========== H5日期分组样式 ========== */
+        /* 日期分组容器 */
+        .day-group {
+            margin-bottom: 16px;
+            border-radius: 12px;
+            background: #f8f9fa;
+            overflow: hidden;
+            transition: all 0.3s ease;
+
+            /* ✅ 修复日期分组容器横向溢出问题 */
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* 选中的日期组 - 固定在顶部 + 高亮 */
+        .day-group-selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            position: sticky;
+            top: 120px;
+            z-index: 100;
+            margin-bottom: 20px;
+        }
+
+        /* 日期组头部 */
+        .day-group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #fff;
+            border-left: 4px solid #667eea;
+            font-weight: 600;
+        }
+
+        .day-group-selected .day-group-header {
+            background: rgba(255, 255, 255, 0.95);
+            color: #667eea;
+            border-left-color: #ffd700;
+        }
+
+        .day-group-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .day-icon {
+            font-size: 18px;
+        }
+
+        .day-name {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .selected-badge {
+            background: #ffd700;
+            color: #333;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .day-count {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .day-group-selected .day-count {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* 日期组活动列表 */
+        .day-group-activities {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* 高亮活动卡片 */
+        .activity-highlight {
+            background: #fff !important;
+            border: 2px solid #ffd700 !important;
+            box-shadow: 0 2px 12px rgba(255, 215, 0, 0.3) !important;
+            animation: slideInFromTop 0.3s ease;
+        }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 选中日期组的脉冲动画 */
+        @keyframes pulseHighlight {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 6px 24px rgba(102, 126, 234, 0.5);
+            }
+        }
+
+        /* 筛选条件标签 */
+        .active-filters {
+            display: none;
+            padding: 8px 20px;
+            background: #fff3cd;
+            border-bottom: 1px solid #ffc107;
+        }
+
+        .active-filters.show {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .filter-tag {
+            background: white;
+            border: 1px solid #ffc107;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-tag button {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-tag button:hover {
+            color: #c92a2a;
+        }
+
+        .clear-all-btn {
+            background: #ffc107;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #333;
+        }
+
+        .clear-all-btn:hover {
+            background: #e0a800;
+        }
+
+        /* 筛选结果数量 */
+        .results-count {
+            text-align: center;
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border-top: 1px solid #e0e0e0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .results-count .count-number {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* 空状态提示 */
+        .empty-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .empty-state.show {
+            display: flex;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.6;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .empty-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .empty-description {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 24px;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        .empty-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .empty-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            background: white;
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .empty-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .empty-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .empty-btn.primary:hover {
+            background: #5568d3;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 弹窗样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+
+            /* ✅ 溢出保护 */
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 关键信息卡片 */
+        .modal-key-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 12px 20px 20px 20px; /* 适中的上边距，与标题分隔 */
+            padding: 16px;
+            background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+            border-radius: 8px;
+            border: 1px solid #e0e7ff;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .info-icon {
+            font-size: 20px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .info-text strong {
+            display: block;
+            font-size: 11px;
+            color: #764ba2;
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-text > div {
+            font-size: 13px;
+            color: #333;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word; /* 改进中文换行 */
+            line-height: 1.5;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* 模态框分节 */
+        .modal-section {
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-content {
+            font-size: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word; /* 改进中文换行 */
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #666;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .modal-info-row strong {
+            color: #333;
+            min-width: 60px;
+            flex-shrink: 0;
+        }
+
+        .modal-info-row span {
+            flex: 1;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word; /* 改进中文换行 */
+            white-space: pre-wrap;
+        }
+
+        .modal-description {
+            margin-top: 16px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #666;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word; /* 改进中文换行 */
+            white-space: pre-wrap;
+        }
+
+        /* 弹窗底部按钮区域 */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 32px;
+            padding: 16px 20px;
+            border-top: 1px solid #e0e0e0;
+            background: #fafafa;
+        }
+
+        /* 主按钮 */
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8a 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 次要按钮 */
+        .btn-secondary {
+            padding: 10px 20px;
+            background: white;
+            color: #666;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        .modal-link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .modal-link-btn:hover {
+            background: linear-gradient(135deg, #5568d3 0%, #653a8a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .modal-link-btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-icon {
+            font-size: 18px;
+        }
+
+        .btn-text {
+            flex: 1;
+            text-align: center;
+        }
+
+        .btn-arrow {
+            font-size: 16px;
+            transition: transform 0.3s ease;
+        }
+
+        .modal-link-btn:hover .btn-arrow {
+            transform: translateX(4px);
+        }
+
+        .modal-category-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+
+            /* 文案展示优化 */
+            letter-spacing: 0.5px;           /* 字间距，提升可读性 */
+            line-height: 1.4;                 /* 行高，确保文字垂直居中 */
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);  /* 文字阴影，增加深度感 */
+            -webkit-font-smoothing: antialiased;         /* 字体平滑渲染，更清晰 */
+            -moz-osx-font-smoothing: grayscale;          /* macOS字体平滑 */
+            transition: all 0.2s ease;                    /* 平滑过渡动画 */
+        }
+
+        .modal-category-badge:hover {
+            transform: translateY(-1px);     /* 悬停微抬效果 */
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);  /* 悬停时加深阴影 */
+        }
+
+        .note {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px 16px;
+            margin: 20px 0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .note strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #1976d2;
+        }
+
+        /* 响应式设计 - 移动端优化 */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+                box-shadow: none;
+                /* 移动端不需要padding-top，因为header是fixed的 */
+                padding-top: 0 !important;
+            }
+
+            /* ========== ✅ 方案B: 搜索框不固定，页面正常流动 (2026-01-29) ========== */
+            .header {
+                /* 使用 relative 定位而非 fixed，避免移动端键盘弹出时的遮挡问题 */
+                position: relative !important;
+                z-index: 1001 !important;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                padding: 8px 12px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            }
+
+            .header h1 {
+                font-size: 16px;
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                line-height: 1.2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                /* 移动端隐藏标题，节省空间 */
+                display: none;
+            }
+
