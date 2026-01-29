@@ -5471,6 +5471,7 @@
 
                 html += `
                     <div class="${groupClass}" data-day="${day}">
+                        ${selectedDay === null ? `
                         <div class="day-group-header">
                             <div class="day-group-title">
                                 <span class="day-icon">${getDayIcon(day)}</span>
@@ -5479,6 +5480,7 @@
                             </div>
                             <span class="day-count">${dayActivities.length}个活动</span>
                         </div>
+                        ` : ''}
                         <div class="day-group-activities">
                             ${dayActivities.map(act => createScheduleItemHTML(act, isSelected)).join('')}
                         </div>
