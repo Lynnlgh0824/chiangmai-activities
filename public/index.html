@@ -62,7 +62,6 @@
             /* Z-Index Layers */
             --z-header: 1001;
             --z-modal: 2000;
-            /* --z-toast: 3000; */ /* ❌ 已移除：不再使用toast组件 (2026-01-29) */
         }
 
         /* 移动端变量覆盖 */
@@ -1786,7 +1785,7 @@
 
             /* ========== ✅ 方案B: 搜索框不固定，页面正常流动 (2026-01-29) ========== */
             .header {
-                /* ❌ 已移除固定定位，改为正常流动 */
+                /* 使用 relative 定位而非 fixed，避免移动端键盘弹出时的遮挡问题 */
                 position: relative !important;
                 z-index: 1001 !important;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -2510,7 +2509,7 @@
 
             /* ========== ✅ Tab导航不固定，页面正常流动 (2026-01-29) ========== */
             .tabs-nav {
-                /* ❌ 已移除固定定位，改为正常流动 */
+                /* 使用 relative 定位而非 fixed，避免移动端滚动冲突 */
                 position: relative !important;
                 z-index: 1000 !important;
                 background: white;
@@ -2526,7 +2525,7 @@
 
             /* ========== ✅ 日历头部不固定，页面正常流动 (2026-01-29) ========== */
             .calendar-header {
-                /* ❌ 已移除固定定位，改为正常流动 */
+                /* 使用 relative 定位而非 fixed，避免移动端滚动冲突 */
                 position: relative !important;
                 z-index: 999 !important;
                 background: white;
@@ -2966,101 +2965,6 @@
             display: block;
         }
 
-        /* 2. Toast 提示系统 */
-        /* ========== 2. Toast 提示 ========== */
-        /* ❌ 已移除：不再使用全局toast组件 (2026-01-29) */
-        /*
-        .toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            font-size: 15px;
-            text-align: center;
-            max-width: 80%;
-            z-index: var(--z-toast);
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: auto;
-        }
-
-        .toast.success {
-            background: rgba(76, 175, 80, 0.95);
-        }
-
-        .toast.error {
-            background: rgba(244, 67, 54, 0.95);
-        }
-
-        .toast.info {
-            background: rgba(33, 150, 243, 0.95);
-        }
-        */
-
-        /* ========== 3. Dialog 确认弹窗 ========== */
-        /* ❌ 已移除：不再使用全局dialog-overlay组件 */
-        /*
-        .dialog-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: var(--z-modal);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .dialog-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .dialog {
-            background: white;
-            border-radius: 16px;
-            max-width: 320px;
-            width: 100%;
-            padding: 24px;
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .dialog-overlay.active .dialog {
-            transform: scale(1);
-        }
-
-        .dialog-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        .dialog-message {
-            font-size: 15px;
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-        */
-
         .dialog-buttons {
             display: flex;
             gap: 12px;
@@ -3086,47 +2990,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-
-        /* ========== 4. Loading 加载状态 ========== */
-        /* ❌ 已移除：不再使用全局loading-overlay组件 */
-        /*
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: var(--z-modal);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid #f0f0f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            margin-top: 16px;
-            font-size: 15px;
-            color: #666;
-        }
-        */
 
         /* 骨架屏 */
         .skeleton {
@@ -3163,52 +3026,6 @@
         .skeleton-text.short {
             width: 40%;
         }
-
-        /* ========== 5. 下拉刷新 ========== */
-        /* ❌ 已移除：不再使用全局pull-indicator组件 */
-        /*
-        .pull-to-refresh {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .pull-indicator {
-            position: absolute;
-            top: -60px;
-            left: 0;
-            right: 0;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            transition: transform 0.3s ease;
-            z-index: 10;
-        }
-
-        .pull-indicator.loading {
-            transform: translateY(60px);
-        }
-
-        .pull-icon {
-            font-size: 24px;
-            margin-right: 8px;
-        }
-
-        .pull-text {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .refresh-spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid #f0f0f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        */
 
         /* 6. 空状态 */
         .empty-state {
@@ -3253,15 +3070,6 @@
             .sheet-content {
                 max-height: 90vh;
             }
-
-            /* ❌ 已移除：不再使用全局toast组件 (2026-01-29) */
-            /*
-            .toast {
-                max-width: 90%;
-                padding: 14px 20px;
-                font-size: 14px;
-            }
-            */
 
             .dialog {
                 max-width: 280px;
@@ -3336,20 +3144,6 @@
         <div class="active-filters" id="activeFilters">
             <!-- 动态生成筛选标签 -->
         </div>
-
-        <!-- 移动端当前筛选状态条 -->
-        <!-- ❌ 已移除：不再使用 mobile-filter-status 组件 (2026-01-29) -->
-        <!-- <div class="mobile-filter-status" id="mobileFilterStatus" style="display: none;">
-            <div class="status-item">
-                <span class="status-label">分类</span>
-                <span class="status-value" id="mobileCategoryStatus">全部</span>
-            </div>
-            <div class="status-divider"></div>
-            <div class="status-item">
-                <span class="status-label">价格</span>
-                <span class="status-value" id="mobilePriceStatus">全部</span>
-            </div>
-        </div> -->
 
         <!-- Tab导航（6个Tab） -->
         <div class="tabs-nav">
@@ -6048,9 +5842,6 @@
             // 更新筛选标签
             updateFilterTags();
 
-            // 更新移动端筛选状态
-            // updateMobileFilterStatus(); // ❌ 已移除：不再使用 mobile-filter-status (2026-01-29)
-
             // 更新日期高亮状态
             updateDateHighlight();
         }
@@ -6533,44 +6324,6 @@
             // 清除全部按钮
             container.innerHTML += '<button class="clear-all-btn" onclick="clearAllFilters()">清除全部</button>';
         }
-
-        // 更新移动端筛选状态条
-        // ❌ 已移除：不再使用 mobile-filter-status 组件 (2026-01-29)
-        /*
-        function updateMobileFilterStatus() {
-            if (!isMobile()) {
-                document.getElementById('mobileFilterStatus').style.display = 'none';
-                return;
-            }
-
-            const statusEl = document.getElementById('mobileFilterStatus');
-            const categoryEl = document.getElementById('mobileCategoryStatus');
-            const priceEl = document.getElementById('mobilePriceStatus');
-
-            // 显示或隐藏状态条
-            const hasFilter = currentFilters.category !== '全部' ||
-                             currentFilters.price !== '全部' ||
-                             currentFilters.day !== null;
-
-            statusEl.style.display = hasFilter ? 'flex' : 'none';
-
-            // 更新分类
-            categoryEl.textContent = currentFilters.category;
-            if (currentFilters.category === '全部') {
-                categoryEl.style.color = '#999';
-            } else {
-                categoryEl.style.color = '#667eea';
-            }
-
-            // 更新价格
-            priceEl.textContent = currentFilters.price;
-            if (currentFilters.price === '全部') {
-                priceEl.style.color = '#999';
-            } else {
-                priceEl.style.color = '#667eea';
-            }
-        }
-        */
 
         function updateDateHighlight() {
             // 更新日期表头的高亮状态
@@ -7193,7 +6946,6 @@
             });
 
             updateFilterCount();
-            // showToast('筛选已重置', 'info'); // ❌ 已移除：不再使用toast (2026-01-29)
             console.log('✅ 筛选已重置');
         }
 
@@ -7206,181 +6958,7 @@
             // TODO: 这里需要调用实际的筛选函数
             // 例如：filterActivitiesByOptions(selectedFilters);
 
-            // showToast('筛选已应用', 'success'); // ❌ 已移除：不再使用toast (2026-01-29)
             console.log('✅ 筛选已应用:', selectedFilters);
-        }
-
-        // 2. Toast 提示系统
-        // ❌ 已移除：不再使用全局toast组件 (2026-01-29)
-        /*
-        let toastTimeout = null;
-
-        function showToast(message, type = 'info', duration = 2000) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-
-            // 清除之前的定时器
-            if (toastTimeout) {
-                clearTimeout(toastTimeout);
-            }
-
-            // 显示
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-            });
-
-            // 自动隐藏
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
-        }
-        */
-
-        // 3. Dialog 确认弹窗
-        // ❌ 已移除：不再使用全局dialog-overlay组件 (2026-01-29)
-        // function showDialog(title, message, onConfirm, onCancel) { ... }
-
-        // 4. Loading 加载状态
-        // ❌ 已移除：不再使用全局loading-overlay组件 (2026-01-29)
-        /*
-        const loading = {
-            element: null,
-            textElement: null,
-
-            init() {
-                this.element = document.getElementById('loadingOverlay');
-                this.textElement = this.element.querySelector('.loading-text');
-            },
-
-            show(text = '加载中...') {
-                this.init();
-                this.textElement.textContent = text;
-                this.element.classList.add('active');
-            },
-
-            hide() {
-                if (this.element) {
-                    this.element.classList.remove('active');
-                }
-            }
-        };
-
-        function showLoading(text = '加载中...') {
-            loading.show(text);
-        }
-
-        function hideLoading() {
-            loading.hide();
-        }
-        */
-
-        // 5. 下拉刷新
-        // ❌ 已移除：不再使用全局pull-indicator组件 (2026-01-29)
-        /*
-        const pullToRefresh = {
-            startY: 0,
-            currentY: 0,
-            isPulling: false,
-            isLoading: false,
-            indicator: null,
-            icon: null,
-            text: null,
-            threshold: 80,
-
-            init() {
-                this.indicator = document.getElementById('pullIndicator');
-                this.icon = document.getElementById('pullIcon');
-                this.text = document.getElementById('pullText');
-
-                if (!this.indicator) return;
-
-                document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
-                document.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
-                document.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: true });
-            },
-
-            onTouchStart(e) {
-                if (this.isLoading || window.scrollY > 0) return;
-                this.startY = e.touches[0].clientY;
-                this.isPulling = true;
-            },
-
-            onTouchMove(e) {
-                if (!this.isPulling || this.isLoading || window.scrollY > 0) return;
-
-                this.currentY = e.touches[0].clientY;
-                const deltaY = this.currentY - this.startY;
-
-                if (deltaY > 0) {
-                    const progress = Math.min(deltaY / this.threshold, 1);
-
-                    if (deltaY > 10) {
-                        this.indicator.style.transform = `translateY(${Math.min(deltaY, this.threshold)}px)`;
-
-                        if (deltaY >= this.threshold) {
-                            this.icon.textContent = '↑';
-                            this.text.textContent = '释放立即刷新';
-                        } else {
-                            this.icon.textContent = '↓';
-                            this.text.textContent = '下拉刷新';
-                        }
-                    }
-                }
-            },
-
-            onTouchEnd() {
-                if (!this.isPulling) return;
-                this.isPulling = false;
-
-                const deltaY = this.currentY - this.startY;
-
-                if (deltaY >= this.threshold) {
-                    this.refresh();
-                } else {
-                    this.indicator.style.transform = '';
-                }
-            },
-
-            refresh() {
-                this.isLoading = true;
-                this.indicator.classList.add('loading');
-                this.icon.innerHTML = '<div class="refresh-spinner"></div>';
-                this.text.textContent = '正在刷新...';
-
-                // 触发刷新回调
-                if (typeof onRefresh === 'function') {
-                    onRefresh().finally(() => {
-                        this.hide();
-                    });
-                } else {
-                    // 默认刷新操作
-                    setTimeout(() => {
-                        this.hide();
-                    }, 1500);
-                }
-            },
-
-            hide() {
-                this.isLoading = false;
-                this.indicator.classList.remove('loading');
-                this.indicator.style.transform = '';
-                this.icon.textContent = '↓';
-                this.text.textContent = '下拉刷新';
-            }
-        };
-
-        // 初始化下拉刷新
-        document.addEventListener('DOMContentLoaded', () => {
-            pullToRefresh.init();
-        });
-        */
-
-        // 刷新回调函数（可被覆盖）
-        let onRefresh = null;
-
-        function setRefreshCallback(callback) {
-            onRefresh = callback;
         }
 
         // 6. 空状态显示
@@ -7412,16 +6990,6 @@
                 updateFilterSheetCategories(currentTab);
                 console.log('✅ 筛选弹窗分类初始化完成，Tab:', currentTab);
             }
-
-            // 显示欢迎提示
-            // ❌ 已移除：不再使用toast提示 (2026-01-29)
-            /*
-            setTimeout(() => {
-                if (window.CHIENGMAI_IS_MOBILE) {
-                    showToast('👆 点击右下角按钮筛选活动', 'info', 3000);
-                }
-            }, 1000);
-            */
         });
     </script>
 
@@ -7473,19 +7041,6 @@
         </svg>
         <span class="filter-count" id="filterCount">0</span>
     </div>
-
-    <!-- 2. Toast 容器 -->
-    <!-- ❌ 已移除：不再使用全局toast组件 (2026-01-29) -->
-    <!-- <div class="toast" id="toast"></div> -->
-
-    <!-- 3. Dialog 确认弹窗 -->
-    <!-- ❌ 已移除：不再使用全局dialog-overlay组件 (2026-01-29) -->
-
-    <!-- 4. Loading 加载遮罩 -->
-    <!-- ❌ 已移除：不再使用全局loading-overlay组件 (2026-01-29) -->
-
-    <!-- 5. 下拉刷新指示器 -->
-    <!-- ❌ 已移除：不再使用全局pull-indicator组件 (2026-01-29) -->
 
 </body>
 </html>
