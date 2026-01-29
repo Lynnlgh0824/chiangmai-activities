@@ -654,30 +654,6 @@ console.log('🚦 速率限制已启用:');
 console.log('  - 通用限制: 100次/15分钟');
 console.log('  - 写操作限制: 20次/15分钟');
 console.log('  - 严格限制: 10次/分钟');
-  // Multer文件上传错误
-  if (err.code === 'LIMIT_FILE_SIZE') {
-    return sendErrorResponse(res, new Error('文件大小超过限制（最大2MB）'), 400);
-  }
-  if (err.code === 'LIMIT_FILE_COUNT') {
-    return sendErrorResponse(res, new Error('文件数量超过限制'), 400);
-  }
-  if (err.code === 'LIMIT_UNEXPECTED_FILE') {
-    return sendErrorResponse(res, new Error('意外的文件字段'), 400);
-  }
-
-  // 验证错误
-  if (err.name === 'ValidationError') {
-    return sendErrorResponse(res, err, 400);
-  }
-
-  // JSON解析错误
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    return sendErrorResponse(res, new Error('JSON格式错误'), 400);
-  }
-
-  // 其他未预期错误
-  sendErrorResponse(res, err, err.status || 500);
-}
 
 // 配置 multer 文件上传
 const storage = multer.diskStorage({
