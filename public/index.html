@@ -268,15 +268,12 @@
             background: #e8e8e8;
         }
 
-        .filter-chip:hover {
-            background: #f5f5f5;
-            border-color: #999;
-        }
-
+        /* ✅ 筛选器选中状态 - 使用新的深蓝色 */
         .filter-chip.active {
-            background: #667eea;
+            background: #4080FF; /* ✅ 更新为新的深蓝色，与日期选择器一致 */
             color: white;
-            border-color: #667eea;
+            border-color: #4080FF; /* ✅ 边框颜色也更新 */
+            box-shadow: 0 2px 8px rgba(64, 128, 255, 0.3); /* ✅ 添加阴影效果 */
         }
 
         /* Tab导航 */
@@ -302,13 +299,15 @@
             min-width: fit-content; /* 确保tab有最小宽度 */
         }
 
+        /* ✅ Tab悬停和选中状态 - 使用新的深蓝色 */
         .tab-item:hover {
-            color: #667eea;
+            color: #4080FF; /* ✅ 更新为新的深蓝色 */
         }
 
         .tab-item.active {
-            color: #667eea;
-            border-bottom-color: #667eea;
+            color: #4080FF; /* ✅ 更新为新的深蓝色，与其他组件一致 */
+            border-bottom-color: #4080FF; /* ✅ 边框颜色也更新 */
+            font-weight: 600; /* ✅ 选中时字体加粗，增强视觉对比 */
         }
 
         .tab-icon {
@@ -538,8 +537,8 @@
 
         .date-cell-header {
             padding: 8px 4px;
-            background: #667eea;
-            color: white;
+            background: #E8F3FF; /* ✅ 未选中状态：浅蓝色背景 */
+            color: #667eea; /* ✅ 未选中状态：深蓝色文字 */
             border-radius: 6px;
             text-align: center;
             display: flex;
@@ -567,7 +566,7 @@
             font-size: 18px;
             font-weight: 700;
             line-height: 1.2;
-            color: white;
+            color: inherit; /* ✅ 继承父元素颜色，支持选中/未选中状态 */
         }
 
         /* 星期标识样式 - 小号辅助显示 */
@@ -575,28 +574,31 @@
             font-size: 11px;
             font-weight: 500;
             line-height: 1.2;
-            color: rgba(255, 255, 255, 0.9);
+            color: inherit; /* ✅ 继承父元素颜色，支持选中/未选中状态 */
+            opacity: 0.9; /* 稍微透明一些，形成层次 */
         }
 
         .date-cell-header:active {
             transform: translateY(-1px) scale(0.98);
         }
 
+        /* ✅ 更新悬停状态以适配新配色 */
         .date-cell-header:hover {
-            background: #5568d3;
+            background: #D0E1FF; /* ✅ 悬停时比未选中(#E8F3FF)稍深 */
+            color: #5568d3; /* ✅ 文字颜色也加深 */
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
-        /* 统一的选中样式 - 蓝色渐变 + 加粗边框 */
+        /* 统一的选中样式 - 深蓝色背景 + 白色文字 */
         .date-cell-header.selected-day {
-            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
-            color: white;
+            background: #4080FF; /* ✅ 选中状态：深蓝色背景 */
+            color: white !important; /* ✅ 选中状态：白色文字 */
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 4px 12px rgba(64, 128, 255, 0.4); /* ✅ 调整阴影颜色匹配背景 */
             transform: scale(1.08);
             animation: selectPulse 0.3s ease;
-            border: 2px solid #667eea;
+            border: 2px solid #4080FF; /* ✅ 边框颜色也使用深蓝色 */
         }
 
         /* 今天的高亮样式 - 黄色边框指示 */
@@ -606,9 +608,10 @@
 
         /* 今天且被选中 - 保持蓝色选中，加粗黄色边框 */
         .date-cell-header.today-header.selected-day {
-            background: linear-gradient(135deg, #667eea 0%, #5568d3 100%);
-            border: 3px solid #ffc107;
-            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.8), 0 0 0 2px rgba(255, 193, 7, 0.3);
+            background: #4080FF; /* ✅ 选中状态：深蓝色背景（与其他选中日期一致） */
+            color: white !important; /* ✅ 选中状态：白色文字 */
+            border: 3px solid #ffc107; /* ✅ 黄色边框表示"今天" */
+            box-shadow: 0 4px 16px rgba(64, 128, 255, 0.6), 0 0 0 2px rgba(255, 193, 7, 0.3); /* ✅ 调整阴影颜色 */
         }
 
         @keyframes selectPulse {
@@ -1856,12 +1859,10 @@
                 padding-top: 0 !important;
             }
 
-            /* ========== 方案A: 搜索框固定在最顶部 ========== */
+            /* ========== ✅ 方案B: 搜索框不固定，页面正常流动 (2026-01-29) ========== */
             .header {
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
+                /* ❌ 已移除固定定位，改为正常流动 */
+                position: relative !important;
                 z-index: 1001 !important;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 flex-direction: column;
@@ -1903,35 +1904,59 @@
                 position: relative; /* 确保relative定位 */
                 display: flex;
                 align-items: center;
-                background: rgba(255, 255, 255, 0.98); /* 增加不透明度 */
+
+                /* ✅ 修复：与PC端保持一致 */
+                background: rgba(255, 255, 255, 0.2) !important; /* 移动端：使用0.2，与PC端一致 */
                 border-radius: 8px;
                 padding: 8px 12px; /* 减小padding */
                 min-height: 44px; /* iOS推荐最小触摸尺寸 */
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加轻微阴影 */
+
+                /* ❌ 移除不一致的样式 */
+                /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
             }
 
             .search-input {
-                font-size: 15px; /* 移动端增大字体 */
+                /* ✅ 修复：与PC端保持一致 */
+                font-size: 14px !important; /* 使用14px，与PC端一致 */
                 flex: 1;
                 border: none;
                 background: transparent;
+                color: white;
+                outline: none;
                 padding: 0;
                 margin: 0;
                 min-width: 0; /* 防止内容溢出 */
             }
 
-            /* 移动端显示图标按钮，隐藏文字按钮 */
-            .search-btn {
-                display: none;
+            /* ✅ 确保移动端placeholder颜色与PC端一致 */
+            .search-input::placeholder {
+                color: rgba(255, 255, 255, 0.7) !important;
             }
 
+            /* ✅ 修复：显示"搜索"文字按钮，与PC端一致 */
+            .search-btn {
+                display: block !important; /* 显示搜索按钮 */
+                padding: 8px 16px !important;
+                background: rgba(255, 255, 255, 0.25) !important;
+                border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                border-radius: 8px !important;
+                color: white !important;
+                font-size: 14px !important;
+                font-weight: 500 !important;
+                cursor: pointer !important;
+                transition: all 0.2s !important;
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+            }
+
+            .search-btn:hover {
+                background: rgba(255, 255, 255, 0.35) !important;
+                border-color: rgba(255, 255, 255, 0.5) !important;
+            }
+
+            /* ❌ 隐藏图标按钮，使用文字按钮代替 */
             .search-icon-btn {
-                display: flex;
-                width: 44px; /* iOS推荐最小触摸尺寸 */
-                height: 44px;
-                min-width: 44px;
-                min-height: 44px;
-                font-size: 20px;
+                display: none !important;
             }
 
             /* 搜索清除按钮优化 */
@@ -1953,22 +1978,17 @@
                 gap: 6px;
             }
 
+            /* ✅ 移动端筛选器优化 */
             .filter-chip {
-                padding: 6px 12px;
-                font-size: 13px;
-                min-height: 32px;
-                display: inline-flex;
-                align-items: center;
-                border-radius: 16px;
-            }
-
-            .filter-chip {
-                padding: 6px 12px;
-                font-size: 13px;
-                min-height: 32px;
-                display: inline-flex;
-                align-items: center;
-                border-radius: 16px;
+                padding: 6px 12px !important;
+                font-size: 11px !important; /* ✅ 减小字体，移动端应该比PC端小 */
+                min-height: 32px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                border-radius: 16px !important;
+                box-sizing: border-box !important;
+                max-width: 100% !important;
+                overflow: hidden !important;
             }
 
             /* ========== 日期标签栏移动端优化（修复样式错乱） ========== */
@@ -2038,46 +2058,29 @@
                 box-sizing: border-box !important;
             }
 
-            /* 选中状态 - 明显的金色高亮效果 */
+            /* ✅ 移动端选中状态 - 深蓝色背景 + 白色文字 */
             .date-cell-header.selected-day {
-                background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%) !important;
-                color: #333 !important;
+                background: #4080FF !important; /* ✅ 选中状态：深蓝色背景 */
+                color: white !important; /* ✅ 选中状态：白色文字 */
                 font-weight: 700 !important;
-                border: 3px solid #ff9800 !important;
-                box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5) !important;
+                border: 3px solid #4080FF !important; /* ✅ 边框颜色也使用深蓝色 */
+                box-shadow: 0 4px 12px rgba(64, 128, 255, 0.5) !important; /* ✅ 调整阴影颜色 */
                 transform: scale(1.05) !important;
                 z-index: 10 !important;
                 animation: mobileSelectPulse 0.3s ease !important;
             }
 
-            /* 选中状态的✓标记 */
-            .date-cell-header.selected-day::after {
-                content: '✓';
-                position: absolute;
-                top: -4px;
-                right: -4px;
-                background: #ff9800;
-                color: white;
-                width: 16px;
-                height: 16px;
-                border-radius: 50%;
-                font-size: 10px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            }
-
-            /* 今天的样式 */
+            /* ✅ 今天的样式 - 黄色边框 */
             .date-cell-header.today-header {
-                border: 2px solid #4caf50 !important;
+                border: 2px solid #ffc107 !important; /* ✅ 黄色边框表示"今天" */
             }
 
-            /* 今天且被选中 */
+            /* ✅ 今天且被选中 - 深蓝色选中 + 黄色边框 */
             .date-cell-header.today-header.selected-day {
-                border: 3px solid #4caf50 !important;
-                box-shadow: 0 4px 16px rgba(76, 175, 80, 0.5), 0 0 0 2px rgba(76, 175, 80, 0.3) !important;
+                background: #4080FF !important; /* ✅ 选中状态：深蓝色背景 */
+                color: white !important; /* ✅ 选中状态：白色文字 */
+                border: 3px solid #ffc107 !important; /* ✅ 黄色边框表示"今天" */
+                box-shadow: 0 4px 16px rgba(64, 128, 255, 0.6), 0 0 0 2px rgba(255, 193, 7, 0.3) !important; /* ✅ 蓝色阴影 + 黄色外发光 */
             }
 
             /* ========== 移动端数字和星期样式 ========== */
@@ -2085,20 +2088,21 @@
                 font-size: 16px !important;
                 font-weight: 700 !important;
                 line-height: 1.2 !important;
-                color: white !important;
+                color: inherit !important; /* ✅ 继承父元素颜色，支持选中/未选中状态 */
             }
 
             .date-weekday {
                 font-size: 10px !important;
                 font-weight: 500 !important;
                 line-height: 1.2 !important;
-                color: rgba(255, 255, 255, 0.9) !important;
+                color: inherit !important; /* ✅ 继承父元素颜色，支持选中/未选中状态 */
+                opacity: 0.9 !important; /* 稍微透明一些，形成层次 */
             }
 
-            /* 选中状态下的文字颜色调整 */
+            /* ✅ 选中状态下的文字颜色继承白色 */
             .date-cell-header.selected-day .date-number,
             .date-cell-header.selected-day .date-weekday {
-                color: #333 !important;
+                color: white !important; /* ✅ 确保选中状态下文字是白色 */
             }
 
             /* 点击效果 */
@@ -2106,11 +2110,11 @@
                 transform: scale(0.95) !important;
             }
 
-            /* 选中脉冲动画 */
+            /* ✅ 移动端选中脉冲动画 - 与桌面版保持一致 */
             @keyframes mobileSelectPulse {
                 0% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-                100% { transform: scale(1.05); }
+                50% { transform: scale(1.12); }
+                100% { transform: scale(1.08); }
             }
 
             /* 旧的日历优化样式保留 */
@@ -2288,10 +2292,10 @@
                 margin-bottom: 8px; /* 减小外边距 */
             }
 
-            /* 3. 内容防溢出：移动端标题 */
+            /* ========== 移动端列表视图内容优化 ========== */
             .schedule-item-title {
-                font-size: 15px;
-                line-height: 1.4;
+                font-size: 15px !important;
+                line-height: 1.4 !important;
 
                 /* ✅ 标题防溢出 */
                 overflow: hidden !important;
@@ -2300,23 +2304,14 @@
                 max-width: 100% !important;
             }
 
-            /* 内容防溢出：移动端元信息 */
             .schedule-item-meta {
-                font-size: 12px;
-                line-height: 1.5;
+                font-size: 12px !important;
+                line-height: 1.5 !important;
 
                 /* ✅ 内容防溢出 */
                 overflow: hidden !important;
                 word-wrap: break-word !important;
                 word-break: break-word !important;
-            }
-
-            .schedule-item-title {
-                font-size: 15px;
-            }
-
-            .schedule-item-meta {
-                font-size: 12px;
             }
 
             /* ========== 日视图列表移动端强化防溢出 ========== */
@@ -2587,12 +2582,10 @@
                 font-size: 13px;
             }
 
-            /* ========== Tab导航固定在搜索框下方 ========== */
+            /* ========== ✅ Tab导航不固定，页面正常流动 (2026-01-29) ========== */
             .tabs-nav {
-                position: fixed !important;
-                top: 65px !important; /* 搜索框高度（约65px） */
-                left: 0 !important;
-                right: 0 !important;
+                /* ❌ 已移除固定定位，改为正常流动 */
+                position: relative !important;
                 z-index: 1000 !important;
                 background: white;
                 overflow-x: auto;
@@ -2605,15 +2598,13 @@
                 flex-shrink: 0;
             }
 
-            /* ========== 日历头部固定在Tab导航下方 ========== */
+            /* ========== ✅ 日历头部不固定，页面正常流动 (2026-01-29) ========== */
             .calendar-header {
-                position: fixed !important;
-                top: 115px !important; /* 搜索框65px + Tab导航50px */
-                left: 0 !important;
-                right: 0 !important;
+                /* ❌ 已移除固定定位，改为正常流动 */
+                position: relative !important;
                 z-index: 999 !important;
                 background: white;
-                padding: 8px 12px; /* 减小padding，修复间距过大 */
+                padding: 8px 12px;
                 box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
                 /* ✅ 修复日历溢出问题 */
@@ -2624,15 +2615,12 @@
             }
 
             /* ========== 内容区适配所有固定元素 ========== */
+            /* ✅ 使用CSS变量统一管理padding-top，便于调整 */
+            /* 固定元素：搜索框65px + Tab导航50px = 115px基础高度 */
+            /* ========== ✅ Tab内容区域padding优化 (2026-01-29) ========== */
+            /* 移除固定定位后，所有tab使用统一的较小padding */
             .tab-pane {
-                /* ✅ 修正：搜索框65px + Tab导航50px + 日期筛选栏132px（减小padding后）+ 筛选状态提示36px = 283px */
-                padding-top: 283px !important;
-            }
-
-            /* 攻略信息Tab没有日历头部，使用更小的padding */
-            #tab-5.tab-pane {
-                /* 攻略Tab：搜索框65px + Tab导航50px = 115px */
-                padding-top: 115px !important;
+                padding-top: 20px !important; /* ✅ 统一使用20px，去除顶部空白 */
             }
 
             /* ========== 移动端间距优化（使用CSS变量） ========== */
@@ -2800,14 +2788,6 @@
                 /* ✅ 修复超小屏按钮溢出问题 */
                 box-sizing: border-box !important;
                 flex-shrink: 0 !important; /* ✅ 禁止收缩 */
-            }
-
-            .date-cell-header.selected-day::after {
-                width: 14px;
-                height: 14px;
-                font-size: 9px;
-                top: -3px;
-                right: -3px;
             }
 
             /* 超小屏幕数字和星期样式 */
@@ -3473,7 +3453,8 @@
         </div>
 
         <!-- 移动端当前筛选状态条 -->
-        <div class="mobile-filter-status" id="mobileFilterStatus" style="display: none;">
+        <!-- ❌ 已移除：不再使用 mobile-filter-status 组件 (2026-01-29) -->
+        <!-- <div class="mobile-filter-status" id="mobileFilterStatus" style="display: none;">
             <div class="status-item">
                 <span class="status-label">分类</span>
                 <span class="status-value" id="mobileCategoryStatus">全部</span>
@@ -3483,7 +3464,7 @@
                 <span class="status-label">价格</span>
                 <span class="status-value" id="mobilePriceStatus">全部</span>
             </div>
-        </div>
+        </div> -->
 
         <!-- Tab导航（6个Tab） -->
         <div class="tabs-nav">
@@ -3519,7 +3500,7 @@
             <div id="tab-0" class="tab-pane active">
                 <div class="calendar-header">
                     <div class="nav-row">
-                        <div class="month-label" id="monthLabel">本周活动</div>
+                        <div class="month-label" id="monthLabel"><!-- ✅ JavaScript动态更新日期 --></div>
                         <div class="nav-buttons">
                             <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
                             <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
@@ -3540,7 +3521,7 @@
             <div id="tab-1" class="tab-pane">
                 <div class="calendar-header">
                     <div class="nav-row">
-                        <div class="month-label">本周市集</div>
+                        <div class="month-label" id="monthLabelMarket"><!-- ✅ JavaScript动态更新日期 --></div>
                         <div class="nav-buttons">
                             <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
                             <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
@@ -3561,7 +3542,7 @@
             <div id="tab-2" class="tab-pane">
                 <div class="calendar-header">
                     <div class="nav-row">
-                        <div class="month-label">本周音乐活动</div>
+                        <div class="month-label" id="monthLabelMusic"><!-- ✅ JavaScript动态更新日期 --></div>
                         <div class="nav-buttons">
                             <button class="nav-btn" onclick="navigateWeek(-1)">← 上一周</button>
                             <button class="nav-btn" onclick="goToThisWeek()">回到本周</button>
@@ -3580,12 +3561,7 @@
 
             <!-- 灵活时间活动Tab -->
             <div id="tab-3" class="tab-pane">
-                <div class="calendar-header">
-                    <div class="nav-row">
-                        <div class="month-label">灵活时间活动</div>
-                    </div>
-                </div>
-                <!-- 筛选状态提示 -->
+                <!-- ✅ 移除冗余的calendar-header，tab导航已标识 --><!-- 筛选状态提示 -->
                 <div id="filterStatus" style="display: none; padding: 0 16px;"></div>
                 <div class="schedule-list" id="flexibleList">
                     <!-- 动态生成列表内容 -->
@@ -3594,11 +3570,7 @@
 
             <!-- 活动网站Tab -->
             <div id="tab-4" class="tab-pane">
-                <div class="calendar-header">
-                    <div class="nav-row">
-                        <div class="month-label">活动网站</div>
-                    </div>
-                </div>
+                <!-- ✅ 移除冗余的calendar-header，tab导航已标识 -->
                 <div class="websites-container" id="websitesContainer">
                     <!-- 动态生成网站链接 -->
                 </div>
@@ -5409,13 +5381,19 @@
 
             const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
-            // 1. 按日期分组
+            // 1. 按日期分组（过滤无效的 day 值）
             const groupedByDay = {};
             activities.forEach(act => {
-                if (!groupedByDay[act.day]) {
-                    groupedByDay[act.day] = [];
+                // 验证 day 是否有效（0-6 的数字）
+                const day = Number(act.day);
+                if (typeof day === 'number' && !isNaN(day) && day >= 0 && day <= 6) {
+                    if (!groupedByDay[day]) {
+                        groupedByDay[day] = [];
+                    }
+                    groupedByDay[day].push(act);
+                } else {
+                    console.warn('⚠️ 跳过无效日期的活动:', act);
                 }
-                groupedByDay[act.day].push(act);
             });
 
             console.log('📊 分组结果:', Object.keys(groupedByDay).map(day =>
@@ -5423,7 +5401,7 @@
             ).join(', '));
 
             // 2. 如果有选中日期，将其移到最前面
-            let dayKeys = Object.keys(groupedByDay).map(Number).sort((a, b) => a - b);
+            let dayKeys = Object.keys(groupedByDay).map(Number).filter(day => !isNaN(day)).sort((a, b) => a - b);
             if (selectedDay !== null && groupedByDay[selectedDay]) {
                 dayKeys = dayKeys.filter(k => k !== selectedDay);
                 dayKeys.unshift(selectedDay);
@@ -5436,6 +5414,12 @@
                 const dayActivities = groupedByDay[day];
                 const isSelected = day === selectedDay;
                 const groupClass = isSelected ? 'day-group day-group-selected' : 'day-group';
+
+                // 安全检查：确保 dayActivities 存在且是数组
+                if (!dayActivities || !Array.isArray(dayActivities)) {
+                    console.warn('⚠️ 警告: 日期活动数据异常', { day, dayActivities });
+                    return; // 跳过这个日期
+                }
 
                 html += `
                     <div class="${groupClass}" data-day="${day}">
@@ -6252,7 +6236,7 @@
             updateFilterTags();
 
             // 更新移动端筛选状态
-            updateMobileFilterStatus();
+            // updateMobileFilterStatus(); // ❌ 已移除：不再使用 mobile-filter-status (2026-01-29)
 
             // 更新日期高亮状态
             updateDateHighlight();
@@ -6261,9 +6245,15 @@
             updateMonthLabel();
         }
 
-        // 更新标题标签
+        // 更新标题标签（当选择某个日期时）
         function updateMonthLabel() {
-            const label = document.getElementById('monthLabel');
+            // ✅ 更新所有三个tab的标题标签
+            const labels = {
+                interest: document.getElementById('monthLabel'),
+                market: document.getElementById('monthLabelMarket'),
+                music: document.getElementById('monthLabelMusic')
+            };
+
             if (currentFilters.day !== null) {
                 // 查找对应日期的详细信息
                 const dateInfo = weekDates.find(d => d.day === currentFilters.day);
@@ -6271,12 +6261,23 @@
                     // 格式化月份和日期为两位数（如 01-21）
                     const monthStr = String(dateInfo.month).padStart(2, '0');
                     const dateStr = String(dateInfo.date).padStart(2, '0');
-                    label.textContent = `📅 ${monthStr}-${dateStr}的活动`;
+                    const dateText = `📅 ${monthStr}-${dateStr}`;
+
+                    if (labels.interest) labels.interest.textContent = `${dateText}的活动`;
+                    if (labels.market) labels.market.textContent = `${dateText}的市集`;
+                    if (labels.music) labels.music.textContent = `${dateText}的音乐`;
                 } else {
-                    label.textContent = `📅 ${dayNames[currentFilters.day]}的活动`;
+                    const dayText = `📅 ${dayNames[currentFilters.day]}`;
+
+                    if (labels.interest) labels.interest.textContent = `${dayText}的活动`;
+                    if (labels.market) labels.market.textContent = `${dayText}的市集`;
+                    if (labels.music) labels.music.textContent = `${dayText}的音乐`;
                 }
             } else {
-                label.textContent = '📅 本周活动';
+                // ✅ 未选择日期时，不显示任何内容（避免与tab导航重复）
+                if (labels.interest) labels.interest.textContent = '';
+                if (labels.market) labels.market.textContent = '';
+                if (labels.music) labels.music.textContent = '';
             }
         }
 
@@ -6761,6 +6762,8 @@
         }
 
         // 更新移动端筛选状态条
+        // ❌ 已移除：不再使用 mobile-filter-status 组件 (2026-01-29)
+        /*
         function updateMobileFilterStatus() {
             if (!isMobile()) {
                 document.getElementById('mobileFilterStatus').style.display = 'none';
@@ -6794,6 +6797,7 @@
                 priceEl.style.color = '#667eea';
             }
         }
+        */
 
         function updateDateHighlight() {
             // 更新日期表头的高亮状态
@@ -7260,25 +7264,34 @@
 
         // 更新周标题显示
         function updateWeekTitle() {
-            const titleElement = document.getElementById('monthLabel');
-            if (!titleElement) return;
+            // ✅ 更新所有三个tab的标题标签
+            const labels = {
+                interest: document.getElementById('monthLabel'),
+                market: document.getElementById('monthLabelMarket'),
+                music: document.getElementById('monthLabelMusic')
+            };
 
             const firstDay = weekDates[0];
             const lastDay = weekDates[6];
 
             let title = '';
             if (currentWeekOffset === 0) {
-                title = '本周活动';
+                title = '本周';
             } else if (currentWeekOffset === -1) {
-                title = '上周活动';
+                title = '上周';
             } else if (currentWeekOffset === 1) {
-                title = '下周活动';
+                title = '下周';
             } else {
                 const weekNum = currentWeekOffset > 0 ? `+${currentWeekOffset}` : currentWeekOffset;
-                title = `${weekNum}周活动`;
+                title = `${weekNum}周`;
             }
 
-            titleElement.textContent = `${title} (${firstDay.month}/${firstDay.date} - ${lastDay.month}/${lastDay.date})`;
+            const dateRange = `(${firstDay.month}/${firstDay.date} - ${lastDay.month}/${lastDay.date})`;
+
+            // ✅ 为每个tab设置相应的标题
+            if (labels.interest) labels.interest.textContent = `${title}活动 ${dateRange}`;
+            if (labels.market) labels.market.textContent = `${title}市集 ${dateRange}`;
+            if (labels.music) labels.music.textContent = `${title}音乐 ${dateRange}`;
         }
 
         // 页面加载时获取数据
