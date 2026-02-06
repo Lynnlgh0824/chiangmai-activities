@@ -1,0 +1,260 @@
+name: 数据质量检查
+
+on:
+  push:
+    branches: [ main, dev ]
+    paths:
+      - 'data/items.json'
+      - 'scripts/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'data/items.json'
+      - 'scripts/**'
+  workflow_dispatch:
+
+jobs:
+  quality-check:
+    name: 数据质量检查
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: |
+          if [ -f package.json ]; then
+            npm ci
+          fi
+
+      - name: 运行数据质量测试
+        run: |
+          node scripts/test-cases.mjs
+        continue-on-error: true
+
+      - name: 上传测试报告
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: data/test-report.json
+          retention-days: 30
+
+      - name: 检查测试结果
+        run: |
+          if [ -f data/test-report.json ]; then
+            node -e "
+              const report = JSON.parse(require('fs').readFileSync('data/test-report.json', 'utf8'));
+              console.log('总测试数:', report.summary.totalTests);
+              console.log('通过:', report.summary.totalPassed);
+              console.log('失败:', report.summary.totalFailed);
+              console.log('警告:', report.summary.totalWarnings);
+
+              if (report.summary.totalFailed > 0) {
+                console.error('测试失败！');
+                process.exit(1);
+              }
+            "
+          fi
+
+  format-check:
+    name: 格式检查
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 检查 JSON 格式
+        run: |
+          echo "检查 items.json 格式..."
+          node -e "
+            const fs = require('fs');
+            try {
+              const data = JSON.parse(fs.readFileSync('data/items.json', 'utf8'));
+              console.log('✅ JSON 格式正确');
+              console.log('   活动数量:', data.length);
+            } catch (error) {
+              console.error('❌ JSON 格式错误:', error.message);
+              process.exit(1);
+            }
+          "
+
+      - name: 检查数据完整性
+        run: |
+          echo "检查数据完整性..."
+          node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('data/items.json', 'utf8'));
+
+            let errors = 0;
+
+            data.forEach((item, index) => {
+              if (!item.id) {
+                console.error(\`❌ 活动 \${index + 1} 缺少 ID\`);
+                errors++;
+              }
+              if (!item.title) {
+                console.error(\`❌ 活动 \${index + 1} 缺少标题\`);
+                errors++;
+              }
+              if (!item.description) {
+                console.error(\`❌ 活动 \${index + 1} 缺少描述\`);
+                errors++;
+              }
+            });
+
+            if (errors > 0) {
+              console.error(\`❌ 发现 \${errors} 个错误\`);
+              process.exit(1);
+            } else {
+              console.log('✅ 数据完整性检查通过');
+            }
+          "
+
+      - name: 检查重复 ID
+        run: |
+          echo "检查重复 ID..."
+          node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('data/items.json', 'utf8'));
+
+            const ids = new Set();
+            const duplicates = new Set();
+
+            data.forEach(item => {
+              if (ids.has(item.id)) {
+                duplicates.add(item.id);
+              }
+              ids.add(item.id);
+            });
+
+            if (duplicates.size > 0) {
+              console.error(\`❌ 发现重复 ID: \${[...duplicates].join(', ')}\`);
+              process.exit(1);
+            } else {
+              console.log('✅ 无重复 ID');
+            }
+          "
+
+  description-quality:
+    name: 描述质量检查
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 检查描述重复
+        run: |
+          echo "检查描述重复..."
+          node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('data/items.json', 'utf8'));
+
+            let issues = 0;
+
+            data.forEach(item => {
+              const desc = item.description || '';
+
+              // 检查双感叹号
+              if (desc.includes('!!')) {
+                console.warn(\`⚠️  活动 \${item.id} 包含双感叹号\`);
+                issues++;
+              }
+
+              // 检查多重感叹号emoji
+              if (desc.includes('‼️') || desc.includes('❗❗')) {
+                console.warn(\`⚠️  活动 \${item.id} 包含多重感叹号emoji\`);
+                issues++;
+              }
+
+              // 检查重复警告符号
+              if (/(⚠️\\s*){2,}/.test(desc)) {
+                console.warn(\`⚠️  活动 \${item.id} 包含重复⚠️符号\`);
+                issues++;
+              }
+
+              // 检查瑜伽垫重复
+              if (desc.includes('需要自己带瑜伽垫') && desc.includes('需自备瑜伽垫')) {
+                console.warn(\`⚠️  活动 \${item.id} 存在瑜伽垫语义重复\`);
+                issues++;
+              }
+
+              // 检查价格格式重复
+              const hasPrice1 = /\\d+泰铢\\/单次课程/.test(desc);
+              const hasPrice2 = /单次课程\\d+泰铢/.test(desc);
+              if (hasPrice1 && hasPrice2) {
+                console.warn(\`⚠️  活动 \${item.id} 存在价格格式重复\`);
+                issues++;
+              }
+            });
+
+            console.log(\`发现问题: \${issues} 个\`);
+
+            if (issues > 10) {
+              console.error('❌ 问题过多，建议运行修复脚本');
+              process.exit(1);
+            }
+          "
+        continue-on-error: true
+
+      - name: 生成质量报告
+        if: always()
+        run: |
+          echo "生成质量报告..."
+          node -e "
+            const fs = require('fs');
+            const data = JSON.parse(fs.readFileSync('data/items.json', 'utf8'));
+
+            const stats = {
+              totalActivities: data.length,
+              withDescription: data.filter(i => i.description).length,
+              avgDescriptionLength: Math.round(
+                data.reduce((sum, i) => sum + (i.description || '').length, 0) / data.length
+              ),
+              hasNotice: data.filter(i => (i.description || '').includes('⚠️')).length,
+              hasPrice: data.filter(i => (i.description || '').includes('泰铢')).length,
+              emptyDescriptions: data.filter(i => !i.description || i.description.trim().length === 0).length
+            };
+
+            console.log('\\n📊 描述质量统计:');
+            console.log('   总活动数:', stats.totalActivities);
+            console.log('   有描述:', stats.withDescription);
+            console.log('   平均描述长度:', stats.avgDescriptionLength, '字符');
+            console.log('   包含注意事项:', stats.hasNotice);
+            console.log('   包含价格信息:', stats.hasPrice);
+            console.log('   空描述:', stats.emptyDescriptions);
+            console.log('');
+
+            fs.writeFileSync(
+              'data/quality-stats.json',
+              JSON.stringify(stats, null, 2),
+              'utf8'
+            );
+          "
+
+      - name: 上传质量报告
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: quality-stats
+          path: data/quality-stats.json
+          retention-days: 30
