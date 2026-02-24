@@ -1,0 +1,18 @@
+#!/bin/bash
+# Pre-commit 钩子 - 自动同步数据到 public/data
+
+echo "🔄 自动同步 data → public/data"
+
+# 检查是否有 data 目录的更改
+if git diff --cached --name-only | grep -q "^data/"; then
+    echo "📁 检测到 data/ 目录的更改，自动同步到 public/data/"
+
+    # 复制数据文件
+    cp -f data/items.json public/data/ 2>/dev/null || true
+    cp -f data/guide.json public/data/ 2>/dev/null || true
+
+    # 添加到本次提交
+    git add public/data/items.json public/data/guide.json 2>/dev/null || true
+
+    echo "✅ 数据已同步"
+fi

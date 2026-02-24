@@ -1,0 +1,32 @@
+name: 自动部署到 Vercel
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'public/**'
+      - 'data/**'
+      - 'vercel.json'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+
+    - name: 同步数据到 public
+      run: |
+        echo "🔄 同步 data → public/data"
+        cp -f data/items.json public/data/ || true
+        cp -f data/guide.json public/data/ || true
+
+    - name: 部署到 Vercel (Production)
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        working-directory: ./
