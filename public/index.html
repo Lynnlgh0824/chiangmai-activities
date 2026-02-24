@@ -5192,8 +5192,18 @@
                 // 使用性能监控
                 PerfMonitor.start('fetchActivities');
 
-                // 使用APICache的fetch方法（自动缓存）
-                const result = await APICache.fetch('http://localhost:3000/api/activities?limit=1000');
+                // 优先使用本地 JSON 文件（静态部署支持）
+                let result;
+                try {
+                    const jsonResponse = await fetch('/data/items.json');
+                    const jsonData = await jsonResponse.json();
+                    result = { success: true, data: jsonData };
+                    console.log('✅ 从本地 JSON 文件加载活动数据');
+                } catch (jsonError) {
+                    console.log('⚠️ JSON 文件加载失败，尝试使用 API（本地开发模式）', jsonError);
+                    // 如果 JSON 文件不存在，尝试使用 API（本地开发）
+                    result = await APICache.fetch('http://localhost:3000/api/activities?limit=1000');
+                }
 
                 PerfMonitor.end('fetchActivities');
 
@@ -6748,8 +6758,18 @@
             container.innerHTML = '<div style="text-align:center;padding:40px;">加载中...</div>';
 
             try {
-                const response = await fetch('/api/guide');
-                const result = await response.json();
+                // 优先使用本地 JSON 文件（静态部署支持）
+                let result;
+                try {
+                    const jsonResponse = await fetch('/data/guide.json');
+                    const jsonData = await jsonResponse.json();
+                    result = { success: true, data: { content: jsonData.content || jsonData } };
+                    console.log('✅ 从本地 JSON 文件加载攻略数据');
+                } catch (jsonError) {
+                    console.log('⚠️ JSON 文件加载失败，尝试使用 API（本地开发模式）', jsonError);
+                    const response = await fetch('/api/guide');
+                    result = await response.json();
+                }
 
                 if (result.success && result.data && result.data.content) {
                     // 安全性：净化HTML以防止XSS攻击
