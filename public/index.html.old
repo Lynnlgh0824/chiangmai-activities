@@ -5,112 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- 性能优化：使用合理的缓存策略 -->
     <meta http-equiv="Cache-Control" content="max-age=300, must-revalidate">
-    <title>Chiengmai Activities v1.0.7</title>
-
-    <!-- 修复浏览器扩展引起的错误 -->
-    <script>
-    (function() {
-        'use strict';
-
-        // 🔒 增强的浏览器扩展错误过滤系统
-        const extensionKeywords = [
-            'runtime.lastError',
-            'message port closed',
-            'message port',
-            'extension',
-            'content.js',
-            'chrome-extension',
-            'moz-extension',
-            'webkit-extension',
-            'Unchecked runtime.lastError',
-            'The message port closed'
-        ];
-
-        // 检查是否为浏览器扩展错误
-        function isExtensionError(message, source = '') {
-            if (typeof message !== 'string') return false;
-
-            // 检查消息内容
-            if (extensionKeywords.some(keyword => message.includes(keyword))) {
-                return true;
-            }
-
-            // 检查来源
-            if (source && (
-                source.includes('chrome-extension://') ||
-                source.includes('moz-extension://') ||
-                source.includes('webkit-extension://')
-            )) {
-                return true;
-            }
-
-            return false;
-        }
-
-        // 1. 覆盖 console.error
-        const originalError = console.error;
-        console.error = function(...args) {
-            const message = args[0];
-            if (isExtensionError(message)) {
-                return; // 静默忽略浏览器扩展错误
-            }
-            originalError.apply(console, args);
-        };
-
-        // 2. 覆盖 console.warn（某些扩展用 warn 输出）
-        const originalWarn = console.warn;
-        console.warn = function(...args) {
-            const message = args[0];
-            if (isExtensionError(message)) {
-                return; // 静默忽略浏览器扩展警告
-            }
-            originalWarn.apply(console, args);
-        };
-
-        // 3. 捕获 window.onerror
-        const originalOnError = window.onerror;
-        window.onerror = function(message, source, lineno, colno, error) {
-            if (isExtensionError(message, source)) {
-                return true; // 阻止默认错误处理
-            }
-            if (originalOnError) {
-                return originalOnError(message, source, lineno, colno, error);
-            }
-            return false;
-        };
-
-        // 4. 捕获未处理的 Promise rejection
-        const originalOnUnhandled = window.onunhandledrejection;
-        window.onunhandledrejection = function(event) {
-            if (event.reason) {
-                const msg = event.reason.message || String(event.reason);
-                const source = event.reason.stack || '';
-                if (isExtensionError(msg, source)) {
-                    event.preventDefault(); // 阻止错误显示
-                    return;
-                }
-            }
-            if (originalOnUnhandled) {
-                return originalOnUnhandled(event);
-            }
-        };
-
-        // 5. 拦截所有 console 方法（增强过滤）
-        ['log', 'info', 'debug'].forEach(method => {
-            const original = console[method];
-            console[method] = function(...args) {
-                const message = args[0];
-                if (isExtensionError(message)) {
-                    return; // 静默忽略
-                }
-                original.apply(console, args);
-            };
-        });
-
-        // 输出过滤系统启动日志
-        console.log('✅ 浏览器扩展错误过滤系统已启动');
-    })();
-    </script>
+    <title>清迈活动平台 v1.0.7 - Chiengmai Activities Platform</title>
 
     <!-- H5模式检测 -->
     <script>
@@ -137,101 +32,6 @@
             }
             console.log('🔍 检测到显示模式:', window.CHIENGMAI_MODE.toUpperCase(), '| 移动设备:', isMobile);
         });
-    })();
-    </script>
-
-    <!-- ============================================================ -->
-    <!-- 🏛️ UI 状态管理系统（单一源原则） -->
-    <!-- ============================================================ -->
-    <script>
-    (function() {
-        'use strict';
-
-        /**
-         * UI 状态管理器
-         * 原则：UI 长什么样，只能由一个"状态 class"决定
-         */
-        const UIStateManager = {
-            // 当前 UI 状态
-            currentState: null,
-            isInitialized: false,
-
-            /**
-             * 初始化 UI 状态（只执行一次）
-             * @param {string} initialState - 初始状态（'ui-calendar' 或 'ui-list'）
-             */
-            init(initialState = 'ui-calendar') {
-                // 防止重复初始化
-                if (this.isInitialized) {
-                    console.log('⏸️ UI 状态已初始化，跳过重复初始化');
-                    return;
-                }
-
-                // 确保 body 上只有一个 ui-xxx class
-                document.body.classList.remove('ui-calendar', 'ui-list');
-                document.body.classList.add(initialState);
-                this.currentState = initialState;
-                this.isInitialized = true;
-                console.log('🏛️ UI 状态初始化:', initialState);
-            },
-
-            /**
-             * 切换 UI 状态
-             * @param {string} newState - 新状态（'ui-calendar' 或 'ui-list'）
-             */
-            switchState(newState) {
-                // 确保 UI 状态已初始化
-                if (!this.isInitialized) {
-                    console.warn('⚠️ UI 状态未初始化，先执行 init()');
-                    this.init(newState);
-                    return;
-                }
-
-                if (this.currentState === newState) {
-                    return; // 静默跳过，避免日志过多
-                }
-
-                const oldState = this.currentState;
-                // 使用 replace 确保只有一个 ui-xxx class
-                document.body.classList.replace(this.currentState, newState);
-                this.currentState = newState;
-                console.log('🔄 UI 状态切换:', oldState, '→', newState);
-
-                // 触发 UI 状态切换事件
-                window.dispatchEvent(new CustomEvent('uiStateChanged', {
-                    detail: { from: this.currentState, to: newState }
-                }));
-            },
-
-            /**
-             * 获取当前 UI 状态
-             * @returns {string}
-             */
-            getCurrentState() {
-                return this.currentState;
-            },
-
-            /**
-             * 检查是否为指定状态
-             * @param {string} state - 状态名称
-             * @returns {boolean}
-             */
-            isState(state) {
-                return this.currentState === state;
-            }
-        };
-
-        // 导出到全局
-        window.UIStateManager = UIStateManager;
-
-        // 页面加载时初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            // 根据视口宽度决定初始状态
-            const isMobile = window.innerWidth <= 768;
-            const initialState = isMobile ? 'ui-calendar' : 'ui-list';
-            UIStateManager.init(initialState);
-        });
-
     })();
     </script>
     <style>
@@ -274,20 +74,6 @@
                 --space-xl: var(--space-mobile-xl);
                 --space-2xl: var(--space-mobile-2xl);
             }
-        }
-
-        /* ========== 横向溢出兜底保护（移动端必选） ========== */
-        html, body {
-            max-width: 100vw;
-            overflow-x: hidden;
-            width: 100%;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        /* 确保所有容器不超出视口 */
-        #app {
-            max-width: 100vw;
-            overflow-x: hidden;
         }
 
         /* ========== XS 断点（小屏手机优化） ========== */
@@ -529,22 +315,6 @@
             background: #fff;
             border-bottom: 2px solid #e0e0e0;
             padding: 0 20px;
-
-            /* PC端：Tab栏置顶悬浮 */
-            position: sticky;
-            top: 0;
-            z-index: 100;
-
-            /* 滚动时添加阴影效果 */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-            /* 平滑过渡阴影效果 */
-            transition: box-shadow 0.3s ease;
-        }
-
-        /* Tab栏悬浮时的增强阴影 */
-        .tabs-nav.scrolled {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .tab-item {
@@ -819,9 +589,12 @@
             border: 2px solid #ffc107;
         }
 
-        /* ✅ 已删除 .today-header.selected-day 混合状态样式 */
-        /* 状态优先级：selected > today > normal */
-        /* 如果今天被选中，只表现为 selected，不显示 today 标记 */
+        .date-cell-header.today-header.selected-day {
+            background: #4080FF;
+            color: white !important;
+            border: 3px solid #ffc107;
+            box-shadow: 0 4px 16px rgba(64, 128, 255, 0.6), 0 0 0 2px rgba(255, 193, 7, 0.3);
+        }
 
         @keyframes selectPulse {
             0% { transform: scale(1); }
@@ -928,9 +701,12 @@
             border-width: 2px;
         }
 
-        /* ✅ 已删除 .today.selected-day 混合状态样式 */
-        /* 状态优先级：selected > today > normal */
-        /* 如果今天被选中，只表现为 selected，不显示 today 标记 */
+        /* 今天且被选中 - 蓝色选中 + 黄色外发光 */
+        .day-cell.today.selected-day {
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            border: 2px solid #667eea;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4), 0 0 0 2px rgba(255, 193, 7, 0.3);
+        }
 
         /* 点击提示 */
         .day-cell:not(.dimmed):hover::after {
@@ -963,8 +739,9 @@
             font-weight: 700;
         }
 
-        /* ✅ 已删除 .today.selected-day .day-name 混合状态样式 */
-        /* 状态优先级：selected > today > normal */
+        .day-cell.today.selected-day .day-name {
+            color: #667eea;
+        }
 
         .activity-chip {
             background: white;
@@ -1107,110 +884,6 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
-        }
-
-        /* ========== 信息层级优化标准 ========== */
-        /*
-         * 📐 四层文字层级系统
-         * L1: 活动标题 16px/600/深色 - 核心信息
-         * L2: 时间&地点 13px/常规/灰 - 辅助信息
-         * L3: 价格 14px/600/强调色 - 决策信息
-         * L4: 补充说明 12-13px/灰 - 背景信息
-         */
-
-        /* L1: 活动标题（已在上面定义，保持不变） */
-        .schedule-item-title {
-            /* L1层级：活动标题 */
-            font-weight: 600;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 4px;
-        }
-
-        /* L2: 时间&地点元信息 */
-        .schedule-item-meta {
-            /* L2层级：降权，不抢戏 */
-            font-size: 13px;
-            color: #666;
-            line-height: 1.4;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 6px;
-        }
-
-        .meta-time,
-        .meta-location {
-            /* L2层级：统一的图标+文本样式 */
-            font-size: 13px;
-            color: #666;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        /* L3: 价格强调（决策关键信息） */
-        .schedule-item-price {
-            /* L3层级：视觉强调 */
-            font-size: 14px;
-            font-weight: 600;
-            color: #667eea; /* 强调色 */
-            line-height: 1.4;
-            margin-top: 2px;
-        }
-
-        /* L3: 价格特殊标记 */
-        .schedule-item-price:contains("免费") {
-            color: #4CAF50; /* 免费用绿色强调 */
-        }
-
-        /* L4: 补充说明（低优先级） */
-        .activity-detail-card > div[style*="margin-top"] {
-            /* L4层级：最小化处理 */
-            font-size: 12px;
-            color: #999;
-            line-height: 1.4;
-        }
-
-        /* ========== 日历卡片内部元素优化 ========== */
-        /* 日历卡片标题（L1层级） */
-        .chip-title {
-            /* L1层级：日历卡片中的标题 */
-            font-weight: 600;
-            font-size: 13px;
-            color: #333;
-            line-height: 1.3;
-            margin-bottom: 2px;
-        }
-
-        /* 日历卡片时间（L2层级） */
-        .activity-chip > div:last-child {
-            /* L2层级：日历卡片中的时间 */
-            font-size: 10px;
-            color: #666;
-            font-weight: 400;
-        }
-
-        /* ========== 中文+英文+数字混排优化 ========== */
-        /* 确保中文、英文、数字混排时的可读性 */
-        .schedule-item-title,
-        .chip-title {
-            /* 中文优先，英文数字不抢占视觉 */
-            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            letter-spacing: 0.01em; /* 轻微增加字间距 */
-        }
-
-        .meta-time,
-        .meta-location,
-        .schedule-item-meta {
-            /* 辅助信息使用较细字重 */
-            font-weight: 400;
-        }
-
-        .schedule-item-price {
-            /* 价格使用较粗字重 */
-            font-weight: 600;
-            font-feature-settings: "tnum"; /* 表格数字对齐 */
         }
 
         /* ========== 活动详情卡片完整防溢出CSS ========== */
@@ -1509,7 +1182,7 @@
             margin-bottom: 20px;
         }
 
-        /* 日期组头部样式（仅选中时显示） */
+        /* 日期组头部 */
         .day-group-header {
             display: flex;
             justify-content: space-between;
@@ -1612,9 +1285,6 @@
             flex-wrap: wrap;
             gap: 8px;
             align-items: center;
-            max-width: 100%;
-            width: 100%;
-            box-sizing: border-box;
         }
 
         .filter-tag {
@@ -2115,6 +1785,7 @@
 
             /* ========== ✅ 方案B: 搜索框不固定，页面正常流动 (2026-01-29) ========== */
             .header {
+                /* 使用 relative 定位而非 fixed，避免移动端键盘弹出时的遮挡问题 */
                 position: relative !important;
                 z-index: 1001 !important;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -2328,9 +1999,13 @@
                 border: 2px solid #ffc107 !important; /* ✅ 黄色边框表示"今天" */
             }
 
-            /* ✅ 已删除 .today-header.selected-day 混合状态样式 */
-            /* 状态优先级：selected > today > normal */
-            /* 如果今天被选中，只表现为 selected，不显示 today 标记 */
+            /* ✅ 今天且被选中 - 深蓝色选中 + 黄色边框 */
+            .date-cell-header.today-header.selected-day {
+                background: #4080FF !important; /* ✅ 选中状态：深蓝色背景 */
+                color: white !important; /* ✅ 选中状态：白色文字 */
+                border: 3px solid #ffc107 !important; /* ✅ 黄色边框表示"今天" */
+                box-shadow: 0 4px 16px rgba(64, 128, 255, 0.6), 0 0 0 2px rgba(255, 193, 7, 0.3) !important; /* ✅ 蓝色阴影 + 黄色外发光 */
+            }
 
             /* ========== 移动端数字和星期样式 ========== */
             .date-number {
@@ -2832,10 +2507,10 @@
                 font-size: 13px;
             }
 
-            /* ========== ✅ Tab导航悬浮固定 (2026-02-24) ========== */
+            /* ========== ✅ Tab导航不固定，页面正常流动 (2026-01-29) ========== */
             .tabs-nav {
-                position: sticky !important;
-                top: 0 !important;
+                /* 使用 relative 定位而非 fixed，避免移动端滚动冲突 */
+                position: relative !important;
                 z-index: 1000 !important;
                 background: white;
                 overflow-x: auto;
@@ -2850,6 +2525,7 @@
 
             /* ========== ✅ 日历头部不固定，页面正常流动 (2026-01-29) ========== */
             .calendar-header {
+                /* 使用 relative 定位而非 fixed，避免移动端滚动冲突 */
                 position: relative !important;
                 z-index: 999 !important;
                 background: white;
@@ -2868,9 +2544,8 @@
             /* 固定元素：搜索框65px + Tab导航50px = 115px基础高度 */
             /* ========== ✅ Tab内容区域padding优化 (2026-01-29) ========== */
             /* 移除固定定位后，所有tab使用统一的较小padding */
-            /* ⚠️ 已迁移到 mobile-safe.css，此处保留兼容 */
             .tab-pane {
-                padding-top: 20px; /* ✅ 统一使用20px，去除顶部空白（已被 mobile-safe.css 覆盖）*/
+                padding-top: 20px !important; /* ✅ 统一使用20px，去除顶部空白 */
             }
 
             /* ========== 移动端间距优化（使用CSS变量） ========== */
@@ -3290,99 +2965,6 @@
             display: block;
         }
 
-        /* 2. Toast 提示系统 */
-        /* ========== 2. Toast 提示 ========== */
-        /*
-        .toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(0, 0, 0, 0.85);
-            color: white;
-            padding: 16px 24px;
-            border-radius: 12px;
-            font-size: 15px;
-            text-align: center;
-            max-width: 80%;
-            z-index: var(--z-toast);
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
-        }
-
-        .toast.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: auto;
-        }
-
-        .toast.success {
-            background: rgba(76, 175, 80, 0.95);
-        }
-
-        .toast.error {
-            background: rgba(244, 67, 54, 0.95);
-        }
-
-        .toast.info {
-            background: rgba(33, 150, 243, 0.95);
-        }
-        */
-
-        /* ========== 3. Dialog 确认弹窗 ========== */
-        /*
-        .dialog-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: var(--z-modal);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .dialog-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
-
-        .dialog {
-            background: white;
-            border-radius: 16px;
-            max-width: 320px;
-            width: 100%;
-            padding: 24px;
-            transform: scale(0.9);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .dialog-overlay.active .dialog {
-            transform: scale(1);
-        }
-
-        .dialog-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 12px;
-        }
-
-        .dialog-message {
-            font-size: 15px;
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-        */
-
         .dialog-buttons {
             display: flex;
             gap: 12px;
@@ -3408,46 +2990,6 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-
-        /* ========== 4. Loading 加载状态 ========== */
-        /*
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            z-index: var(--z-modal);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .loading-overlay.active {
-            display: flex;
-        }
-
-        .spinner {
-            width: 48px;
-            height: 48px;
-            border: 4px solid #f0f0f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            margin-top: 16px;
-            font-size: 15px;
-            color: #666;
-        }
-        */
 
         /* 骨架屏 */
         .skeleton {
@@ -3484,51 +3026,6 @@
         .skeleton-text.short {
             width: 40%;
         }
-
-        /* ========== 5. 下拉刷新 ========== */
-        /*
-        .pull-to-refresh {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .pull-indicator {
-            position: absolute;
-            top: -60px;
-            left: 0;
-            right: 0;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            transition: transform 0.3s ease;
-            z-index: 10;
-        }
-
-        .pull-indicator.loading {
-            transform: translateY(60px);
-        }
-
-        .pull-icon {
-            font-size: 24px;
-            margin-right: 8px;
-        }
-
-        .pull-text {
-            font-size: 14px;
-            color: #666;
-        }
-
-        .refresh-spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid #f0f0f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-        */
 
         /* 6. 空状态 */
         .empty-state {
@@ -3574,14 +3071,6 @@
                 max-height: 90vh;
             }
 
-            /*
-            .toast {
-                max-width: 90%;
-                padding: 14px 20px;
-                font-size: 14px;
-            }
-            */
-
             .dialog {
                 max-width: 280px;
                 padding: 20px;
@@ -3603,12 +3092,6 @@
             });
         }
     </script>
-
-    <!-- 🧹 Mobile Anti-Overflow 安全 CSS 清单 -->
-    <link rel="stylesheet" href="css/mobile-safe.css">
-
-    <!-- 🏛️ UI 状态架构 CSS（单一源原则） -->
-    <link rel="stylesheet" href="css/ui-state-architecture.css">
 </head>
 <body>
     <div class="container">
@@ -3661,19 +3144,6 @@
         <div class="active-filters" id="activeFilters">
             <!-- 动态生成筛选标签 -->
         </div>
-
-        <!-- 移动端当前筛选状态条 -->
-        <!-- <div class="mobile-filter-status" id="mobileFilterStatus" style="display: none;">
-            <div class="status-item">
-                <span class="status-label">分类</span>
-                <span class="status-value" id="mobileCategoryStatus">全部</span>
-            </div>
-            <div class="status-divider"></div>
-            <div class="status-item">
-                <span class="status-label">价格</span>
-                <span class="status-value" id="mobilePriceStatus">全部</span>
-            </div>
-        </div> -->
 
         <!-- Tab导航（6个Tab） -->
         <div class="tabs-nav">
@@ -5209,18 +4679,8 @@
                 // 使用性能监控
                 PerfMonitor.start('fetchActivities');
 
-                // 优先使用本地 JSON 文件（静态部署支持）
-                let result;
-                try {
-                    const jsonResponse = await fetch('/data/items.json');
-                    const jsonData = await jsonResponse.json();
-                    result = { success: true, data: jsonData };
-                    console.log('✅ 从本地 JSON 文件加载活动数据');
-                } catch (jsonError) {
-                    console.log('⚠️ JSON 文件加载失败，尝试使用 API（本地开发模式）', jsonError);
-                    // 如果 JSON 文件不存在，尝试使用 API（本地开发）
-                    result = await APICache.fetch('http://localhost:3000/api/activities?limit=1000');
-                }
+                // 使用APICache的fetch方法（自动缓存）
+                const result = await APICache.fetch('http://localhost:3000/api/activities?limit=1000');
 
                 PerfMonitor.end('fetchActivities');
 
@@ -5590,11 +5050,16 @@
                 }
             });
 
+            console.log('📊 分组结果:', Object.keys(groupedByDay).map(day =>
+                `${dayNames[day]}: ${groupedByDay[day].length}个`
+            ).join(', '));
+
             // 2. 如果有选中日期，将其移到最前面
             let dayKeys = Object.keys(groupedByDay).map(Number).filter(day => !isNaN(day)).sort((a, b) => a - b);
             if (selectedDay !== null && groupedByDay[selectedDay]) {
                 dayKeys = dayKeys.filter(k => k !== selectedDay);
                 dayKeys.unshift(selectedDay);
+                console.log('⭐ 选中的日期移到最前:', dayNames[selectedDay]);
             }
 
             // 3. 渲染HTML
@@ -5612,12 +5077,12 @@
 
                 html += `
                     <div class="${groupClass}" data-day="${day}">
-                        ${isSelected ? `
+                        ${selectedDay === null ? `
                         <div class="day-group-header">
                             <div class="day-group-title">
                                 <span class="day-icon">${getDayIcon(day)}</span>
                                 <span class="day-name">${dayNames[day]}</span>
-                                <span class="selected-badge">已选</span>
+                                ${isSelected ? '<span class="selected-badge">当前</span>' : ''}
                             </div>
                             <span class="day-count">${dayActivities.length}个活动</span>
                         </div>
@@ -5632,7 +5097,9 @@
             return html;
         }
 
-        // 辅助函数：获取日期图标
+        /**
+         * 获取日期图标
+         */
         function getDayIcon(day) {
             const icons = ['🌞', '📅', '📅', '📅', '📅', '📅', '🎉'];
             return icons[day];
@@ -6195,21 +5662,14 @@
             // 清理自动滚动检测（避免冲突）
             cleanupH5ScrollObserver();
 
-            const isMobile = window.innerWidth <= 768;
-
             if (currentFilters.day === day) {
                 // 再次点击取消筛选，显示所有活动
                 console.log('✋ 取消日期筛选');
                 currentFilters.day = null;
                 lastSelectedDay = null;
 
-                // 🏛️ 切换回卡片态（仅在移动端）
-                if (isMobile && window.UIStateManager) {
-                    UIStateManager.switchState('ui-calendar');
-                }
-
                 // H5端：重新启用滚动自动选中
-                if (isMobile) {
+                if (window.innerWidth <= 768) {
                     console.log('🔄 重新启用H5滚动自动选中');
                     const gridId = currentTab === 1 ? 'dateGridMarket' : 'dateGrid';
                     // ✅ 延迟 1000ms，确保足够的保护时间
@@ -6222,11 +5682,6 @@
                 console.log('✅ 设置日期筛选:', day);
                 currentFilters.day = day;
                 lastSelectedDay = day;
-
-                // 🏛️ 切换到列表态（仅在移动端）
-                if (isMobile && window.UIStateManager) {
-                    UIStateManager.switchState('ui-list');
-                }
 
                 // 🆕 H5端：自动滚动到该日期组
                 if (window.innerWidth <= 768) {
@@ -6387,8 +5842,6 @@
             // 更新筛选标签
             updateFilterTags();
 
-            // 更新移动端筛选状态
-
             // 更新日期高亮状态
             updateDateHighlight();
         }
@@ -6418,7 +5871,6 @@
             // 移动端：选择日期后显示单日详细视图
             // PC端：始终显示周视图，通过高亮显示选中日期
             if (isMobile && currentFilters.day !== null) {
-
                 // H5端：使用列表视图显示选中日期的活动
                 grid.style.display = 'block';
                 grid.style.gridTemplateColumns = '1fr';
@@ -6493,7 +5945,7 @@
                     initH5ScrollAutoSelect(gridId);
                     // 同时初始化滚动日期高亮功能
                     initH5ScrollDateHighlight(gridId);
-                }, 1000);
+                }, 300);
             }
         }
 
@@ -6568,10 +6020,6 @@
             const isToday = isDayToday(day);
             const isDimmed = currentFilters.day !== null && currentFilters.day !== day;
 
-            // ✅ 状态优先级：selected > today > normal
-            // 如果今天被选中，只表现为 selected，不显示 today 标记
-            const shouldShowToday = isToday && !isSelectedDay;
-
             // 获取日期数字
             const weekDate = weekDates.find(d => d.day === day);
             const dateNumber = weekDate ? weekDate.date : '';
@@ -6607,7 +6055,7 @@
             }
 
             return `
-                <div class="day-cell ${shouldShowToday ? 'today' : ''} ${isSelectedDay ? 'selected-day' : ''} ${isDimmed ? 'dimmed' : ''}" data-day="${day}">
+                <div class="day-cell ${isToday ? 'today' : ''} ${isSelectedDay ? 'selected-day' : ''} ${isDimmed ? 'dimmed' : ''}" data-day="${day}">
                     ${chipsHtml}
                 </div>
             `;
@@ -6775,18 +6223,8 @@
             container.innerHTML = '<div style="text-align:center;padding:40px;">加载中...</div>';
 
             try {
-                // 优先使用本地 JSON 文件（静态部署支持）
-                let result;
-                try {
-                    const jsonResponse = await fetch('/data/guide.json');
-                    const jsonData = await jsonResponse.json();
-                    result = { success: true, data: { content: jsonData.content || jsonData } };
-                    console.log('✅ 从本地 JSON 文件加载攻略数据');
-                } catch (jsonError) {
-                    console.log('⚠️ JSON 文件加载失败，尝试使用 API（本地开发模式）', jsonError);
-                    const response = await fetch('/api/guide');
-                    result = await response.json();
-                }
+                const response = await fetch('/api/guide');
+                const result = await response.json();
 
                 if (result.success && result.data && result.data.content) {
                     // 安全性：净化HTML以防止XSS攻击
@@ -6834,13 +6272,10 @@
                 case 2: // 灵活时间
                     totalInTab = allActivities.filter(a => a.flexibleTime === '是' || a.time === '灵活时间').length;
                     break;
-                case 3: // 灵活时间
-                    totalInTab = allActivities.filter(a => a.flexibleTime === '是' || a.time === '灵活时间').length;
-                    break;
-                case 4: // 活动网站
+                case 3: // 活动网站
                     totalInTab = new Set(allActivities.filter(a => a.source && a.source.url).map(a => a.originalId || a.id)).size;
                     break;
-                case 5: // 攻略信息
+                case 4: // 攻略信息
                     totalInTab = 1; // 固定为1页
                     break;
             }
@@ -6889,43 +6324,6 @@
             // 清除全部按钮
             container.innerHTML += '<button class="clear-all-btn" onclick="clearAllFilters()">清除全部</button>';
         }
-
-        // 更新移动端筛选状态条
-        /*
-        function updateMobileFilterStatus() {
-            if (!isMobile()) {
-                document.getElementById('mobileFilterStatus').style.display = 'none';
-                return;
-            }
-
-            const statusEl = document.getElementById('mobileFilterStatus');
-            const categoryEl = document.getElementById('mobileCategoryStatus');
-            const priceEl = document.getElementById('mobilePriceStatus');
-
-            // 显示或隐藏状态条
-            const hasFilter = currentFilters.category !== '全部' ||
-                             currentFilters.price !== '全部' ||
-                             currentFilters.day !== null;
-
-            statusEl.style.display = hasFilter ? 'flex' : 'none';
-
-            // 更新分类
-            categoryEl.textContent = currentFilters.category;
-            if (currentFilters.category === '全部') {
-                categoryEl.style.color = '#999';
-            } else {
-                categoryEl.style.color = '#667eea';
-            }
-
-            // 更新价格
-            priceEl.textContent = currentFilters.price;
-            if (currentFilters.price === '全部') {
-                priceEl.style.color = '#999';
-            } else {
-                priceEl.style.color = '#667eea';
-            }
-        }
-        */
 
         function updateDateHighlight() {
             // 更新日期表头的高亮状态
@@ -7320,12 +6718,7 @@
 
             let html = '';
             weekDates.forEach(dateInfo => {
-                // ✅ 状态优先级：selected > today > normal
-                // 如果今天被选中，不显示 today-header 标记
-                const isToday = dateInfo.isToday;
-                const isSelected = currentFilters.day === dateInfo.day;
-                const shouldShowToday = isToday && !isSelected;
-                const todayClass = shouldShowToday ? ' today-header' : '';
+                const todayClass = dateInfo.isToday ? ' today-header' : '';
 
                 html += `
                     <div class="date-cell-header ${todayClass}"
@@ -7420,18 +6813,6 @@
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(initMobileFilter, 250);
             });
-
-            // Tab栏滚动阴影效果
-            const tabsNav = document.querySelector('.tabs-nav');
-            if (tabsNav) {
-                window.addEventListener('scroll', function() {
-                    if (window.scrollY > 10) {
-                        tabsNav.classList.add('scrolled');
-                    } else {
-                        tabsNav.classList.remove('scrolled');
-                    }
-                });
-            }
         });
 
         // =====================================================
@@ -7580,175 +6961,6 @@
             console.log('✅ 筛选已应用:', selectedFilters);
         }
 
-        // 2. Toast 提示系统
-        /*
-        let toastTimeout = null;
-
-        function showToast(message, type = 'info', duration = 2000) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-
-            // 清除之前的定时器
-            if (toastTimeout) {
-                clearTimeout(toastTimeout);
-            }
-
-            // 显示
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-            });
-
-            // 自动隐藏
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
-        }
-        */
-
-        // 3. Dialog 确认弹窗
-        // function showDialog(title, message, onConfirm, onCancel) { ... }
-
-        // 4. Loading 加载状态
-        /*
-        const loading = {
-            element: null,
-            textElement: null,
-
-            init() {
-                this.element = document.getElementById('loadingOverlay');
-                this.textElement = this.element.querySelector('.loading-text');
-            },
-
-            show(text = '加载中...') {
-                this.init();
-                this.textElement.textContent = text;
-                this.element.classList.add('active');
-            },
-
-            hide() {
-                if (this.element) {
-                    this.element.classList.remove('active');
-                }
-            }
-        };
-
-        function showLoading(text = '加载中...') {
-            loading.show(text);
-        }
-
-        function hideLoading() {
-            loading.hide();
-        }
-        */
-
-        // 5. 下拉刷新
-        /*
-        const pullToRefresh = {
-            startY: 0,
-            currentY: 0,
-            isPulling: false,
-            isLoading: false,
-            indicator: null,
-            icon: null,
-            text: null,
-            threshold: 80,
-
-            init() {
-                this.indicator = document.getElementById('pullIndicator');
-                this.icon = document.getElementById('pullIcon');
-                this.text = document.getElementById('pullText');
-
-                if (!this.indicator) return;
-
-                document.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
-                document.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
-                document.addEventListener('touchend', this.onTouchEnd.bind(this), { passive: true });
-            },
-
-            onTouchStart(e) {
-                if (this.isLoading || window.scrollY > 0) return;
-                this.startY = e.touches[0].clientY;
-                this.isPulling = true;
-            },
-
-            onTouchMove(e) {
-                if (!this.isPulling || this.isLoading || window.scrollY > 0) return;
-
-                this.currentY = e.touches[0].clientY;
-                const deltaY = this.currentY - this.startY;
-
-                if (deltaY > 0) {
-                    const progress = Math.min(deltaY / this.threshold, 1);
-
-                    if (deltaY > 10) {
-                        this.indicator.style.transform = `translateY(${Math.min(deltaY, this.threshold)}px)`;
-
-                        if (deltaY >= this.threshold) {
-                            this.icon.textContent = '↑';
-                            this.text.textContent = '释放立即刷新';
-                        } else {
-                            this.icon.textContent = '↓';
-                            this.text.textContent = '下拉刷新';
-                        }
-                    }
-                }
-            },
-
-            onTouchEnd() {
-                if (!this.isPulling) return;
-                this.isPulling = false;
-
-                const deltaY = this.currentY - this.startY;
-
-                if (deltaY >= this.threshold) {
-                    this.refresh();
-                } else {
-                    this.indicator.style.transform = '';
-                }
-            },
-
-            refresh() {
-                this.isLoading = true;
-                this.indicator.classList.add('loading');
-                this.icon.innerHTML = '<div class="refresh-spinner"></div>';
-                this.text.textContent = '正在刷新...';
-
-                // 触发刷新回调
-                if (typeof onRefresh === 'function') {
-                    onRefresh().finally(() => {
-                        this.hide();
-                    });
-                } else {
-                    // 默认刷新操作
-                    setTimeout(() => {
-                        this.hide();
-                    }, 1500);
-                }
-            },
-
-            hide() {
-                this.isLoading = false;
-                this.indicator.classList.remove('loading');
-                this.indicator.style.transform = '';
-                this.icon.textContent = '↓';
-                this.text.textContent = '下拉刷新';
-            }
-        };
-
-        // 初始化下拉刷新
-        document.addEventListener('DOMContentLoaded', () => {
-            pullToRefresh.init();
-        });
-        */
-
-        // 刷新回调函数（可被覆盖）
-        let onRefresh = null;
-
-        function setRefreshCallback(callback) {
-            onRefresh = callback;
-        }
-
         // 6. 空状态显示
         function showEmptyState(container, options = {}) {
             const {
@@ -7778,15 +6990,6 @@
                 updateFilterSheetCategories(currentTab);
                 console.log('✅ 筛选弹窗分类初始化完成，Tab:', currentTab);
             }
-
-            // 显示欢迎提示
-            /*
-            setTimeout(() => {
-                if (window.CHIENGMAI_IS_MOBILE) {
-                    showToast('👆 点击右下角按钮筛选活动', 'info', 3000);
-                }
-            }, 1000);
-            */
         });
     </script>
 
@@ -7838,15 +7041,6 @@
         </svg>
         <span class="filter-count" id="filterCount">0</span>
     </div>
-
-    <!-- 2. Toast 容器 -->
-    <!-- <div class="toast" id="toast"></div> -->
-
-    <!-- 3. Dialog 确认弹窗 -->
-
-    <!-- 4. Loading 加载遮罩 -->
-
-    <!-- 5. 下拉刷新指示器 -->
 
 </body>
 </html>

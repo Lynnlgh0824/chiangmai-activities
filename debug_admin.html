@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台调试工具</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .success { background: #4CAF50; color: white; }
+        .danger { background: #f44336; color: white; }
+        .info { background: #2196F3; color: white; }
+        .result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .error { color: red; }
+        .ok { color: green; }
+    </style>
+</head>
+<body>
+    <h1>🔧 后台管理调试工具</h1>
+
+    <div class="test-section">
+        <h2>1. 基础连接测试</h2>
+        <button class="test-button info" onclick="testConnection()">测试 API 连接</button>
+        <div id="connection-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. 函数测试</h2>
+        <button class="test-button success" onclick="testOpenFormModal()">测试新增功能</button>
+        <button class="test-button info" onclick="testLoadItems()">测试加载数据</button>
+        <div id="function-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. DOM 元素检查</h2>
+        <button class="test-button info" onclick="checkDOMElements()">检查关键元素</button>
+        <div id="dom-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. 直接访问后台</h2>
+        <a href="http://localhost:3000/admin.html" target="_blank" style="padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 5px; display: inline-block;">打开后台管理页面</a>
+    </div>
+
+    <div class="test-section">
+        <h2>5. 调试日志</h2>
+        <div id="debug-log" style="max-height: 300px; overflow-y: auto; background: #222; color: #0f0; padding: 10px; border-radius: 5px; font-size: 12px;"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000/api';
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('debug-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#f44336' : type === 'success' ? '#4CAF50' : '#fff';
+            logDiv.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        async function testConnection() {
+            const resultDiv = document.getElementById('connection-result');
+            resultDiv.innerHTML = '<div class="result">正在测试...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+
+                if (data.success) {
+                    resultDiv.innerHTML = '<div class="result ok">✅ API 连接正常<br>消息: ' + data.message + '</div>';
+                    log('API 连接测试成功', 'success');
+                } else {
+                    resultDiv.innerHTML = '<div class="result error">❌ API 返回错误</div>';
+                    log('API 返回错误', 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ 连接失败: ' + error.message + '</div>';
+                log('连接失败: ' + error.message, 'error');
+            }
+        }
+
+        async function testOpenFormModal() {
+            const resultDiv = document.getElementById('function-result');
+            resultDiv.innerHTML = '<div class="result">正在测试新增功能...</div>';
+
+            try {
+                // 打开后台页面在新窗口
+                const win = window.open('http://localhost:3000/admin.html', '_blank');
+
+                if (win) {
+                    resultDiv.innerHTML = '<div class="result ok">✅ 已打开后台页面<br>请在新窗口中点击"新增活动"按钮测试</div>';
+                    log('已打开后台页面进行测试', 'success');
+
+                    // 3秒后检查是否可以访问 openFormModal
+                    setTimeout(() => {
+                        try {
+                            if (win.openFormModal) {
+                                log('后台页面的 openFormModal 函数存在', 'success');
+                            } else {
+                                log('后台页面的 openFormModal 函数未找到', 'error');
+                            }
+                        } catch (e) {
+                            log('无法跨窗口检查函数（跨域限制）', 'info');
+                        }
+                    }, 3000);
+                } else {
+                    resultDiv.innerHTML = '<div class="result error">❌ 弹窗被阻止，请允许弹窗后重试</div>';
+                    log('弹窗被浏览器阻止', 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ 测试失败: ' + error.message + '</div>';
+                log('测试失败: ' + error.message, 'error');
+            }
+        }
+
+        async function testLoadItems() {
+            const resultDiv = document.getElementById('function-result');
+            resultDiv.innerHTML = '<div class="result">正在测试数据加载...</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/items`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const count = data.data.length;
+                    resultDiv.innerHTML = `<div class="result ok">✅ 数据加载成功<br>共 ${count} 个活动</div>`;
+                    log(`成功加载 ${count} 个活动`, 'success');
+                } else {
+                    resultDiv.innerHTML = '<div class="result error">❌ 数据加载失败</div>';
+                    log('数据加载失败', 'error');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<div class="result error">❌ 加载失败: ' + error.message + '</div>';
+                log('加载失败: ' + error.message, 'error');
+            }
+        }
+
+        function checkDOMElements() {
+            log('开始检查 DOM 元素...', 'info');
+
+            // 这个函数需要在后台页面的控制台中运行
+            const resultDiv = document.getElementById('dom-result');
+            resultDiv.innerHTML = `
+                <div class="result">
+                    <strong>请在后台页面的控制台中运行以下代码：</strong><br><br>
+                    <code style="background: #f0f0f0; padding: 10px; display: block; white-space: pre-wrap;">
+// 检查关键元素
+console.log('dataForm:', document.getElementById('dataForm'));
+console.log('formModal:', document.getElementById('formModal'));
+console.log('新增按钮:', document.querySelector('button[onclick="openFormModal()"]'));
+console.log('openFormModal 函数:', typeof window.openFormModal);
+
+// 测试新增功能
+try {
+    window.openFormModal();
+    console.log('✅ openFormModal 调用成功');
+} catch (error) {
+    console.error('❌ openFormModal 调用失败:', error);
+}
+                    </code>
+                </div>
+            `;
+        }
+
+        // 页面加载时自动测试连接
+        window.addEventListener('load', () => {
+            log('调试工具已加载', 'info');
+            testConnection();
+        });
+    </script>
+</body>
+</html>

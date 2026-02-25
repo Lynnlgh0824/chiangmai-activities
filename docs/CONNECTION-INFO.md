@@ -256,7 +256,6 @@ chiengmai-activities/
 ├── public/                    # 前端文件
 │   ├── index.html           # 主应用页面 ⭐
 │   ├── admin.html           # 后台管理 ⭐
-│   ├── schedule.html        # 日程页面
 │   └── tests/               # 测试页面
 │       ├── test-dashboard-enhanced.html  ⭐
 │       └── test-automation-dashboard.html

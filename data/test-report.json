@@ -1,0 +1,57 @@
+{
+  "timestamp": "2026-01-29T20:17:53.023Z",
+  "summary": {
+    "totalSuites": 5,
+    "totalTests": 928,
+    "totalPassed": 928,
+    "totalFailed": 0,
+    "totalWarnings": 63
+  },
+  "results": [
+    {
+      "name": "数据完整性测试",
+      "status": "PASSED",
+      "passed": 181,
+      "failed": 0,
+      "warnings": 0,
+      "duration": 8,
+      "errors": []
+    },
+    {
+      "name": "描述质量测试",
+      "status": "WARNING",
+      "passed": 129,
+      "failed": 0,
+      "warnings": 51,
+      "duration": 7,
+      "errors": []
+    },
+    {
+      "name": "格式规范测试",
+      "status": "WARNING",
+      "passed": 168,
+      "failed": 0,
+      "warnings": 12,
+      "duration": 6,
+      "errors": []
+    },
+    {
+      "name": "重复内容检测",
+      "status": "PASSED",
+      "passed": 270,
+      "failed": 0,
+      "warnings": 0,
+      "duration": 4,
+      "errors": []
+    },
+    {
+      "name": "符号规范测试",
+      "status": "PASSED",
+      "passed": 180,
+      "failed": 0,
+      "warnings": 0,
+      "duration": 2,
+      "errors": []
+    }
+  ]
+}

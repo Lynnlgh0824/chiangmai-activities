@@ -1,0 +1,46 @@
+[
+  {
+    "id": "log-2026-01-27-001",
+    "date": "2026-01-27",
+    "timestamp": "2026-01-27T00:59:00.000Z",
+    "type": "新增功能",
+    "category": "需求文档",
+    "title": "添加市集活动独立Tab视图",
+    "description": "补充缺失的需求文档章节，完整记录5个Tab功能（兴趣班、市集、灵活时间活动、活动网站、攻略信息）",
+    "details": [
+      "新增市集活动章节，包含原型图和详细需求",
+      "更新导航菜单，添加市集活动导航项",
+      "标记所有功能状态为已完成",
+      "更新文档更新日志"
+    ],
+    "impact": "高",
+    "status": "已完成",
+    "author": "Claude Code",
+    "relatedFiles": [
+      "docs/REQUIREMENTS.html",
+      "public/index.html"
+    ]
+  },
+  {
+    "id": "log-2026-01-27-002",
+    "date": "2026-01-27",
+    "timestamp": "2026-01-27T01:00:00.000Z",
+    "type": "功能完善",
+    "category": "来源链接",
+    "title": "更新来源链接功能状态为已完成",
+    "description": "标记来源链接功能为已完成状态，支持24个活动的官方链接展示",
+    "details": [
+      "在活动详情弹窗中标记来源链接功能为已完成",
+      "验证23/24个活动有完整的source数据",
+      "支持点击跳转到官方网站（新标签页打开）"
+    ],
+    "impact": "中",
+    "status": "已完成",
+    "author": "Claude Code",
+    "relatedFiles": [
+      "docs/REQUIREMENTS.html",
+      "data/items.json",
+      "public/index.html"
+    ]
+  }
+]
