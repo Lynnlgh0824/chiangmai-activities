@@ -45,7 +45,7 @@ git config --global credential.helper osxkeychain
 
 推送成功后，Vercel 会自动部署：
 - 等待 1-2 分钟
-- 访问: https://chiangmai-activities.vercel.app
+- 访问: https://go-cnx.vercel.app
 - 更新内容会自动上线
 
 ---

@@ -66,7 +66,7 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="清迈活动平台 | Chiengmai Activities - 发现清迈最精彩的活动">
 <meta property="og:description" content="探索清迈的瑜伽、冥想、泰拳、市集、音乐节等精彩活动。专为数字游民和旅居者打造的实时活动查询平台。">
-<meta property="og:image" content="https://chiangmai-activities.vercel.app/og-image.jpg">
+<meta property="og:image" content="https://go-cnx.vercel.app/og-image.jpg">
 ```
 
 **效果:**
@@ -101,10 +101,10 @@
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "清迈活动平台",
-    "url": "https://chiangmai-activities.vercel.app/",
+    "url": "https://go-cnx.vercel.app/",
     "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://chiangmai-activities.vercel.app/?search={search_term_string}"
+        "target": "https://go-cnx.vercel.app/?search={search_term_string}"
     }
 }
 ```
@@ -147,7 +147,7 @@
 
 **新增内容:**
 ```html
-<link rel="canonical" href="https://chiangmai-activities.vercel.app/">
+<link rel="canonical" href="https://go-cnx.vercel.app/">
 ```
 
 **效果:**

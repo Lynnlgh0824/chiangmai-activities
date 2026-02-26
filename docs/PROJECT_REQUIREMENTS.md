@@ -74,7 +74,7 @@
 
 **访问地址**:
 - 本地: http://localhost:5173
-- 生产: https://chiangmai-activities.vercel.app
+- 生产: https://go-cnx.vercel.app
 
 #### 功能模块
 

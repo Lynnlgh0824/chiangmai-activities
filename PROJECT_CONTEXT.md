@@ -392,7 +392,7 @@ function validateActivity(activity) {
 ## 🔗 相关链接
 
 - **项目仓库**: [chiangmai-activities](https://github.com/Lynnlgh0824/chiangmai-activities)
-- **在线演示**: https://chiangmai-activities.vercel.app
+- **在线演示**: https://go-cnx.vercel.app
 - **问题反馈**: [Issues](https://github.com/Lynnlgh0824/chiangmai-activities/issues)
 - **更新日志**: [CHANGELOG.md](./CHANGELOG.md)
 

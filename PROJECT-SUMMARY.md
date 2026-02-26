@@ -109,7 +109,7 @@
 
 ### 部署
 - **本地**: http://localhost:4000
-- **Vercel**: https://chiangmai-activities.vercel.app
+- **Vercel**: https://go-cnx.vercel.app
 - **GitHub**: https://github.com/Lynnlgh0824/chiangmai-activities
 
 ---
@@ -186,7 +186,7 @@ d9f3ab4 - docs: add data sync guide
 - **管理后台**: http://localhost:4000/admin.html
 - **API健康检查**: http://localhost:4000/api/health
 - **GitHub仓库**: https://github.com/Lynnlgh0824/chiangmai-activities
-- **Vercel部署**: https://chiangmai-activities.vercel.app
+- **Vercel部署**: https://go-cnx.vercel.app
 
 ---
 

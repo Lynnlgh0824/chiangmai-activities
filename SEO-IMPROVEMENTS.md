@@ -110,8 +110,8 @@
 
 3. **URL 结构优化（未来考虑）**
    ```
-   当前: https://chiangmai-activities.vercel.app/?tab=瑜伽
-   建议: https://chiangmai-activities.vercel.app/activities/yoga
+   当前: https://go-cnx.vercel.app/?tab=瑜伽
+   建议: https://go-cnx.vercel.app/activities/yoga
    ```
    - 更友好的 URL 结构
    - 更好的 SEO 效果
@@ -155,12 +155,12 @@
 
 - [ ] 在 Google Search Console 提交 sitemap
   ```
-  https://chiangmai-activities.vercel.app/sitemap.xml
+  https://go-cnx.vercel.app/sitemap.xml
   ```
 
 - [ ] 使用 "site:" 操作符检查网站索引情况
   ```
-  site:chiangmai-activities.vercel.app
+  site:go-cnx.vercel.app
   ```
 
 - [ ] 使用 Search Console 的"网址检查"工具测试首页

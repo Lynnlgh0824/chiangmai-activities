@@ -353,7 +353,7 @@ headers: {
 
 **A**: 检查CORS配置是否允许你的域名：
 - 开发: `http://localhost:5173`, `http://localhost:3000`
-- 生产: `https://chiangmai-activities.vercel.app`
+- 生产: `https://go-cnx.vercel.app`
 
 ### Q: 端口被占用？
 
@@ -383,7 +383,7 @@ kill -9 $(lsof -ti :3000)
 ## 🔗 相关链接
 
 - **GitHub**: https://github.com/Lynnlgh0824/chiangmai-activities
-- **在线Demo**: https://chiangmai-activities.vercel.app
+- **在线Demo**: https://go-cnx.vercel.app
 - **文档中心**: [./docs/](./docs/)
 
 ---
