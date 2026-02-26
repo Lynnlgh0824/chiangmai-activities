@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- 百度站点验证 -->
+    <meta name="baidu-site-verification" content="codeva-7kzXcJGyYU" />
+
     <!-- 性能优化：使用合理的缓存策略 -->
     <meta http-equiv="Cache-Control" content="max-age=300, must-revalidate">
 
@@ -18,6 +22,12 @@
 
     <!-- Keywords - 核心关键词 -->
     <meta name="keywords" content="chiangmai, 清迈活动, 清迈兴趣班, 清迈冥想, 清迈瑜伽, 清迈禅修, 清迈高尔夫, 清迈网球, 清迈泰拳, 清迈市集, 清迈夜市, 清迈音乐节, 清迈数字游民, 清迈旅居, 清迈旅游, 清迈周末活动, 清迈免费活动, Chiang Mai yoga, Chiang Mai meditation, Chiang Muay Thai, 清迈宁曼路, 清迈尼曼, Chiengmai Activities">
+
+    <!-- 发布和修改日期 - 帮助搜索引擎识别内容新鲜度 -->
+    <meta name="publish_date" content="2024-01-01">
+    <meta name="last-modified" content="2026-02-26">
+    <meta property="article:published_time" content="2024-01-01T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-02-26T00:00:00+00:00"
 
     <!-- Author -->
     <meta name="author" content="清迈活动平台 | Chiengmai Activities">
@@ -94,6 +104,77 @@
                         "addressCountry": "Thailand"
                     }
                 }
+            }
+        ]
+    }
+    </script>
+
+    <!-- Organization 详细信息 - 增强本地 SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "清迈活动平台 | Chiengmai Activities",
+        "url": "https://chiangmai-activities.vercel.app/",
+        "logo": "https://chiangmai-activities.vercel.app/favicon.ico",
+        "description": "清迈地区最全面的活动信息平台 - 瑜伽、冥想、泰拳、市集、音乐节、文化节等一站式活动查询",
+        "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Chiang Mai",
+            "addressCountry": "Thailand"
+        },
+        "areaServed": {
+            "@type": "City",
+            "name": "Chiang Mai",
+            "url": "https://en.wikipedia.org/wiki/Chiang_Mai"
+        },
+        "sameAs": [
+            "https://github.com/Lynnlgh0824/chiangmai-activities"
+        ]
+    }
+    </script>
+
+    <!-- 面包屑导航结构化数据 -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "清迈活动平台",
+                "item": "https://chiangmai-activities.vercel.app/"
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "瑜伽课程",
+                "item": "https://chiangmai-activities.vercel.app/?tab=瑜伽"
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "冥想静修",
+                "item": "https://chiangmai-activities.vercel.app/?tab=冥想"
+            },
+            {
+                "@type": "ListItem",
+                "position": 4,
+                "name": "泰拳训练",
+                "item": "https://chiangmai-activities.vercel.app/?tab=泰拳"
+            },
+            {
+                "@type": "ListItem",
+                "position": 5,
+                "name": "夜市市集",
+                "item": "https://chiangmai-activities.vercel.app/?tab=市集"
+            },
+            {
+                "@type": "ListItem",
+                "position": 6,
+                "name": "音乐节",
+                "item": "https://chiangmai-activities.vercel.app/?tab=音乐节"
             }
         ]
     }
