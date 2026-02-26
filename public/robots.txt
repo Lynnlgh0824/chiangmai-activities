@@ -1,0 +1,23 @@
+# Robots.txt for 清迈活动平台 | Chiengmai Activities
+
+# 允许所有搜索引擎爬虫抓取
+User-agent: *
+Allow: /
+Disallow: /node_modules/
+Disallow: /admin
+Disallow: /debug
+Disallow: /test
+
+# 爬虫延迟（毫秒）- 减少服务器负载
+Crawl-delay: 1
+
+# 站点地图位置
+Sitemap: https://chiangmai-activities.vercel.app/sitemap.xml
+
+# 百度搜索引擎
+User-agent: Baiduspider
+Allow: /
+
+# 谷歌搜索引擎
+User-agent: Googlebot
+Allow: /

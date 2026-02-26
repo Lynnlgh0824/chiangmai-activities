@@ -3728,6 +3728,35 @@
 
     <!-- 🏛️ UI 状态架构 CSS（单一源原则） -->
     <link rel="stylesheet" href="css/ui-state-architecture.css">
+
+    <!-- ============================================
+         搜索引擎优化 SEO - 百度自动推送
+    ============================================ -->
+    <script>
+        (function(){
+            var bp = document.createElement('script');
+            var curProtocol = window.location.protocol.split(':')[0];
+            if (curProtocol === 'https') {
+                bp.src = 'https://zz.baidu.com/linksubmit/push.js';
+            } else {
+                bp.src = 'http://push.baidu.com/push.js';
+            }
+            var s = document.getElementsByTagName("script")[0];
+            s.parentNode.insertBefore(bp, s);
+        })();
+    </script>
+
+    <!-- Google Analytics 跟踪代码（可选，需配置 GA ID） -->
+    <!-- 
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    -->
+
 </head>
 <body>
     <div class="container">
