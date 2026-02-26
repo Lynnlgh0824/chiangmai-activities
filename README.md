@@ -46,6 +46,12 @@ python3 -m http.server 8000
 # 访问 http://localhost:8000
 ```
 
+### 在线访问
+
+🌐 **生产环境**：https://go-cnx.vercel.app
+
+直接访问线上部署版本，无需本地安装。
+
 ### 查看活动数据
 
 活动数据存储在 `data/items.json` 文件中。
@@ -243,8 +249,9 @@ MIT License
 
 ## 🔗 相关链接
 
-- **GitHub 仓库**：[https://github.com/Lynnlgh0824/chiangmai-activities](https://github.com/Lynnlgh0824/chiangmai-activities)
-- **项目日志**：[../PROJECT-LOG.md](../PROJECT-LOG.md)
+- **🌐 在线访问**：https://go-cnx.vercel.app
+- **GitHub 仓库**：https://github.com/Lynnlgh0824/chiangmai-activities
+- **问题反馈**：https://github.com/Lynnlgh0824/chiangmai-activities/issues
 
 ---
 
