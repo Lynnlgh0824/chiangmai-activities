@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动列表页AI验收测试 - ACTIVITY_PAGE_QA.md</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 24px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .template-badge {
+            display: inline-block;
+            background: #e7f3ff;
+            color: #2196f3;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* 验收结果卡片 */
+        .result-card {
+            background: linear-gradient(135deg, #e7f3ff 0%, #f0f4ff 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .result-status {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .status-pass { color: #28a745; }
+        .status-fail { color: #dc3545; }
+        .status-partial { color: #ffc107; }
+
+        .score-display {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 16px;
+        }
+        .score-item {
+            text-align: center;
+        }
+        .score-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .score-label {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 测试区域 */
+        .test-section {
+            margin: 20px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .test-section-header {
+            background: #f8f9fa;
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .test-section-header:hover {
+            background: #e9ecef;
+        }
+        .test-section-header h3 {
+            font-size: 16px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-score {
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            background: #6c757d;
+            color: white;
+        }
+        .score-full { background: #28a745; }
+        .score-partial { background: #ffc107; color: #333; }
+        .score-zero { background: #dc3545; }
+
+        .test-items {
+            display: none;
+            padding: 20px;
+            background: white;
+        }
+        .test-items.show {
+            display: block;
+        }
+
+        .test-item {
+            padding: 12px 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #dee2e6;
+        }
+        .test-item.pass { border-left-color: #28a745; background: #f0fff4; }
+        .test-item.fail { border-left-color: #dc3545; background: #fff5f5; }
+        .test-item.fail.p0 { border-left-width: 6px; background: #ffebeb; }
+
+        .test-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .test-item-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        .test-item-badge {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        .badge-p0 {
+            background: #dc3545;
+            color: white;
+        }
+        .badge-p1 {
+            background: #ffc107;
+            color: #333;
+        }
+        .badge-p2 {
+            background: #28a745;
+            color: white;
+        }
+
+        .test-item-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .status-pass { background: #d4edda; color: #155724; }
+        .status-fail { background: #f8d7da; color: #721c24; }
+
+        .test-item-details {
+            font-size: 13px;
+            color: #666;
+            padding: 8px 12px;
+            background: white;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* 问题列表 */
+        .problems-section {
+            margin: 24px 0;
+            padding: 20px;
+            background: #fff5f5;
+            border-radius: 12px;
+            border-left: 4px solid #dc3545;
+        }
+        .problems-section h3 {
+            color: #dc3545;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        .problem-item {
+            padding: 10px 0;
+            border-bottom: 1px dashed #dee2e6;
+        }
+        .problem-item:last-child {
+            border-bottom: none;
+        }
+        .problem-severity {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+        .severity-critical { background: #dc3545; color: white; }
+        .severity-moderate { background: #ffc107; color: #333; }
+        .severity-minor { background: #28a745; color: white; }
+
+        /* 优化建议 */
+        .recommendations {
+            margin: 24px 0;
+            padding: 20px;
+            background: #e7f3ff;
+            border-radius: 12px;
+            border-left: 4px solid #2196f3;
+        }
+        .recommendations h3 {
+            color: #2196f3;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+        .recommendation-item {
+            padding: 10px 0;
+            border-bottom: 1px dashed #b3d9ff;
+        }
+        .recommendation-item:last-child {
+            border-bottom: none;
+        }
+
+        /* 操作按钮 */
+        .actions {
+            margin-top: 24px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #5c636a;
+        }
+
+        .chevron {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+        .chevron.open {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 活动列表页AI验收测试</h1>
+        <p class="subtitle">基于 ACTIVITY_PAGE_QA.md 模板 • 5维度自动验收</p>
+        <div class="template-badge">📋 模板版本: V1.0 | 适用: Activity List Page | H5/WebApp</div>
+
+        <!-- 验收结果 -->
+        <div class="result-card" id="resultCard">
+            <div class="result-status" id="resultStatus">测试中...</div>
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-number" id="totalScore">0</div>
+                    <div class="score-label">总评分 / 100</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-number" id="passRate">0%</div>
+                    <div class="score-label">通过率</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 测试区域 -->
+        <div id="testSections"></div>
+
+        <!-- 问题列表 -->
+        <div class="problems-section" id="problemsSection" style="display: none;">
+            <h3>⚠️ 问题列表</h3>
+            <div id="problemsList"></div>
+        </div>
+
+        <!-- 优化建议 -->
+        <div class="recommendations" id="recommendationsSection" style="display: none;">
+            <h3>💡 优化建议</h3>
+            <div id="recommendationsList"></div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="actions">
+            <button class="btn btn-primary" id="runBtn" onclick="loadMainPageAndRunTests()">
+                <span>▶️</span>
+                <span>运行验收测试</span>
+            </button>
+            <a href="/" target="_blank" class="btn btn-secondary">
+                <span>🔗</span>
+                <span>打开主页验收</span>
+            </a>
+            <button class="btn btn-secondary" onclick="window.print()">
+                <span>📄</span>
+                <span>打印报告</span>
+            </button>
+            <button class="btn btn-secondary" onclick="location.reload()">
+                <span>🔄</span>
+                <span>重新验收</span>
+            </button>
+        </div>
+
+        <!-- 隐藏的iframe用于加载主页面 -->
+        <iframe id="mainPageFrame" style="display:none;width:0;height:0;border:none;" src="/"></iframe>
+    </div>
+
+    <script>
+        // ========== Iframe 加载和上下文管理 ==========
+
+        let iframeLoaded = false;
+        const iframe = document.getElementById('mainPageFrame');
+
+        // 获取iframe的document对象
+        function getTargetDocument() {
+            try {
+                return iframe.contentDocument || iframe.contentWindow.document;
+            } catch (e) {
+                console.error('无法访问iframe document:', e);
+                return null;
+            }
+        }
+
+        // 获取iframe的window对象
+        function getTargetWindow() {
+            try {
+                return iframe.contentWindow;
+            } catch (e) {
+                console.error('无法访问iframe window:', e);
+                return null;
+            }
+        }
+
+        // 加载主页面并运行测试
+        async function loadMainPageAndRunTests() {
+            const runBtn = document.getElementById('runBtn');
+            const resultStatus = document.getElementById('resultStatus');
+
+            runBtn.disabled = true;
+            resultStatus.textContent = '正在加载主页面...';
+
+            // 如果iframe还没加载，等待加载
+            if (!iframeLoaded) {
+                await new Promise((resolve) => {
+                    iframe.onload = () => {
+                        // 额外等待页面JS执行完成
+                        setTimeout(() => {
+                            iframeLoaded = true;
+                            resolve();
+                        }, 1000);
+                    };
+                    // 如果已经加载完成
+                    if (iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+                        setTimeout(() => {
+                            iframeLoaded = true;
+                            resolve();
+                        }, 1000);
+                    }
+                });
+            }
+
+            resultStatus.textContent = '测试中...';
+            await runAllTests();
+            runBtn.disabled = false;
+        }
+
+        // ========== 测试套件配置 (基于 ACTIVITY_PAGE_QA.md) ==========
+
+        const testSuites = [
+            {
+                name: '验收维度 1：页面结构验收 (20分)',
+                weight: 20,
+                tests: [
+                    {
+                        name: '搜索栏存在',
+                        priority: 'P1',
+                        check: checkSearchBar,
+                        points: 4
+                    },
+                    {
+                        name: '筛选按钮存在（与搜索栏同一行）',
+                        priority: 'P1',
+                        check: checkFilterButton,
+                        points: 4
+                    },
+                    {
+                        name: '分类Tab存在（市集/兴趣班/音乐/活动/更多）',
+                        priority: 'P1',
+                        check: checkCategoryTabs,
+                        points: 4
+                    },
+                    {
+                        name: '日期选择器存在',
+                        priority: 'P1',
+                        check: checkDatePicker,
+                        points: 4
+                    },
+                    {
+                        name: '活动列表存在',
+                        priority: 'P1',
+                        check: checkActivityList,
+                        points: 4
+                    }
+                ]
+            },
+            {
+                name: '验收维度 2：默认当天高亮验收 (20分) ⚠️ P0',
+                weight: 20,
+                tests: [
+                    {
+                        name: '页面默认选中"今天"',
+                        priority: 'P0',
+                        check: checkTodaySelected,
+                        points: 10
+                    },
+                    {
+                        name: '今天具有明显视觉高亮（实心背景 OR 高对比色 OR "今天"标签）',
+                        priority: 'P0',
+                        check: checkTodayHighlight,
+                        points: 10
+                    }
+                ]
+            },
+            {
+                name: '验收维度 3：首屏活动密度验收 (20分) ⚠️ P0',
+                weight: 20,
+                tests: [
+                    {
+                        name: '首屏必须显示 ≥ 4 个活动卡片',
+                        priority: 'P0',
+                        check: checkFirstScreenDensity,
+                        points: 20
+                    }
+                ]
+            },
+            {
+                name: '验收维度 4：交互验收 (20分)',
+                weight: 20,
+                tests: [
+                    {
+                        name: '点击日期 → 活动列表发生变化',
+                        priority: 'P2',
+                        check: checkDateClickInteraction,
+                        points: 7
+                    },
+                    {
+                        name: '点击分类Tab → 活动列表发生变化',
+                        priority: 'P2',
+                        check: checkTabClickInteraction,
+                        points: 7
+                    },
+                    {
+                        name: '点击活动卡片 → 进入详情页或存在点击反馈',
+                        priority: 'P2',
+                        check: checkCardClickInteraction,
+                        points: 6
+                    }
+                ]
+            },
+            {
+                name: '验收维度 5：视觉一致性验收 (20分)',
+                weight: 20,
+                tests: [
+                    {
+                        name: '选中态颜色统一',
+                        priority: 'P2',
+                        check: checkColorConsistency,
+                        points: 10
+                    },
+                    {
+                        name: '不存在混乱高亮（日期用蓝色，列表用黄色，分类用绿色）',
+                        priority: 'P2',
+                        check: checkNoColorChaos,
+                        points: 10
+                    }
+                ]
+            }
+        ];
+
+        let testResults = {
+            totalScore: 0,
+            totalPoints: 100,
+            passCount: 0,
+            failCount: 0,
+            problems: [],
+            recommendations: []
+        };
+
+        // ========== 检测函数 ==========
+
+        // 维度1：页面结构
+        function checkSearchBar() {
+            const doc = getTargetDocument();
+            if (!doc) return { pass: false, message: '无法访问主页面' };
+
+            const searchBar = doc.querySelector('.search-section') || doc.querySelector('[class*="search"]');
+            if (!searchBar) {
+                return { pass: false, message: '未找到搜索栏容器' };
+            }
+            const searchInput = searchBar.querySelector('input[type="text"], input[placeholder*="搜索"], input[placeholder*="search"]');
+            if (!searchInput) {
+                return { pass: false, message: '搜索栏内未找到输入框' };
+            }
+            return { pass: true, message: '✓ 搜索栏存在，包含输入框' };
+        }
+
+        function checkFilterButton() {
+            const doc = getTargetDocument();
+            if (!doc) return { pass: false, message: '无法访问主页面' };
+
+            const filterBtn = doc.querySelector('.filter-trigger-btn') || doc.querySelector('[class*="filter"]');
+            if (!filterBtn) {
+                return { pass: false, message: '未找到筛选按钮' };
+            }
+            return { pass: true, message: '✓ 筛选按钮存在' };
+        }
+
+        function checkCategoryTabs() {
+            const doc = getTargetDocument();
+            if (!doc) return { pass: false, message: '无法访问主页面' };
+
+            const tabs = doc.querySelectorAll('.tabs-nav .tab-item, .tab-item');
+            if (tabs.length === 0) {
+                return { pass: false, message: '未找到任何Tab' };
+            }
+
+            const tabNames = Array.from(tabs).map(tab => tab.textContent.trim());
+            const expectedCategories = ['市集', '兴趣班', '音乐', '活动', '更多'];
+            const foundCategories = expectedCategories.filter(cat =>
+                tabNames.some(name => name.includes(cat))
+            );
+
+            if (foundCategories.length < 3) {
+                return { pass: false, message: `分类Tab不足，期望≥3个，实际找到${foundCategories.length}个: ${foundCategories.join(', ') || '无'}` };
+            }
+            return { pass: true, message: `✓ 找到${tabs.length}个Tab，包含: ${foundCategories.join(', ')}` };
+        }
+
+        function checkDatePicker() {
+            const doc = getTargetDocument();
+            if (!doc) return { pass: false, message: '无法访问主页面' };
+
+            const dateHeader = doc.querySelector('.date-grid-header') || doc.querySelector('[class*="date"]');
+            if (!dateHeader) {
+                return { pass: false, message: '未找到日期选择器' };
+            }
+            const dateCells = dateHeader.querySelectorAll('[class*="date-cell"], [class*="day-cell"], .date-cell');
+            if (dateCells.length === 0) {
+                return { pass: false, message: '日期选择器内未找到日期单元格' };
+            }
+            return { pass: true, message: `✓ 日期选择器存在，包含${dateCells.length}个日期` };
+        }
+
+        function checkActivityList() {
+            const doc = getTargetDocument();
+            if (!doc) return { pass: false, message: '无法访问主页面' };
+
+            const calendarGrid = doc.getElementById('calendarGrid') ||
+                                 doc.querySelector('.calendar-grid') ||
+                                 doc.querySelector('[class*="activity-list"]');
+            if (!calendarGrid) {
+                return { pass: false, message: '未找到活动列表容器' };
+            }
+            return { pass: true, message: '✓ 活动列表容器存在' };
+        }
+
+        // 维度2：今天高亮 (P0)
+        function checkTodaySelected() {
+            const doc = getTargetDocument();
+            if (!doc) return { pass: false, message: '无法访问主页面' };
+
+            const todayCells = doc.querySelectorAll('.today, .today-header, [class*="today"]');
+            if (todayCells.length === 0) {
+                return { pass: false, message: '未找到今天标记的元素' };
+            }
+
+            // 检查是否有选中状态
+            let hasSelectedToday = false;
+            todayCells.forEach(cell => {
+                if (cell.classList.contains('selected') ||
+                    cell.classList.contains('selected-day') ||
+                    cell.classList.contains('active')) {
+                    hasSelectedToday = true;
+                }
+            });
+
+            if (!hasSelectedToday) {
+                return { pass: false, message: '找到今天元素，但未处于选中状态' };
+            }
+            return { pass: true, message: `✓ 今天已标记并选中（找到${todayCells.length}个今天元素）` };
+        }
+
+        function checkTodayHighlight() {
+            const doc = getTargetDocument();
+            if (!doc) return { pass: false, message: '无法访问主页面' };
+
+            const todayCells = doc.querySelectorAll('.today, .today-header');
+            if (todayCells.length === 0) {
+                return { pass: false, message: '未找到今天元素，无法检查高亮' };
+            }
+
+            const cell = todayCells[0];
+            const iframeWin = getTargetWindow();
+            const styles = iframeWin ? iframeWin.getComputedStyle(cell) : window.getComputedStyle(cell);
+
+            // 检查高亮条件（至少满足2条）
+            let highlightCount = 0;
+            const highlights = [];
+
+            // 1. 实心背景
+            const bgColor = styles.backgroundColor;
+            if (bgColor !== 'rgba(0, 0, 0, 0)' && bgColor !== 'transparent' && bgColor !== 'rgb(255, 255, 255)') {
+                highlightCount++;
+                highlights.push('实心背景');
+            }
+
+            // 2. 高对比颜色（检查背景与文字对比度）
+            const color = styles.color;
+            const fontSize = parseInt(styles.fontSize);
+            if (fontSize >= 14 || styles.fontWeight === '700' || styles.fontWeight === 'bold') {
+                highlightCount++;
+                highlights.push('加粗字体');
+            }
+
+            // 3. 边框
+            const borderWidth = parseInt(styles.borderWidth) || 0;
+            const borderColor = styles.borderColor;
+            if (borderWidth >= 2 && borderColor !== 'rgb(0, 0, 0)') {
+                highlightCount++;
+                highlights.push(`${borderWidth}px边框`);
+            }
+
+            // 4. "今天"标签
+            const hasLabel = cell.textContent.includes('今天') ||
+                            cell.querySelector('[class*="label"], [class*="badge"], .tag');
+            if (hasLabel) {
+                highlightCount++;
+                highlights.push('"今天"标签');
+            }
+
+            // 5. 阴影
+            const boxShadow = styles.boxShadow;
+            if (boxShadow !== 'none' && boxShadow !== '') {
+                highlightCount++;
+                highlights.push('阴影效果');
+            }
+
+            if (highlightCount < 2) {
+                return {
+                    pass: false,
+                    message: `❌ 今天高亮不够明显（仅${highlightCount}项: ${highlights.join('、') || '无'}），期望≥2项`
+                };
+            }
+
+            return { pass: true, message: `✓ 今天高亮明显（${highlightCount}项: ${highlights.join('、')}）` };
+        }
+
+        // 维度3：首屏密度 (P0)
+        function checkFirstScreenDensity() {
+            const doc = getTargetDocument();
+            if (!doc) return { pass: false, message: '无法访问主页面' };
+
+            const calendarGrid = doc.getElementById('calendarGrid') ||
+                                 doc.querySelector('.calendar-grid');
+            if (!calendarGrid) {
+                return { pass: false, message: '未找到活动列表容器，无法统计密度' };
+            }
+
+            // 统计活动卡片
+            const activityCards = calendarGrid.querySelectorAll('.activity-card, .card, [class*="activity"]');
+            const dayCells = calendarGrid.querySelectorAll('.day-cell, [class*="day-cell"]');
+
+            // 如果有day-cell，统计其中的活动数量
+            let totalActivities = 0;
+            dayCells.forEach(cell => {
+                const chips = cell.querySelectorAll('.activity-chip, [class*="activity"]');
+                totalActivities += chips.length;
+            });
+
+            // 如果有活动卡片，直接统计
+            if (activityCards.length > 0) {
+                totalActivities = Math.max(totalActivities, activityCards.length);
+            }
+
+            if (totalActivities < 4) {
+                return {
+                    pass: false,
+                    message: `❌ 首屏活动数量不足：${totalActivities}/4（P0问题）`
+                };
+            }
+
+            return { pass: true, message: `✓ 首屏活动数量合格：${totalActivities}个` };
+        }
+
+        // 维度4：交互
+        function checkDateClickInteraction() {
+            const win = getTargetWindow();
+            const doc = getTargetDocument();
+            if (!win || !doc) return { pass: false, message: '无法访问主页面' };
+
+            // 检查是否有日期点击函数
+            const hasToggleFunction = typeof win.toggleDayFilter === 'function';
+            if (!hasToggleFunction) {
+                return { pass: false, message: '❌ toggleDayFilter函数不存在' };
+            }
+
+            // 检查日期单元格是否有点击事件
+            const dateCells = doc.querySelectorAll('.date-cell-header, .day-cell, [onclick*="day"]');
+            if (dateCells.length === 0) {
+                return { pass: false, message: '❌ 日期单元格未找到点击事件绑定' };
+            }
+
+            return { pass: true, message: `✓ 日期点击交互存在（${dateCells.length}个可点击日期）` };
+        }
+
+        function checkTabClickInteraction() {
+            const win = getTargetWindow();
+            const doc = getTargetDocument();
+            if (!win || !doc) return { pass: false, message: '无法访问主页面' };
+
+            const hasSwitchFunction = typeof win.switchTab === 'function';
+            if (!hasSwitchFunction) {
+                return { pass: false, message: '❌ switchTab函数不存在' };
+            }
+
+            const tabs = doc.querySelectorAll('.tab-item[onclick], .tab-item');
+            if (tabs.length === 0) {
+                return { pass: false, message: '❌ 未找到Tab元素' };
+            }
+
+            const clickableTabs = Array.from(tabs).filter(tab =>
+                tab.onclick || tab.getAttribute('onclick')
+            );
+
+            return { pass: true, message: `✓ Tab点击交互存在（${clickableTabs.length}/${tabs.length}个可点击）` };
+        }
+
+        function checkCardClickInteraction() {
+            const doc = getTargetDocument();
+            const win = getTargetWindow();
+            if (!doc || !win) return { pass: false, message: '无法访问主页面' };
+
+            const cards = doc.querySelectorAll('.activity-card, .card, .day-cell:not(.dimmed)');
+            if (cards.length === 0) {
+                return { pass: false, message: '❌ 未找到活动卡片' };
+            }
+
+            let hasClickFeedback = false;
+            cards.forEach(card => {
+                const style = win.getComputedStyle(card);
+                if (style.cursor === 'pointer' || card.onclick || card.getAttribute('onclick')) {
+                    hasClickFeedback = true;
+                }
+            });
+
+            if (!hasClickFeedback) {
+                return { pass: false, message: '⚠️ 活动卡片未发现明显的点击反馈' };
+            }
+
+            return { pass: true, message: `✓ 活动卡片有点击反馈（${cards.length}个卡片）` };
+        }
+
+        // 维度5：视觉一致性
+        function checkColorConsistency() {
+            const doc = getTargetDocument();
+            const win = getTargetWindow();
+            if (!doc || !win) return { pass: false, message: '无法访问主页面' };
+
+            // 获取选中态颜色
+            const selectedElements = doc.querySelectorAll('.selected, .active, .selected-day');
+            if (selectedElements.length === 0) {
+                return { pass: true, message: '⊘ 未找到选中元素，跳过颜色一致性检查' };
+            }
+
+            const colors = new Set();
+            selectedElements.forEach(el => {
+                const style = win.getComputedStyle(el);
+                const bg = style.backgroundColor;
+                if (bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
+                    colors.add(bg);
+                }
+            });
+
+            if (colors.size > 2) {
+                return { pass: false, message: `⚠️ 选中态颜色不统一，发现${colors.size}种不同颜色` };
+            }
+
+            return { pass: true, message: `✓ 选中态颜色基本统一（${colors.size}种颜色）` };
+        }
+
+        function checkNoColorChaos() {
+            const doc = getTargetDocument();
+            const win = getTargetWindow();
+            if (!doc || !win) return { pass: false, message: '无法访问主页面' };
+
+            // 检查是否存在混乱的高亮颜色
+            const issues = [];
+
+            // 检查日期高亮色
+            const dateSelected = doc.querySelector('.date-cell-header.selected-day, .selected-day');
+            if (dateSelected) {
+                const dateBg = win.getComputedStyle(dateSelected).backgroundColor;
+                if (dateBg.includes('255, 255, 0') || dateBg.includes('0, 255, 0')) {
+                    issues.push('日期使用黄色或绿色高亮');
+                }
+            }
+
+            // 检查Tab高亮色
+            const tabActive = doc.querySelector('.tab-item.active');
+            if (tabActive) {
+                const tabColor = win.getComputedStyle(tabActive).color;
+                if (tabColor.includes('255, 215, 0') || tabColor.includes('0, 255, 0')) {
+                    issues.push('Tab使用黄色或绿色高亮');
+                }
+            }
+
+            if (issues.length > 0) {
+                return { pass: false, message: `⚠️ 发现颜色混乱: ${issues.join('; ')}` };
+            }
+
+            return { pass: true, message: '✓ 未发现混乱的高亮颜色' };
+        }
+
+        // ========== 测试运行逻辑 ==========
+
+        function initializeUI() {
+            const container = document.getElementById('testSections');
+
+            testSuites.forEach((suite, suiteIndex) => {
+                const suiteDiv = document.createElement('div');
+                suiteDiv.className = 'test-section';
+
+                suiteDiv.innerHTML = `
+                    <div class="test-section-header" onclick="toggleSection(${suiteIndex})">
+                        <h3>${suite.name}</h3>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="section-score" id="score${suiteIndex}">待测试</span>
+                            <span class="chevron">▼</span>
+                        </div>
+                    </div>
+                    <div class="test-items" id="items${suiteIndex}">
+                        ${suite.tests.map((test, testIndex) => `
+                            <div class="test-item" id="test-${suiteIndex}-${testIndex}">
+                                <div class="test-item-header">
+                                    <span class="test-item-title">${test.name}</span>
+                                    <span class="test-item-badge badge-${test.priority.toLowerCase()}">${test.priority}</span>
+                                </div>
+                                <div class="test-item-status status-pass" id="status-${suiteIndex}-${testIndex}" style="margin-top: 8px;">待测试</div>
+                                <div class="test-item-details" id="details-${suiteIndex}-${testIndex}" style="margin-top: 8px;">等待运行...</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                container.appendChild(suiteDiv);
+            });
+        }
+
+        function toggleSection(index) {
+            const items = document.getElementById(`items${index}`);
+            const chevron = document.querySelectorAll('.chevron')[index];
+            items.classList.toggle('show');
+            chevron.classList.toggle('open');
+        }
+
+        async function runTest(suiteIndex, testIndex) {
+            const test = testSuites[suiteIndex].tests[testIndex];
+            const testEl = document.getElementById(`test-${suiteIndex}-${testIndex}`);
+            const statusEl = document.getElementById(`status-${suiteIndex}-${testIndex}`);
+            const detailsEl = document.getElementById(`details-${suiteIndex}-${testIndex}`);
+
+            try {
+                const result = test.check();
+
+                if (result.pass) {
+                    testEl.classList.add('pass');
+                    statusEl.className = 'test-item-status status-pass';
+                    statusEl.textContent = '✓ 通过';
+                    testResults.passCount++;
+                    testResults.totalScore += test.points;
+                } else {
+                    testEl.classList.add('fail');
+                    if (test.priority === 'P0') {
+                        testEl.classList.add('p0');
+                    }
+                    statusEl.className = 'test-item-status status-fail';
+                    statusEl.textContent = '✗ 失败';
+                    testResults.failCount++;
+
+                    // 添加到问题列表
+                    testResults.problems.push({
+                        text: result.message,
+                        priority: test.priority,
+                        test: test.name
+                    });
+                }
+
+                detailsEl.textContent = result.message;
+                return result.pass;
+
+            } catch (error) {
+                testEl.classList.add('fail');
+                statusEl.className = 'test-item-status status-fail';
+                statusEl.textContent = '✗ 错误';
+                detailsEl.textContent = `测试执行出错: ${error.message}`;
+                testResults.failCount++;
+                return false;
+            }
+        }
+
+        async function runSuite(suiteIndex) {
+            const suite = testSuites[suiteIndex];
+            const scoreEl = document.getElementById(`score${suiteIndex}`);
+            const items = document.getElementById(`items${suiteIndex}`);
+            items.classList.add('show');
+
+            let suitePoints = 0;
+
+            for (let i = 0; i < suite.tests.length; i++) {
+                await runTest(suiteIndex, i);
+            }
+
+            // 计算套件得分
+            suite.tests.forEach(test => {
+                const testEl = document.getElementById(`test-${suiteIndex}-${suite.tests.indexOf(test)}`);
+                if (testEl.classList.contains('pass')) {
+                    suitePoints += test.points;
+                }
+            });
+
+            const percentage = (suitePoints / suite.weight) * 100;
+            scoreEl.textContent = `${suitePoints}/${suite.weight}`;
+
+            if (percentage === 100) {
+                scoreEl.className = 'section-score score-full';
+            } else if (percentage >= 50) {
+                scoreEl.className = 'section-score score-partial';
+            } else {
+                scoreEl.className = 'section-score score-zero';
+            }
+
+            return suitePoints;
+        }
+
+        async function runAllTests() {
+            const runBtn = document.getElementById('runBtn');
+            const resultStatus = document.getElementById('resultStatus');
+
+            runBtn.disabled = true;
+            resultStatus.textContent = '测试中...';
+
+            // 重置结果
+            testResults = {
+                totalScore: 0,
+                totalPoints: 100,
+                passCount: 0,
+                failCount: 0,
+                problems: [],
+                recommendations: []
+            };
+
+            // 运行所有测试套件
+            for (let i = 0; i < testSuites.length; i++) {
+                await runSuite(i);
+            }
+
+            // 生成报告
+            generateReport();
+            generateRecommendations();
+
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<span>▶️</span><span>重新运行</span>';
+        }
+
+        function generateReport() {
+            const totalScoreEl = document.getElementById('totalScore');
+            const passRateEl = document.getElementById('passRate');
+            const resultStatus = document.getElementById('resultStatus');
+
+            totalScoreEl.textContent = testResults.totalScore;
+
+            const totalTests = testResults.passCount + testResults.failCount;
+            const passRate = totalTests > 0 ? Math.round((testResults.passCount / totalTests) * 100) : 0;
+            passRateEl.textContent = `${passRate}%`;
+
+            // 判定结果
+            let verdict, verdictClass;
+            if (testResults.totalScore >= 80 && testResults.failCount === 0) {
+                verdict = '✅ 验收通过';
+                verdictClass = 'status-pass';
+            } else if (testResults.totalScore >= 60) {
+                verdict = '⚠️ 有条件通过';
+                verdictClass = 'status-partial';
+            } else {
+                verdict = '❌ 验收不通过';
+                verdictClass = 'status-fail';
+            }
+
+            resultStatus.textContent = verdict;
+            resultStatus.className = `result-status ${verdictClass}`;
+
+            // 显示问题列表
+            if (testResults.problems.length > 0) {
+                const problemsSection = document.getElementById('problemsSection');
+                const problemsList = document.getElementById('problemsList');
+                problemsSection.style.display = 'block';
+
+                problemsList.innerHTML = testResults.problems.map(p => {
+                    const severityClass = p.priority === 'P0' ? 'severity-critical' :
+                                       p.priority === 'P1' ? 'severity-moderate' : 'severity-minor';
+                    const severityLabel = p.priority === 'P0' ? '严重' :
+                                       p.priority === 'P1' ? '中等' : '轻微';
+                    return `
+                        <div class="problem-item">
+                            <span class="problem-severity ${severityClass}">${severityLabel}</span>
+                            <span>[${p.test}] ${p.text}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function generateRecommendations() {
+            const recsSection = document.getElementById('recommendationsSection');
+            const recsList = document.getElementById('recommendationsList');
+            let html = '';
+
+            // P0问题建议
+            if (testResults.problems.some(p => p.priority === 'P0')) {
+                html += `
+                    <div class="recommendation-item">
+                        <strong>🔴 P0优先修复：</strong><br>
+                        • 今天高亮问题：使用实心背景(#4080FF) + 白色文字 + "今天"标签<br>
+                        • 首屏密度：确保首屏显示≥4个活动卡片<br>
+                        • P0问题阻塞验收，必须优先修复
+                    </div>
+                `;
+            }
+
+            // 视觉优化建议
+            if (testResults.totalScore >= 60 && testResults.totalScore < 80) {
+                html += `
+                    <div class="recommendation-item">
+                        <strong>🟡 视觉优化建议：</strong><br>
+                        • 统一选中态颜色，建议使用蓝色系(#4080FF)<br>
+                        • 避免混用多种高亮颜色<br>
+                        • 确保所有交互都有明确的视觉反馈
+                    </div>
+                `;
+            }
+
+            // 通过建议
+            if (testResults.totalScore >= 80) {
+                html += `
+                    <div class="recommendation-item">
+                        <strong>✅ 验收通过！</strong><br>
+                        • 当前页面符合ACTIVITY_PAGE_QA.md模板要求<br>
+                        • 建议定期运行此验收测试确保质量稳定<br>
+                        • 可考虑集成到CI/CD流程中
+                    </div>
+                `;
+            }
+
+            if (html) {
+                recsSection.style.display = 'block';
+                recsList.innerHTML = html;
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeUI();
+            // 不再自动运行测试，需要用户点击按钮来加载iframe并运行测试
+        });
+    </script>
+</body>
+</html>

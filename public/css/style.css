@@ -116,7 +116,7 @@
         /* 头部 */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
             padding: 20px 30px;
             display: flex;
             align-items: center;
@@ -150,10 +150,11 @@
             flex: 1;
             display: flex;
             align-items: center;
-            background: rgba(255, 255, 255, 0.2);
+            background: #FFFFFF;
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 8px 16px;
             position: relative;
+            height: 42px;
         }
 
         .search-icon {
@@ -165,21 +166,21 @@
         /* 搜索按钮 - 桌面端显示 */
         .search-btn {
             padding: 8px 20px;
-            background: rgba(255, 255, 255, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: #6A5ACD;
+            border: none;
             border-radius: 8px;
-            color: white;
+            color: #333 !important;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
             flex-shrink: 0;
+            height: 42px;
         }
 
         .search-btn:hover {
-            background: rgba(255, 255, 255, 0.35);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: #7B68EE;
         }
 
         /* 移动端搜索图标按钮 */
@@ -214,13 +215,13 @@
             flex: 1;
             background: transparent;
             border: none;
-            color: white;
+            color: #333;
             font-size: 14px;
             outline: none;
         }
 
         .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+            color: #999;
         }
 
         /* 筛选区域 - 固定在顶部 */
@@ -281,7 +282,7 @@
         /* ✅ 筛选器选中状态 - 使用新的深蓝色 */
         .filter-chip.active {
             background: #4080FF; /* ✅ 更新为新的深蓝色，与日期选择器一致 */
-            color: white;
+            color: #333 !important;
             border-color: #4080FF; /* ✅ 边框颜色也更新 */
             box-shadow: 0 2px 8px rgba(64, 128, 255, 0.3); /* ✅ 添加阴影效果 */
         }
@@ -366,7 +367,7 @@
             top: 0;
             z-index: 100;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
             padding: 12px 16px;
             border-radius: 8px;
             margin-bottom: 16px;
@@ -380,7 +381,7 @@
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 6px;
-            color: white;
+            color: #333 !important;
             width: 36px;
             height: 36px;
             display: flex;
@@ -569,17 +570,39 @@
         }
 
         .date-cell-header.selected-day {
-            background: #4080FF;
+            /* 已选中：深紫色背景 + 白色文字 + 放大效果 */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white !important;
             font-weight: 700;
-            box-shadow: 0 4px 12px rgba(64, 128, 255, 0.4);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.5);
             transform: scale(1.08);
             animation: selectPulse 0.3s ease;
-            border: 2px solid #4080FF;
+            border: 2px solid #667eea;
         }
 
         .date-cell-header.today-header {
-            border: 2px solid #ffc107;
+            /* 今天：深蓝色背景 + 白色文字 + 深蓝边框 + "今天"标签（区别于已选中） */
+            background: #4080FF;           /* 深蓝色背景 */
+            color: white !important;       /* 白色文字 */
+            border: 3px solid #4080FF;     /* 深蓝边框，加粗 */
+            font-weight: 700;              /* 加粗字体 */
+            box-shadow: 0 2px 8px rgba(64, 128, 255, 0.3);
+            position: relative;
+            /* 移除放大效果，只保留边框和"今天"标签来区分 */
+        }
+
+        /* ✅ P0修复：添加当天日期数字标签 */
+        .date-cell-header.today-header::after {
+            content: attr(data-day);  /* 显示当天日期数字 */
+            position: absolute;
+            top: -8px;
+            right: -4px;
+            background: #ffc107;
+            color: #333;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: 600;
         }
 
         /* ✅ 已删除 .today-header.selected-day 混合状态样式 */
@@ -599,7 +622,7 @@
             left: 50%;
             transform: translateX(-50%);
             background: #333;
-            color: white;
+            color: #333 !important;
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 11px;
@@ -760,9 +783,10 @@
         }
 
         .day-cell.today .activity-chip {
-            background: #ffffff;
+            background: #E8F3FF; /* 淡蓝色背景，标识今天的活动 */
             border-left-width: 4px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(64, 128, 255, 0.25); /* 蓝色阴影 */
+            border-left-color: #4080FF; /* 蓝色边框 */
         }
 
         .day-cell.today .activity-chip:hover {
@@ -1204,7 +1228,7 @@
 
         .day-filter-chip:hover {
             background: #667eea;
-            color: white;
+            color: #333 !important;
             border-color: #667eea;
             transform: translateY(-1px);
             box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
@@ -1217,7 +1241,7 @@
         /* 如果当前筛选的星期匹配，显示高亮 */
         .day-filter-chip.highlight {
             background: #667eea;
-            color: white;
+            color: #333 !important;
             border-color: #667eea;
         }
 
@@ -1229,7 +1253,7 @@
 
         .category-tag {
             background: #667eea;
-            color: white;
+            color: #333 !important;
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 11px;
@@ -1502,14 +1526,14 @@
 
         .empty-btn:hover {
             background: #667eea;
-            color: white;
+            color: #333 !important;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .empty-btn.primary {
             background: #667eea;
-            color: white;
+            color: #333 !important;
         }
 
         .empty-btn.primary:hover {
@@ -1551,19 +1575,22 @@
             to { opacity: 1; }
         }
 
+        /* ========== ✅ 新设计：固定顶底 + 内容滚动 ========== */
+
         .modal {
             background: white;
             border-radius: 12px;
             max-width: 500px;
             width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
+            max-height: 85vh;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             animation: slideUp 0.3s ease;
+            display: flex;
+            flex-direction: column;
 
             /* ✅ 溢出保护 */
             box-sizing: border-box;
-            overflow-x: hidden;
+            overflow: hidden; /* modal本身不滚动，内部滚动 */
         }
 
         @keyframes slideUp {
@@ -1577,25 +1604,59 @@
             }
         }
 
+        /* ========== 顶部标题：固定 ========== */
         .modal-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
             padding: 20px;
             border-radius: 12px 12px 0 0;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: flex-start; /* 左对齐 */
+            align-items: baseline; /* 按文字基线对齐，使标签和标题在同一水平线 */
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+            gap: 12px;
+        }
+
+        /* 标签和标题容器 */
+        .modal-header > *:not(.modal-close) {
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            gap: 8px; /* 标签和标题之间的间距 */
+            flex: 0 1 auto; /* 自动宽度 */
+            min-width: 0; /* 允许文本换行 */
         }
 
         .modal-title {
             font-size: 20px;
             font-weight: 600;
+            flex: 1;
+            padding-right: 10px;
+            word-wrap: break-word;
+            line-height: 1.3;
+        }
+
+        /* 分类标签样式 */
+        .modal-category-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px; /* 仅保持一个字符宽度的padding */
+            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            line-height: 1.3;
+            /* height: fit-content removed for proper vertical alignment with title */
         }
 
         .modal-close {
             background: rgba(255, 255, 255, 0.2);
             border: none;
-            color: white;
+            color: #333 !important;
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -1605,10 +1666,19 @@
             align-items: center;
             justify-content: center;
             transition: background 0.2s;
+            flex-shrink: 0; /* 防止被压缩 */
         }
 
         .modal-close:hover {
             background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* ========== 内容区域：可滚动 ========== */
+        .modal-scrollable-content {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0; /* 重要：允许flex子元素滚动 */
         }
 
         /* 关键信息卡片 */
@@ -1616,7 +1686,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
-            margin: 12px 20px 20px 20px; /* 适中的上边距，与标题分隔 */
+            margin: 12px 20px 20px 20px;
             padding: 16px;
             background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
             border-radius: 8px;
@@ -1681,10 +1751,12 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
             word-break: break-word; /* 改进中文换行 */
+            text-align: left; /* 确保文案内容左对齐 */
         }
 
         .modal-body {
             padding: 20px;
+            /* 移除overflow，由父容器控制 */
         }
 
         .modal-info-row {
@@ -1724,17 +1796,31 @@
             overflow-wrap: break-word;
             word-break: break-word; /* 改进中文换行 */
             white-space: pre-wrap;
+            text-align: left; /* 确保描述文案左对齐 */
         }
 
-        /* 弹窗底部按钮区域 */
+        /* ========== 底部按钮：固定 ========== */
         .modal-footer {
             display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            margin-top: 32px;
-            padding: 16px 20px;
+            justify-content: center; /* 按钮整体居中 */
+            gap: 12px; /* 按钮之间的间距 */
+            padding: 16px 20px; /* 左右padding相等 */
             border-top: 1px solid #e0e0e0;
             background: #fafafa;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 按钮样式：确保两个按钮等宽 */
+        .modal-footer .btn-secondary,
+        .modal-footer .btn-primary {
+            flex: 1; /* 等宽，各占50% */
+            min-width: 0; /* 允许收缩 */
+            max-width: 200px; /* 最大宽度限制 */
+            justify-content: center;
+            text-align: center;
+            padding: 12px 20px; /* 统一内边距 */
         }
 
         /* 主按钮 */
@@ -1744,7 +1830,7 @@
             gap: 6px;
             padding: 10px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
             text-decoration: none;
             border: none;
             border-radius: 6px;
@@ -1786,7 +1872,7 @@
             width: 100%;
             padding: 12px 20px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
             text-decoration: none;
             border-radius: 8px;
             font-size: 15px;
@@ -1827,7 +1913,7 @@
             display: inline-block;
             padding: 6px 14px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
             border-radius: 16px;
             font-size: 13px;
             font-weight: 500;
@@ -1921,10 +2007,10 @@
                 display: flex;
                 align-items: center;
 
-                /* ✅ 修复：与PC端保持一致 */
-                background: rgba(255, 255, 255, 0.2) !important; /* 移动端：使用0.2，与PC端一致 */
+                /* ✅ 白色背景 */
+                background: #FFFFFF !important;
                 border-radius: 8px;
-                padding: 8px 12px; /* 减小padding */
+                padding: 8px 60px 8px 12px; /* ⚠️ 右边距增加到60px，给"筛选"文字按钮留空间 */
                 min-height: 44px; /* iOS推荐最小触摸尺寸 */
 
                 /* ❌ 移除不一致的样式 */
@@ -1937,7 +2023,7 @@
                 flex: 1;
                 border: none;
                 background: transparent;
-                color: white;
+                color: #333 !important;
                 outline: none;
                 padding: 0;
                 margin: 0;
@@ -1946,19 +2032,19 @@
 
             /* ✅ 确保移动端placeholder颜色与PC端一致 */
             .search-input::placeholder {
-                color: rgba(255, 255, 255, 0.7) !important;
+                color: #999 !important;
             }
 
             /* ✅ 修复：显示"搜索"文字按钮，与PC端一致 */
             .search-btn {
                 display: block !important; /* 显示搜索按钮 */
-                padding: 8px 16px !important;
-                background: rgba(255, 255, 255, 0.25) !important;
-                border: 1px solid rgba(255, 255, 255, 0.3) !important;
-                border-radius: 8px !important;
-                color: white !important;
+                padding: 8px 20px !important;  /* 增加padding */
+                background: #6A5ACD !important;  /* 深紫色背景 */
+                border: none !important;  /* 移除边框 */
+                border-radius: 12px !important;  /* 圆角12px */
+                color: white !important;  /* 白色文字 */
                 font-size: 14px !important;
-                font-weight: 500 !important;
+                font-weight: 600 !important;  /* 字重加粗 */
                 cursor: pointer !important;
                 transition: all 0.2s !important;
                 white-space: nowrap !important;
@@ -1966,13 +2052,33 @@
             }
 
             .search-btn:hover {
-                background: rgba(255, 255, 255, 0.35) !important;
-                border-color: rgba(255, 255, 255, 0.5) !important;
+                background: #7B68EE !important;  /* 悬停时更亮 */
             }
 
-            /* ❌ 隐藏图标按钮，使用文字按钮代替 */
+            /* ✅ 筛选按钮在移动端显示 */
             .search-icon-btn {
-                display: none !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+
+                /* 移动端文字按钮 */
+                width: auto !important;  /* 自动宽度 */
+                min-width: 50px !important;  /* 最小宽度 */
+                height: 36px !important;
+                right: 4px !important;
+                padding: 0 16px !important;  /* 左右padding */
+                background: #6A5ACD !important;  /* 深紫色背景 */
+                border: none !important;  /* 移除边框 */
+                border-radius: 12px !important;  /* 圆角12px */
+                font-size: 14px !important;  /* 文字大小 */
+                font-weight: 600 !important;  /* 字重加粗 */
+                color: white !important;  /* 白色文字 */
+                z-index: 10 !important;
+            }
+
+            /* 特殊处理：筛选按钮始终显示 */
+            .filter-trigger-btn {
+                display: flex !important;
             }
 
             /* 搜索清除按钮优化 */
@@ -2014,7 +2120,7 @@
                 flex-direction: row !important;
                 flex-wrap: nowrap !important; /* 禁止换行，所有按钮在同一行 */
 
-                gap: 4px !important;
+                gap: 8px !important;  /* 与PC端保持一致 */
                 padding: 8px 4px !important;
 
                 /* ✅ 启用横向滚动（当按钮总宽度超出容器时） */
@@ -2043,14 +2149,13 @@
                 display: none;
             }
 
+            /* ========== 移动端日期样式 ========== */
             .date-cell-header {
-                /* ✅ 固定宽度，确保按钮不会变形 */
-                min-width: 48px !important; /* 最小宽度，确保触摸目标 */
-                width: auto !important; /* 自动宽度，基于内容 */
-                max-width: 60px !important; /* 最大宽度，防止过宽 */
-
-                flex-shrink: 0 !important; /* 禁止收缩，保持固定宽度 */
-
+                /* 固定宽度，确保按钮不会变形 */
+                min-width: 48px !important;
+                width: auto !important;
+                max-width: 60px !important;
+                flex-shrink: 0 !important;
                 min-height: 44px !important;
                 padding: 8px 4px !important;
                 font-size: 11px !important;
@@ -2061,99 +2166,66 @@
                 align-items: center !important;
                 justify-content: center !important;
                 gap: 2px !important;
-                background: #667eea !important;
-                color: white !important;
+
+                /* 普通日期：淡蓝色背景 + 深紫色文字（与PC端一致） */
+                background: #E8F3FF !important;
+                color: #667eea !important;
                 border: 2px solid transparent !important;
                 transition: all 0.2s ease !important;
                 cursor: pointer !important;
                 -webkit-tap-highlight-color: transparent !important;
                 touch-action: manipulation !important;
                 position: relative !important;
-
-                /* ✅ 修复单个按钮溢出问题 */
                 box-sizing: border-box !important;
             }
 
-            /* ✅ 移动端选中状态 - 深蓝色背景 + 白色文字 */
+            /* 选中的日期：深蓝色背景 + 白色文字 + 放大效果 */
             .date-cell-header.selected-day {
-                background: #4080FF !important; /* ✅ 选中状态：深蓝色背景 */
-                color: white !important; /* ✅ 选中状态：白色文字 */
+                background: #4080FF !important;
+                color: white !important;
                 font-weight: 700 !important;
-                border: 3px solid #4080FF !important; /* ✅ 边框颜色也使用深蓝色 */
-                box-shadow: 0 4px 12px rgba(64, 128, 255, 0.5) !important; /* ✅ 调整阴影颜色 */
+                border: 3px solid #4080FF !important;
+                box-shadow: 0 4px 12px rgba(64, 128, 255, 0.5) !important;
                 transform: scale(1.05) !important;
                 z-index: 10 !important;
                 animation: mobileSelectPulse 0.3s ease !important;
             }
 
-            /* ✅ 今天的样式 - 黄色边框 */
+            /* 今天的日期：深蓝色背景 + 白色文字 + 深蓝边框 */
             .date-cell-header.today-header {
-                border: 2px solid #ffc107 !important; /* ✅ 黄色边框表示"今天" */
-            }
-
-            /* ✅ 已删除 .today-header.selected-day 混合状态样式 */
-            /* 状态优先级：selected > today > normal */
-            /* 如果今天被选中，只表现为 selected，不显示 today 标记 */
-
-            /* ========== 移动端数字和星期样式 ========== */
-            .date-number {
-                font-size: 16px !important;
+                background: #4080FF !important;  /* 深蓝色背景 */
+                color: white !important;         /* 白色文字 */
+                border: 3px solid #4080FF !important;  /* 深蓝边框 */
                 font-weight: 700 !important;
-                line-height: 1.2 !important;
-                color: inherit !important; /* ✅ 继承父元素颜色，支持选中/未选中状态 */
+                box-shadow: 0 2px 8px rgba(64, 128, 255, 0.3) !important;
+                position: relative !important;
+                /* 移除放大效果，只保留边框和"今天"标签来区分 */
             }
 
-            .date-weekday {
-                font-size: 10px !important;
-                font-weight: 500 !important;
-                line-height: 1.2 !important;
-                color: inherit !important; /* ✅ 继承父元素颜色，支持选中/未选中状态 */
-                opacity: 0.9 !important; /* 稍微透明一些，形成层次 */
+            /* 移动端当天日期数字标签 */
+            .date-cell-header.today-header::after {
+                content: attr(data-day);  /* 显示当天日期数字 */
+                position: absolute;
+                top: -8px;
+                right: -4px;
+                background: #ffc107;
+                color: #333;
+                font-size: 10px;
+                padding: 2px 6px;
+                border-radius: 8px;
+                font-weight: 600;
             }
 
-            /* ✅ 选中状态下的文字颜色继承白色 */
-            .date-cell-header.selected-day .date-number,
-            .date-cell-header.selected-day .date-weekday {
-                color: white !important; /* ✅ 确保选中状态下文字是白色 */
-            }
-
-            /* 点击效果 */
-            .date-cell-header:active {
-                transform: scale(0.95) !important;
-            }
-
-            /* ✅ 移动端选中脉冲动画 - 与桌面版保持一致 */
-            @keyframes mobileSelectPulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.12); }
-                100% { transform: scale(1.08); }
-            }
-
-            /* 日期表头移动端优化 */
-            .date-grid-header {
-                gap: 4px !important;
-                margin-bottom: 12px !important;
-                padding: 0 8px !important;
-            }
-
-            .date-cell-header {
-                padding: 6px 2px !important;
-                min-width: 40px !important;
-                min-height: 40px !important;
-            }
-
-            .date-number {
-                font-size: 16px !important;
-            }
-
-            .date-weekday {
-                font-size: 10px !important;
-            }
-
-            /* 选中状态下的文字颜色继承白色 */
+            /* 选中状态下的文字颜色 */
             .date-cell-header.selected-day .date-number,
             .date-cell-header.selected-day .date-weekday {
                 color: white !important;
+            }
+
+            @keyframes mobileSelectPulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.12); }
+                100% { transform: scale(1.05); }
             }
 
             /* 点击效果 */
@@ -2173,7 +2245,7 @@
 
             .calendar-grid {
                 display: flex;
-                gap: 12px;
+                gap: 8px;  /* 与PC端保持一致，更紧凑 */
                 width: max-content;
                 padding: 8px 16px;
             }
@@ -2228,22 +2300,60 @@
                 gap: 8px;
             }
 
+            /* 移动端：基础信息改为一行显示 */
+            .info-item {
+                flex-direction: row;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .info-icon {
+                font-size: 16px;
+                flex-shrink: 0;
+            }
+
+            .info-text {
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .info-text strong {
+                display: inline;
+                font-size: 13px;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+
+            .info-text > div {
+                display: block; /* 改为block元素，允许换行 */
+                font-size: 13px;
+                flex: 1;
+                word-wrap: break-word; /* 允许长单词换行 */
+                overflow-wrap: break-word; /* 现代浏览器属性 */
+                word-break: break-word; /* 中文和长单词换行 */
+                /* 移除了 white-space: nowrap, text-overflow: ellipsis, overflow: hidden */
+            }
+
             .modal-body {
                 padding: 16px;
                 font-size: 14px;
             }
 
-            .info-text > div,
             .section-content {
                 word-break: break-all; /* 移动端强制换行 */
                 overflow-wrap: break-word;
                 line-height: 1.6;
+                text-align: left; /* 确保移动端文案左对齐 */
             }
 
             .modal-title {
                 font-size: 18px;
                 word-break: break-word;
                 overflow-wrap: break-word;
+                text-align: left; /* 标题左对齐 */
             }
 
             .modal-description,
@@ -2251,6 +2361,7 @@
                 font-size: 14px;
                 word-break: break-all; /* 移动端强制长单词换行 */
                 line-height: 1.6;
+                text-align: left; /* 确保移动端描述文案左对齐 */
             }
 
             /* 触摸滚动优化 */
@@ -2263,16 +2374,23 @@
             }
 
             .modal-footer {
-                flex-direction: column;
-                gap: 16px; /* H5端增加按钮间距 */
-                padding: 20px; /* 增加内边距 */
+                flex-direction: row; /* 改为水平排列 */
+                justify-content: center; /* 按钮整体居中 */
+                gap: 12px; /* 按钮间距 */
+                padding: 16px 20px;
             }
 
-            .btn-primary,
-            .btn-secondary {
-                width: 100%;
-                text-align: center;
-                justify-content: center;
+            /* 移动端按钮样式 - 使用与PC端相同的选择器优先级 */
+            .modal-footer .btn-secondary,
+            .modal-footer .btn-primary {
+                display: inline-flex !important; /* 统一设置为 inline-flex */
+                align-items: center !important; /* 垂直居中 */
+                flex: 0 1 auto !important; /* 根据内容自动宽度，不拉伸填满 */
+                min-width: 100px !important; /* 最小宽度 */
+                text-align: center !important;
+                justify-content: center !important;
+                padding: 12px 24px !important; /* 左右padding增加，让按钮更宽一些 */
+                font-size: 14px !important;
             }
 
             /* ========== 列表视图优化 ========== */
@@ -2965,7 +3083,7 @@
 
         .sheet-footer .btn-confirm {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
         }
 
         .sheet-footer .btn-confirm:active {
@@ -3008,8 +3126,58 @@
 
         .filter-option-item.selected {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
             border-color: #667eea;
+        }
+
+        /* Tab选项列表样式 */
+        .tab-option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tab-option-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .tab-option-item:hover {
+            background: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        .tab-option-item:active {
+            transform: scale(0.98);
+            background: #dee2e6;
+        }
+
+        .tab-option-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .tab-option-text {
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* 当前选中的Tab */
+        .tab-option-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        .tab-option-item.active .tab-option-text {
+            color: #333 !important;
         }
 
         /* 浮动筛选按钮 (移动端) */
@@ -3039,7 +3207,7 @@
             top: -4px;
             right: -4px;
             background: #ff6b6b;
-            color: white;
+            color: #333 !important;
             font-size: 11px;
             font-weight: 600;
             padding: 2px 6px;
@@ -3062,7 +3230,7 @@
             left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
             background: rgba(0, 0, 0, 0.85);
-            color: white;
+            color: #333 !important;
             padding: 16px 24px;
             border-radius: 12px;
             font-size: 15px;
@@ -3169,7 +3337,7 @@
 
         .dialog-button.confirm {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            color: #333 !important;
         }
 
         /* ========== 4. Loading 加载状态 ========== */
@@ -3349,4 +3517,132 @@
                 max-width: 280px;
                 padding: 20px;
             }
+
+            /* =====================================================
+               移动端固定布局
+            ===================================================== */
+
+            /* 搜索+筛选模块：固定在顶部 */
+            .search-section {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: white;
+                padding: 8px 0;
+            }
+
+            /* 日期筛选条：固定 */
+            .active-filters {
+                position: sticky;
+                top: 56px; /* 搜索栏高度 */
+                z-index: 99;
+                background: #fff3dc;
+            }
+
+            /* ========== ✅ 优化：使用sticky代替fixed，提供更好的滚动体验 ========== */
+
+            /* Tab导航：使用sticky定位（滚动时自然吸附） */
+            .tabs-nav {
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                background: white;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            /* 日期选择器：正常流动（不固定，避免覆盖内容） */
+            .date-grid-header {
+                position: relative;
+                z-index: auto;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            /* 活动列表区域：删除额外的margin，使用正常流动 */
+            .calendar-wrapper,
+            #calendarGrid {
+                margin-top: 0; /* 删除180px margin */
+            }
+
+            /* 容器：删除额外的padding，避免双重间距 */
+            .container {
+                padding-top: 0 !important; /* 删除180px padding */
+            }
+        }
+
+        /* =====================================================
+           PC端与移动端的响应式显示控制
+        ===================================================== */
+
+        /* PC端显示，移动端隐藏 */
+        @media (max-width: 768px) {
+            .desktop-only {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-only {
+                display: none !important;
+            }
+
+            .tab-dropdown {
+                display: none !important;
+            }
+        }
+
+        /* =====================================================
+           Tab下拉菜单样式
+        ===================================================== */
+
+        .tab-more {
+            position: relative;
+        }
+
+        .tab-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            min-width: 160px;
+            padding: 8px 0;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+
+        /* ========== 移动端修复：使用fixed定位避免被overflow裁剪 ========== */
+        @media (max-width: 768px) {
+            /* 隐藏旧的Tab下拉菜单，改用Tab Sheet */
+            .tab-dropdown {
+                display: none !important;
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            color: #333;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:active {
+            background: #f5f5f5;
+        }
+
+        .dropdown-icon {
+            font-size: 18px;
+        }
+
+        /* 筛选按钮样式（移动端） */
+        .filter-trigger-btn {
+            font-size: 18px;
         }

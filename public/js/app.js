@@ -3100,6 +3100,58 @@
 
         let currentTab = 0; // 当前选中的Tab
 
+        // =====================================================
+        // Tab下拉菜单交互
+        // =====================================================
+
+        /**
+         * 切换Tab下拉菜单的显示/隐藏
+         */
+        function toggleTabDropdown(event) {
+            event.stopPropagation(); // 阻止事件冒泡
+            const dropdown = document.getElementById('tabDropdown');
+            dropdown.classList.toggle('show');
+            console.log('📱 Tab下拉菜单:', dropdown.classList.contains('show') ? '展开' : '收起');
+        }
+
+        /**
+         * 从下拉菜单切换Tab
+         * @param {number} tabIndex - Tab索引（4或5）
+         */
+        function switchTabFromDropdown(tabIndex) {
+            // 关闭下拉菜单
+            const dropdown = document.getElementById('tabDropdown');
+            dropdown.classList.remove('show');
+
+            // 切换Tab
+            switchTab(tabIndex);
+        }
+
+        /**
+         * 关闭Tab下拉菜单
+         */
+        function closeTabDropdown() {
+            const dropdown = document.getElementById('tabDropdown');
+            if (dropdown) {
+                dropdown.classList.remove('show');
+            }
+        }
+
+        // 点击页面其他地方关闭下拉菜单
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('tabDropdown');
+            const moreButton = document.querySelector('.tab-more');
+            if (dropdown && moreButton) {
+                if (!dropdown.contains(event.target) && !moreButton.contains(event.target)) {
+                    closeTabDropdown();
+                }
+            }
+        });
+
+        // =====================================================
+        // Tab切换
+        // =====================================================
+
         function switchTab(index) {
             console.log(`🔄 切换到 Tab ${index}`);
             currentTab = index;
@@ -3541,8 +3593,8 @@
             filterSection.classList.toggle('expanded');
             const isExpanded = filterSection.classList.contains('expanded');
 
-            // 更新按钮状态
-            btn.classList.toggle('active', isExpanded);
+            // 移除active类的切换
+            // btn.classList.toggle('active', isExpanded);
             icon.textContent = isExpanded ? '✕' : '⚙️';
 
             // 触觉反馈
@@ -3658,6 +3710,114 @@
 
         function closeFilterSheet() {
             filterSheet.close();
+        }
+
+        // =====================================================
+        // Tab Bottom Sheet（与筛选保持一致）
+        // =====================================================
+
+        // 创建Tab Sheet对象
+        const tabSheet = {
+            element: null,
+            content: null,
+            handle: null,
+
+            init() {
+                this.element = document.getElementById('tabSheet');
+                this.content = this.element.querySelector('.sheet-content');
+                this.handle = document.getElementById('tabSheetHandle');
+                this.setupGestures();
+            },
+
+            setupGestures() {
+                // 触摸开始
+                this.handle.addEventListener('touchstart', (e) => {
+                    this.startY = e.touches[0].clientY;
+                    this.isDragging = true;
+                    this.content.style.transition = 'none';
+                }, { passive: true });
+
+                // 触摸移动
+                this.handle.addEventListener('touchmove', (e) => {
+                    if (!this.isDragging) return;
+                    this.currentY = e.touches[0].clientY;
+                    const deltaY = this.currentY - this.startY;
+
+                    if (deltaY > 0) {
+                        const translate = Math.min(deltaY, window.innerHeight * 0.85);
+                        this.content.style.transform = `translateY(${translate}px)`;
+                    }
+                }, { passive: true });
+
+                // 触摸结束
+                this.handle.addEventListener('touchend', () => {
+                    if (!this.isDragging) return;
+                    this.isDragging = false;
+                    this.content.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+
+                    const deltaY = this.currentY - this.startY;
+                    if (deltaY > 100) {
+                        this.close();
+                    } else {
+                        this.content.style.transform = 'translateY(0)';
+                    }
+                });
+            },
+
+            open() {
+                if (!this.element) this.init();
+                this.element.classList.add('active');
+                document.body.style.overflow = 'hidden';
+
+                // 更新当前选中状态
+                this.updateActiveState();
+
+                // 触觉反馈
+                if (navigator.vibrate) {
+                    navigator.vibrate(10);
+                }
+            },
+
+            close() {
+                if (!this.element) return;
+                this.element.classList.remove('active');
+                document.body.style.overflow = '';
+            },
+
+            updateActiveState() {
+                // 移除所有active类
+                const allOptions = this.element.querySelectorAll('.tab-option-item');
+                allOptions.forEach(option => option.classList.remove('active'));
+
+                // 添加当前选中Tab的active类
+                const currentOption = this.element.querySelectorAll('.tab-option-item')[currentTab];
+                if (currentOption) {
+                    currentOption.classList.add('active');
+                }
+            }
+        };
+
+        function openTabSheet() {
+            tabSheet.init();
+            tabSheet.open();
+        }
+
+        function closeTabSheet() {
+            tabSheet.close();
+        }
+
+        /**
+         * 从Tab Sheet切换Tab并关闭弹窗
+         * @param {number} tabIndex - Tab索引（0-5）
+         */
+        function switchTabAndClose(tabIndex) {
+            console.log('🔄 从Tab Sheet切换到Tab', tabIndex);
+
+            // 切换Tab
+            switchTab(tabIndex);
+
+            // 关闭Tab Sheet
+            closeTabSheet();
         }
 
         // 筛选选项选择
@@ -3932,3 +4092,152 @@
             }, 1000);
             */
         });
+
+        // =====================================================
+        // Tab自适应布局 (V2.0)
+        // =====================================================
+
+        /**
+         * Tab自适应管理器
+         * 根据屏幕宽度动态显示Tab数量
+         */
+        const TabLayoutManager = {
+            tabs: [],
+            moreButton: null,
+            dropdown: null,
+            avgTabWidth: 100, // 平均每个Tab的宽度（px）
+
+            init() {
+                this.tabs = Array.from(document.querySelectorAll('.tab-item:not(.tab-more)'));
+                this.moreButton = document.querySelector('.tab-more');
+                this.dropdown = document.getElementById('tabDropdown');
+
+                console.log('📊 Tab布局初始化，Tab总数:', this.tabs.length);
+
+                // 初始布局
+                this.updateLayout();
+
+                // 监听窗口大小变化（防抖）
+                let resizeTimer;
+                window.addEventListener('resize', () => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => this.updateLayout(), 200);
+                });
+            },
+
+            /**
+             * 计算可以显示的Tab数量
+             */
+            calculateVisibleTabs() {
+                const tabsNav = document.querySelector('.tabs-nav');
+                if (!tabsNav) return 6;
+
+                const containerWidth = tabsNav.offsetWidth;
+                const moreButtonWidth = this.moreButton ? 80 : 0;
+
+                // 可用宽度 = 总宽度 - "更多"按钮宽度 - padding
+                const availableWidth = containerWidth - moreButtonWidth - 20;
+
+                // 可以显示的Tab数量
+                const maxVisible = Math.floor(availableWidth / this.avgTabWidth);
+
+                console.log(`📐 容器宽度: ${containerWidth}px, 可显示: ${maxVisible}个Tab`);
+
+                return Math.min(maxVisible, this.tabs.length);
+            },
+
+            /**
+             * 更新Tab布局
+             */
+            updateLayout() {
+                const visibleCount = this.calculateVisibleTabs();
+                const totalCount = this.tabs.length;
+
+                console.log(`🔄 更新Tab布局: 显示${visibleCount}/${totalCount}个`);
+
+                // 如果能显示全部Tab
+                if (visibleCount >= totalCount) {
+                    this.showAllTabs();
+                } else {
+                    // 显示部分Tab + "更多"按钮
+                    this.showPartialTabs(visibleCount);
+                }
+            },
+
+            /**
+             * 显示全部Tab（隐藏"更多"）
+             */
+            showAllTabs() {
+                this.tabs.forEach(tab => {
+                    tab.style.display = '';
+                });
+
+                if (this.moreButton) {
+                    this.moreButton.style.display = 'none';
+                }
+
+                console.log('✅ 显示全部Tab，隐藏"更多"按钮');
+            },
+
+            /**
+             * 显示部分Tab + "更多"按钮
+             */
+            showPartialTabs(visibleCount) {
+                this.tabs.forEach((tab, index) => {
+                    if (index < visibleCount) {
+                        tab.style.display = '';
+                    } else {
+                        tab.style.display = 'none';
+                    }
+                });
+
+                if (this.moreButton) {
+                    this.moreButton.style.display = '';
+                }
+
+                this.updateDropdown(visibleCount);
+
+                console.log(`✅ 显示前${visibleCount}个Tab + "更多"按钮`);
+            },
+
+            /**
+             * 更新下拉菜单内容
+             */
+            updateDropdown(visibleCount) {
+                if (!this.dropdown) return;
+
+                const hiddenTabs = this.tabs.slice(visibleCount);
+                const currentDropdownItems = this.dropdown.querySelectorAll('.dropdown-item');
+
+                // 清空现有菜单项
+                currentDropdownItems.forEach(item => item.remove());
+
+                // 添加隐藏的Tab到菜单
+                hiddenTabs.forEach((tab, index) => {
+                    const tabIndex = visibleCount + index;
+                    const icon = tab.querySelector('.tab-icon')?.textContent || '';
+                    const text = tab.querySelector('span:not(.tab-icon))')?.textContent || '';
+
+                    const item = document.createElement('div');
+                    item.className = 'dropdown-item';
+                    item.innerHTML = `
+                        <span class="dropdown-icon">${icon}</span>
+                        <span>${text}</span>
+                    `;
+                    item.onclick = () => {
+                        switchTab(tabIndex);
+                        closeTabDropdown();
+                    };
+
+                    this.dropdown.appendChild(item);
+                });
+
+                console.log(`📋 下拉菜单更新，包含${hiddenTabs.length}个项目`);
+            }
+        };
+
+        // 初始化Tab布局管理器
+        document.addEventListener('DOMContentLoaded', () => {
+            TabLayoutManager.init();  // 立即初始化，不等待
+        });
+

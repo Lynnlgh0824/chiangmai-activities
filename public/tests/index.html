@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试工具中心 - 清迈活动平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .device-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 16px;
+        }
+        .device-icon {
+            font-size: 18px;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+        .section-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .test-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .test-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        .test-card.featured {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .test-card.featured .card-title {
+            color: white;
+        }
+        .test-card.featured .card-desc {
+            color: rgba(255,255,255,0.9);
+        }
+        .test-card.featured .card-badge {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .card-icon {
+            font-size: 28px;
+        }
+        .card-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 10px;
+            background: #e7f3ff;
+            color: #2196f3;
+            font-weight: 600;
+        }
+        .badge-auto {
+            background: #d4edda;
+            color: #155724;
+        }
+        .badge-manual {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .badge-new {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .card-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        .card-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .feature-tag {
+            font-size: 11px;
+            background: #f5f5f5;
+            color: #666;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .quick-actions {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .quick-actions h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+        .quick-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            margin-right: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+        .quick-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .quick-btn.secondary {
+            background: #6c757d;
+        }
+        .quick-btn.secondary:hover {
+            background: #5c636a;
+        }
+
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .footer a {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+            .quick-btn {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 测试工具中心</h1>
+            <p>清迈活动探索平台 - 统一测试入口</p>
+            <div class="device-badge">
+                <span class="device-icon" id="deviceIcon">📱</span>
+                <span id="deviceInfo">检测中...</span>
+            </div>
+        </div>
+
+        <!-- 快速操作 -->
+        <div class="quick-actions">
+            <h3>⚡ 快速操作</h3>
+            <a href="../" target="_blank" class="quick-btn">
+                <span>🔗</span>
+                <span>打开主页</span>
+            </a>
+            <a href="test-mobile-optimization.html" class="quick-btn">
+                <span>📱</span>
+                <span>移动端PRD验收</span>
+            </a>
+            <a href="../admin.html" target="_blank" class="quick-btn secondary">
+                <span>⚙️</span>
+                <span>管理后台</span>
+            </a>
+            <button class="quick-btn secondary" onclick="window.print()">
+                <span>📄</span>
+                <span>打印页面</span>
+            </button>
+        </div>
+
+        <!-- 自动化测试 -->
+        <div class="section">
+            <div class="section-title">
+                <span>🤖</span>
+                <span>自动化测试（打开即用）</span>
+            </div>
+            <div class="cards-grid">
+                <!-- 活动列表页AI验收 -->
+                <a href="test-activity-page-qa.html" class="test-card featured">
+                    <div class="card-header">
+                        <span class="card-icon">🧪</span>
+                        <span class="card-badge badge-new">NEW</span>
+                    </div>
+                    <div class="card-title">活动列表页AI验收 (ACTIVITY_PAGE_QA)</div>
+                    <div class="card-desc">
+                        基于ACTIVITY_PAGE_QA.md模板的5维度验收，包含今天高亮(P0)、首屏密度(P0)等关键指标
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">100分制评分</span>
+                        <span class="feature-tag">今天高亮P0</span>
+                        <span class="feature-tag">首屏密度P0</span>
+                    </div>
+                </a>
+
+                <!-- 移动端优化验收 -->
+                <a href="test-mobile-optimization.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">📱</span>
+                        <span class="card-badge badge-auto">自动</span>
+                    </div>
+                    <div class="card-title">移动端优化PRD验收</div>
+                    <div class="card-desc">
+                        基于移动端优化PRD设计的全自动验收测试，覆盖结构、视觉、交互、UX四大维度
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">响应式识别</span>
+                        <span class="feature-tag">问题分级</span>
+                        <span class="feature-tag">优化建议</span>
+                    </div>
+                </a>
+
+                <!-- 自动验证测试 -->
+                <a href="../test-auto-verify.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">🔍</span>
+                        <span class="card-badge badge-auto">自动</span>
+                    </div>
+                    <div class="card-title">核心功能自动验证</div>
+                    <div class="card-desc">
+                        全面检查系统状态，测试6个核心功能模块，适合日常快速验证
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">API测试</span>
+                        <span class="feature-tag">CSS检查</span>
+                        <span class="feature-tag">JS验证</span>
+                    </div>
+                </a>
+
+                <!-- CSS变量测试 -->
+                <a href="test-css-variables.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">🎨</span>
+                        <span class="card-badge badge-auto">自动</span>
+                    </div>
+                    <div class="card-title">CSS变量系统验证</div>
+                    <div class="card-desc">
+                        验证CSS变量定义和应用情况，包含视觉演示和移动端覆盖测试
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">变量定义</span>
+                        <span class="feature-tag">应用检查</span>
+                        <span class="feature-tag">移动端覆盖</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 手动测试工具 -->
+        <div class="section">
+            <div class="section-title">
+                <span>🔧</span>
+                <span>手动测试工具（需操作）</span>
+            </div>
+            <div class="cards-grid">
+                <!-- 移动端功能测试 -->
+                <a href="../test-mobile-verification.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">📱</span>
+                        <span class="card-badge badge-manual">手动</span>
+                    </div>
+                    <div class="card-title">移动端功能测试</div>
+                    <div class="card-desc">
+                        深度诊断移动端问题，包含间距优化、Tab检查、日期高亮等功能测试
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">间距验证</span>
+                        <span class="feature-tag">Tab检查</span>
+                        <span class="feature-tag">日期高亮</span>
+                    </div>
+                </a>
+
+                <!-- 分类筛选诊断 -->
+                <a href="../debug-categories.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">🏷️</span>
+                        <span class="card-badge badge-manual">手动</span>
+                    </div>
+                    <div class="card-title">分类筛选诊断工具</div>
+                    <div class="card-desc">
+                        针对分类筛选问题的专项诊断工具，提供问题分析和修复建议
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">分类检查</span>
+                        <span class="feature-tag">API验证</span>
+                        <span class="feature-tag">修复建议</span>
+                    </div>
+                </a>
+
+                <!-- 移动端特性演示 -->
+                <a href="../test-mobile-features.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">📲</span>
+                        <span class="card-badge badge-manual">演示</span>
+                    </div>
+                    <div class="card-title">移动端特性演示</div>
+                    <div class="card-desc">
+                        Bottom Sheet筛选、Toast提示、Dialog确认等移动端组件演示
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">BottomSheet</span>
+                        <span class="feature-tag">Toast</span>
+                        <span class="feature-tag">Dialog</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 测试仪表板 -->
+        <div class="section">
+            <div class="section-title">
+                <span>📊</span>
+                <span>测试仪表板</span>
+            </div>
+            <div class="cards-grid">
+                <a href="test-automation-dashboard.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">📈</span>
+                        <span class="card-badge">仪表板</span>
+                    </div>
+                    <div class="card-title">自动化测试仪表板</div>
+                    <div class="card-desc">
+                        综合测试仪表板，支持批量运行测试套件，查看详细测试报告
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">批量测试</span>
+                        <span class="feature-tag">详细报告</span>
+                        <span class="feature-tag">实时进度</span>
+                    </div>
+                </a>
+
+                <a href="test-all.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">🔬</span>
+                        <span class="card-badge">综合</span>
+                    </div>
+                    <div class="card-title">综合测试页面</div>
+                    <div class="card-desc">
+                        集成多种测试功能的综合测试页面
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">多功能</span>
+                        <span class="feature-tag">一体化</span>
+                    </div>
+                </a>
+
+                <a href="test-time-sorting.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">⏰</span>
+                        <span class="card-badge">专项</span>
+                    </div>
+                    <div class="card-title">时间排序功能测试</div>
+                    <div class="card-desc">
+                        验证活动时间排序逻辑的正确性
+                    </div>
+                    <div class="card-features">
+                        <span class="feature-tag">排序逻辑</span>
+                        <span class="feature-tag">时间处理</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- 辅助工具 -->
+        <div class="section">
+            <div class="section-title">
+                <span>🛠️</span>
+                <span>辅助诊断工具</span>
+            </div>
+            <div class="cards-grid">
+                <a href="../diagnose.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">💊</span>
+                        <span class="card-badge">诊断</span>
+                    </div>
+                    <div class="card-title">系统诊断页面</div>
+                    <div class="card-desc">
+                        全面诊断系统状态，检查API、函数、变量等关键组件
+                    </div>
+                </a>
+
+                <a href="../simple-test.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">🧪</span>
+                        <span class="card-badge">简单</span>
+                    </div>
+                    <div class="card-title">简单测试页面</div>
+                    <div class="card-desc">
+                        基础功能快速测试页面
+                    </div>
+                </a>
+
+                <a href="../debug.html" class="test-card">
+                    <div class="card-header">
+                        <span class="card-icon">🐛</span>
+                        <span class="card-badge">调试</span>
+                    </div>
+                    <div class="card-title">调试页面</div>
+                    <div class="card-desc">
+                        开发调试专用页面，包含详细的调试信息输出
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                <a href="https://github.com/Lynnlgh0824/chiangmai-activities" target="_blank">清迈活动平台</a>
+                • 测试工具中心 • 最后更新: 2026-02-26
+            </p>
+            <p style="margin-top: 8px; font-size: 11px; opacity: 0.7;">
+                推荐使用 Chrome/Edge/Safari 浏览器访问 • 移动端请使用真机测试
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // 设备信息检测
+        function updateDeviceInfo() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const isMobile = width <= 768;
+            const ua = navigator.userAgent;
+
+            let deviceType = 'PC端';
+            let icon = '🖥️';
+
+            if (isMobile) {
+                deviceType = '移动端';
+                icon = '📱';
+            } else if (/tablet|ipad/i.test(ua)) {
+                deviceType = '平板';
+                icon = '📱';
+            }
+
+            document.getElementById('deviceIcon').textContent = icon;
+            document.getElementById('deviceInfo').textContent =
+                `${deviceType} • ${width}px × ${height}px`;
+
+            // 移动端推荐特定测试
+            if (isMobile) {
+                console.log('📱 检测到移动端，推荐使用"移动端优化PRD验收"测试');
+            }
+        }
+
+        // 页面加载时更新设备信息
+        updateDeviceInfo();
+
+        // 窗口大小变化时更新
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(updateDeviceInfo, 200);
+        });
+
+        // 记录访问
+        console.log('🧪 测试工具中心已加载');
+        console.log('📋 可用测试工具:');
+        console.log('  • test-mobile-optimization.html - 移动端PRD验收');
+        console.log('  • test-auto-verify.html - 核心功能验证');
+        console.log('  • test-css-variables.html - CSS变量测试');
+        console.log('  • test-mobile-verification.html - 移动端功能测试');
+    </script>
+</body>
+</html>

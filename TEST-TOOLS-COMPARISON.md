@@ -16,18 +16,33 @@
 
 【自动化测试】- 打开页面自动运行
 │
+├── 🧪 tests/test-activity-page-qa.html (NEW - 2026-02-26)
+│   ├── 页面加载后500ms自动运行
+│   ├── 基于ACTIVITY_PAGE_QA.md模板
+│   ├── 5维度验收：结构/今天高亮/首屏密度/交互/视觉
+│   ├── 100分制评分系统
+│   └── 用途: 活动列表页完整业务验收
+│
 ├── 🤖 test-auto-verify.html
 │   ├── 页面加载后500ms自动运行
 │   ├── 测试6个核心功能
 │   ├── 生成详细报告和建议
 │   └── 用途: 全面检查系统状态
 │
+├── 📱 tests/test-mobile-optimization.html (NEW - 2026-02-26)
+│   ├── 页面加载后500ms自动运行
+│   ├── PRD验收测试：结构/视觉/交互/UX
+│   ├── 移动端优化专项验证
+│   ├── 响应式布局检查
+│   ├── Tab下拉菜单验证
+│   └── 用途: 移动端优化PRD验收
+│
 ├── 📱 test-mobile-verification.html
 │   ├── 需要手动点击按钮运行
 │   ├── 测试移动端专项功能
 │   └── 用途: 移动端问题诊断
 │
-└── 🎨 test-css-variables.html (NEW)
+└── 🎨 test-css-variables.html
     ├── 页面加载后500ms自动运行
     ├── 测试CSS变量系统
     └── 用途: 验证CSS变量实施
@@ -87,7 +102,127 @@ window.addEventListener('load', () => {
 
 ---
 
-### 2. test-mobile-verification.html 📱 移动端专项测试
+### 1. tests/test-activity-page-qa.html 🧪 活动列表页AI验收 (NEW)
+
+**位置**: `public/tests/` 目录
+**访问**: http://localhost:3000/tests/test-activity-page-qa.html
+**创建时间**: 2026-02-26
+**模板版本**: ACTIVITY_PAGE_QA.md V1.0
+
+**特点**:
+- ✅ **自动化**: 页面加载后500ms自动运行
+- ✅ **完整验收**: 5个维度全覆盖，基于官方QA模板
+- ✅ **100分制**: 结构20 + 今天高亮20 + 首屏密度20 + 交互20 + 视觉20
+- ✅ **P0检测**: 今天高亮、首屏密度作为关键验收项
+- ✅ **详细报告**: 问题分级、优化建议、评分详情
+
+**测试内容**:
+```javascript
+【维度1: 页面结构验收 (20分)】
+├── 搜索栏存在 (4分)
+├── 筛选按钮存在 (4分)
+├── 分类Tab存在 (4分)
+├── 日期选择器存在 (4分)
+└── 活动列表存在 (4分)
+
+【维度2: 默认当天高亮验收 (20分) ⚠️ P0】
+├── 页面默认选中"今天" (10分)
+└── 今天具有明显视觉高亮 (10分)
+    ├── 实心背景 OR
+    ├── 高对比色 OR
+    └── "今天"标签
+
+【维度3: 首屏活动密度验收 (20分) ⚠️ P0】
+└── 首屏必须显示 ≥ 4 个活动卡片 (20分)
+
+【维度4: 交互验收 (20分)】
+├── 点击日期 → 活动列表变化 (7分)
+├── 点击Tab → 活动列表变化 (7分)
+└── 点击卡片 → 详情页或反馈 (6分)
+
+【维度5: 视觉一致性验收 (20分)】
+├── 选中态颜色统一 (10分)
+└── 不存在混乱高亮 (10分)
+```
+
+**验收标准**:
+| 评分 | 结果 |
+|------|------|
+| ≥80分 且 无P0失败 | ✅ 验收通过 |
+| ≥60分 | ⚠️ 有条件通过 |
+| <60分 | ❌ 验收不通过 |
+
+**运行方式**:
+```javascript
+// 自动运行
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { runAllTests(); }, 500);
+});
+```
+
+**输出格式**:
+- 📊 总评分 (0-100分)
+- ⚠️ 问题列表 (P0严重/P1中等/P2轻微)
+- 💡 优化建议 (基于测试结果)
+
+---
+
+### 2. test-auto-verify.html 🤖 核心自动化测试
+
+**位置**: `public/tests/` 目录
+**访问**: http://localhost:3000/tests/test-mobile-optimization.html
+**创建时间**: 2026-02-26
+
+**特点**:
+- ✅ **自动化**: 页面加载后500ms自动运行
+- ✅ **PRD验收**: 基于移动端优化PRD要求设计
+- ✅ **4大维度**: 结构验收、视觉验收、交互验收、UX验收
+- ✅ **响应式**: 自动识别移动端/PC端，跳过不适用的测试
+- ✅ **问题分级**: 严重(1)、中等(2)、轻微(3)
+- ✅ **详细报告**: 生成问题列表和优化建议
+
+**测试内容**:
+```javascript
+【1️⃣ 结构验收】
+├── 搜索+筛选合并检查
+├── 分类Tab结构检查（4个Tab+更多按钮）
+├── Tab下拉菜单存在性检查
+├── 日期选择器存在性检查
+└── 活动列表容器存在性检查
+
+【2️⃣ 视觉验收】
+├── 响应式布局CSS检查（@media查询）
+├── 移动端"更多"按钮可见性
+├── PC端6个Tab完整显示
+└── 固定布局样式检查（sticky positioning）
+
+【3️⃣ 交互验收】
+├── switchTab函数存在性
+├── toggleTabDropdown函数存在性
+├── switchTabFromDropdown函数存在性
+└── closeTabDropdown函数存在性
+
+【4️⃣ 用户体验验收】
+├── 页面加载速度检查（<3秒）
+└── JavaScript错误检查
+```
+
+**运行方式**:
+```javascript
+// 自动运行
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { runAllTests(); }, 500);
+});
+```
+
+**输出格式**:
+- 📊 测试总结：通过/失败/跳过数量，通过率
+- ⚠️ 问题列表：按严重程度分级显示
+- 💡 优化建议：基于测试结果生成
+
+---
+
+### 3. test-mobile-verification.html 📱 移动端专项测试
 
 **位置**: 项目根目录
 **访问**: http://localhost:3000/test-mobile-verification.html
@@ -111,7 +246,7 @@ window.addEventListener('load', () => {
 
 ---
 
-### 3. test-css-variables.html 🎨 CSS变量验证 (NEW)
+### 4. test-css-variables.html 🎨 CSS变量验证
 
 **位置**: `public/` 目录
 **访问**: http://localhost:3000/test-css-variables.html
@@ -155,7 +290,7 @@ window.addEventListener('load', () => {
 
 ---
 
-### 4. debug-categories.html 🔧 分类筛选诊断工具
+### 5. debug-categories.html 🔧 分类筛选诊断工具
 
 **位置**: 项目根目录
 **访问**: http://localhost:3000/debug-categories.html
@@ -271,8 +406,9 @@ window.addEventListener('load', () => {
 
 ### 专项问题？→ 使用专项测试
 
+**移动端优化验收**: `tests/test-mobile-optimization.html` ⭐ 推荐
 **CSS变量问题**: `test-css-variables.html`
-**移动端问题**: `test-mobile-verification.html`
+**移动端功能测试**: `test-mobile-verification.html`
 **分类筛选问题**: `debug-categories.html`
 
 **理由**:
@@ -381,8 +517,9 @@ window.addEventListener('load', () => {
 
 **发布前**:
 1. 全面测试: `test-auto-verify.html`
-2. 专项验证: `test-css-variables.html`
-3. 移动端测试: `test-mobile-verification.html`
+2. 移动端优化验收: `tests/test-mobile-optimization.html`
+3. 专项验证: `test-css-variables.html`
+4. 移动端功能测试: `test-mobile-verification.html`
 
 **遇到问题时**:
 1. 定位问题: 对应的debug工具
@@ -399,6 +536,12 @@ window.addEventListener('load', () => {
 - 主自动化测试工具
 - 覆盖所有核心功能
 - 日常快速验证首选
+
+**移动端优化验收**: `tests/test-mobile-optimization.html` ⭐ NEW
+- 移动端优化PRD验收专用
+- 自动运行，响应式识别
+- 结构/视觉/交互/UX四维度验收
+- 问题分级，生成优化建议
 
 **辅助**: `test-css-variables.html`
 - CSS变量系统专项测试
@@ -417,7 +560,7 @@ window.addEventListener('load', () => {
 
 ### 关键点
 
-1. **自动化测试** = test-auto-verify.html 和 test-css-variables.html
+1. **自动化测试** = test-auto-verify.html、test-css-variables.html、test-mobile-optimization.html
    - 页面加载后自动运行
    - 快速、方便、可重复
 
@@ -427,7 +570,66 @@ window.addEventListener('load', () => {
 
 3. **关联关系**: 主测试工具发现问题 → 使用专项/诊断工具详细检查
 
+4. **移动端优化验收流程**:
+   ```
+   移动端优化开发完成
+          ↓
+   test-mobile-optimization.html (自动验收)
+          ↓
+   检查验收结果
+          ↓
+   ├─ 通过 → 完成 ✅
+   └─ 失败 → 修复问题 → 重新验收
+   ```
+
+---
+
+---
+
+## 🚀 统一测试入口 (NEW - 2026-02-26)
+
+### tests/index.html - 测试工具中心 ⭐ 推荐入口
+
+**位置**: `public/tests/index.html`
+**访问**: http://localhost:3000/tests/index.html 或 http://localhost:3000/test-hub.html
+
+**特点**:
+- ✅ **一站式**: 所有测试工具的统一入口
+- ✅ **可视化**: 卡片式布局，清晰分类
+- ✅ **设备识别**: 自动检测移动端/PC端
+- ✅ **快速操作**: 一键打开主页、管理后台等
+- ✅ **响应式**: 支持移动端和PC端访问
+
+**包含的分类**:
+```
+🤖 自动化测试（打开即用）
+├── 📱 移动端优化PRD验收 ⭐
+├── 🔍 核心功能自动验证
+└── 🎨 CSS变量系统验证
+
+🔧 手动测试工具（需操作）
+├── 📱 移动端功能测试
+├── 🏷️ 分类筛选诊断工具
+└── 📲 移动端特性演示
+
+📊 测试仪表板
+├── 📈 自动化测试仪表板
+├── 🔬 综合测试页面
+└── ⏰ 时间排序功能测试
+
+🛠️ 辅助诊断工具
+├── 💊 系统诊断页面
+├── 🧪 简单测试页面
+└── 🐛 调试页面
+```
+
+**快速访问**:
+- 主页测试: `/` 或 `../`
+- 测试中心: `/tests/index.html` 或 `/test-hub.html`
+- 管理后台: `/admin.html`
+
 ---
 
 **文档创建时间**: 2026-01-29
+**最后更新**: 2026-02-26
 **用途**: 帮助理解测试工具体系和使用方法

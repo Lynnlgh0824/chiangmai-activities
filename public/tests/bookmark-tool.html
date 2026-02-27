@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端测试工具 - 书签安装</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .bookmark-btn {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s;
+            cursor: move;
+            user-select: none;
+        }
+        .bookmark-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .instructions h3 {
+            margin-bottom: 12px;
+            color: #333;
+        }
+        .instructions ol {
+            margin-left: 20px;
+            line-height: 1.8;
+            color: #555;
+        }
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        .demo {
+            margin-top: 20px;
+            padding: 16px;
+            background: #e7f3ff;
+            border-radius: 8px;
+            border-left: 4px solid #2196f3;
+        }
+        .demo h4 {
+            margin-bottom: 8px;
+            color: #2196f3;
+        }
+        .demo p {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+        }
+        .video-demo {
+            margin-top: 20px;
+            padding: 20px;
+            background: #fff5f5;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+        }
+        .video-demo h4 {
+            margin-bottom: 12px;
+            color: #f57c00;
+        }
+        .code-block {
+            background: #263238;
+            color: #aed581;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        .alternative-methods {
+            margin-top: 30px;
+        }
+        .method-card {
+            background: #f8f9fa;
+            padding: 16px;
+            margin: 12px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .method-card h4 {
+            margin-bottom: 8px;
+            color: #667eea;
+        }
+        .method-card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .method-card code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 移动端测试工具</h1>
+        <p class="subtitle">一键安装测试书签，在任何页面运行移动端优化测试</p>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <a class="bookmark-btn" href="javascript:(function(){var s=document.createElement('script');s.src='/js/test-injector.js';document.body.appendChild(s);})();" onclick="alert('请将此按钮拖动到浏览器书签栏！'); return false;">
+                📱 移动端测试（拖动到书签栏）
+            </a>
+        </div>
+
+        <div class="instructions">
+            <h3>📖 使用说明</h3>
+            <ol>
+                <li><strong>显示书签栏</strong>：按 <code>Ctrl+Shift+B</code> (Windows) 或 <code>Cmd+Shift+B</code> (Mac)</li>
+                <li><strong>拖动书签</strong>：将上面的按钮拖动到书签栏</li>
+                <li><strong>打开主页</strong>：访问 <code>http://localhost:4000</code></li>
+                <li><strong>运行测试</strong>：点击书签栏中的"📱 移动端测试"按钮</li>
+                <li><strong>查看结果</strong>：页面右上角会显示测试面板</li>
+            </ol>
+        </div>
+
+        <div class="demo">
+            <h4>💡 提示</h4>
+            <p>如果拖动不成功，可以手动创建书签：</p>
+            <div class="code-block">名称: 📱 移动端测试<br>URL: javascript:(function(){var s=document.createElement('script');s.src='/js/test-injector.js';document.body.appendChild(s);})();</div>
+        </div>
+
+        <div class="alternative-methods">
+            <h3>🔧 其他使用方式</h3>
+
+            <div class="method-card">
+                <h4>方式1: 控制台运行（最简单）</h4>
+                <p>打开主页面后，按 <code>F12</code> 打开控制台，粘贴以下代码：</p>
+                <div class="code-block">fetch('/js/test-injector.js').then(r=>r.text()).then(eval)</div>
+            </div>
+
+            <div class="method-card">
+                <h4>方式2: 直接访问测试脚本</h4>
+                <p>在控制台运行：</p>
+                <div class="code-block">var s = document.createElement('script');<br>s.src = '/js/test-injector.js';<br>document.body.appendChild(s);</div>
+            </div>
+
+            <div class="method-card">
+                <h4>方式3: 永久添加到主页面</h4>
+                <p>在 <code>index.html</code> 的 <code>&lt;/body&gt;</code> 前添加：</p>
+                <div class="code-block">&lt;script src="/js/test-injector.js"&gt;&lt;/script&gt;</div>
+            </div>
+        </div>
+
+        <div class="video-demo">
+            <h4>⚠️ 注意事项</h4>
+            <p style="margin-bottom: 8px;">• 测试工具需要在主页面（/）的上下文中运行</p>
+            <p style="margin-bottom: 8px;">• 某些测试仅适用于移动端（≤768px）或PC端</p>
+            <p>• 测试面板可以拖动、最小化，不影响页面使用</p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                ← 返回主页
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 检测是否在书签栏中
+        if (window.location.protocol === 'javascript:') {
+            // 如果用户点击了书签，注入测试脚本
+            var script = document.createElement('script');
+            script.src = '/js/test-injector.js';
+            document.body.appendChild(script);
+        }
+    </script>
+</body>
+</html>

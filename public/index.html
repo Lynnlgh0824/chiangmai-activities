@@ -166,13 +166,14 @@
                         type="text"
                         class="search-input"
                         id="searchInput"
-                        placeholder="搜索活动、地点、关键词..."
+                        placeholder="关键词..."
                     >
-                    <!-- 移动端搜索按钮 -->
-                    <button class="search-icon-btn" onclick="performSearch()" aria-label="搜索">
-                        🔍
+                    <!-- 移动端：筛选按钮 -->
+                    <button class="search-icon-btn filter-trigger-btn" onclick="openFilterSheet()" aria-label="筛选">
+                        筛选
                     </button>
                 </div>
+                <!-- PC端：搜索按钮（保留） -->
                 <button class="search-btn" onclick="performSearch()">搜索</button>
             </div>
         </div>
@@ -219,8 +220,9 @@
             </div>
         </div> -->
 
-        <!-- Tab导航（6个Tab） -->
+        <!-- Tab导航（响应式：PC端6个Tab，移动端4个+更多） -->
         <div class="tabs-nav">
+            <!-- PC端和移动端共有的前4个Tab -->
             <div class="tab-item active" onclick="switchTab(0)">
                 <span class="tab-icon">📅</span>
                 <span>兴趣班</span>
@@ -237,12 +239,32 @@
                 <span class="tab-icon">⏰</span>
                 <span>灵活时间活动</span>
             </div>
-            <div class="tab-item" onclick="switchTab(4)">
+
+            <!-- PC端：显示后2个Tab -->
+            <div class="tab-item desktop-only" onclick="switchTab(4)">
                 <span class="tab-icon">🏪</span>
                 <span>活动网站</span>
             </div>
-            <div class="tab-item" onclick="switchTab(5)">
+            <div class="tab-item desktop-only" onclick="switchTab(5)">
                 <span class="tab-icon">📖</span>
+                <span>攻略信息</span>
+            </div>
+
+            <!-- 移动端：更多Bottom Sheet按钮 -->
+            <div class="tab-item mobile-only tab-more" onclick="openTabSheet()">
+                <span class="tab-icon">▾</span>
+                <span>更多 ▾</span>
+            </div>
+        </div>
+
+        <!-- 移动端Tab下拉菜单 -->
+        <div class="tab-dropdown" id="tabDropdown">
+            <div class="dropdown-item" onclick="switchTabFromDropdown(4)">
+                <span class="dropdown-icon">🏪</span>
+                <span>活动网站</span>
+            </div>
+            <div class="dropdown-item" onclick="switchTabFromDropdown(5)">
+                <span class="dropdown-icon">📖</span>
                 <span>攻略信息</span>
             </div>
         </div>
@@ -327,72 +349,74 @@
         <!-- 活动详情弹窗 - 优化后的层级结构 -->
         <div class="modal-overlay" id="activityModal">
             <div class="modal">
-                <!-- 头部：活动标题 -->
+                <!-- ========== 顶部：活动标题（固定） ========== -->
                 <div class="modal-header">
+                    <!-- 分类标签 -->
+                    <span class="modal-category-badge" id="modalCategory">分类</span>
                     <h2 class="modal-title" id="modalTitle">活动标题</h2>
                     <button class="modal-close" onclick="closeModal()">×</button>
                 </div>
 
-                <!-- 关键信息卡片 -->
-                <div class="modal-key-info">
-                    <div class="info-item">
-                        <span class="info-icon">⏰</span>
-                        <div class="info-text">
-                            <strong>时间</strong>
-                            <div id="modalTime">08:30-09:45</div>
+                <!-- ========== 内容区域：可滚动 ========== -->
+                <div class="modal-scrollable-content">
+                    <!-- 关键信息卡片 -->
+                    <div class="modal-key-info">
+                        <div class="info-item">
+                            <span class="info-icon">⏰</span>
+                            <div class="info-text">
+                                <strong>时间</strong>
+                                <div id="modalTime">08:30-09:45</div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-icon">📍</span>
+                            <div class="info-text">
+                                <strong>地点</strong>
+                                <div id="modalLocation">地点名称</div>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <span class="info-icon">💰</span>
+                            <div class="info-text">
+                                <strong>价格</strong>
+                                <div id="modalPrice">免费</div>
+                            </div>
+                        </div>
+
+                        <div class="info-item" id="modalDurationItem" style="display: none;">
+                            <span class="info-icon">⏱️</span>
+                            <div class="info-text">
+                                <strong>时长</strong>
+                                <div id="modalDuration">1小时</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="info-item">
-                        <span class="info-icon">📍</span>
-                        <div class="info-text">
-                            <strong>地点</strong>
-                            <div id="modalLocation">地点名称</div>
+                    <!-- 内容详情 -->
+                    <div class="modal-body">
+                        <!-- 活动详情 -->
+                        <div class="modal-section">
+                            <h3 class="section-title">📝 活动详情</h3>
+                            <div class="section-content" id="modalDescription">
+                                活动描述内容...
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="info-item">
-                        <span class="info-icon">💰</span>
-                        <div class="info-text">
-                            <strong>价格</strong>
-                            <div id="modalPrice">免费</div>
-                        </div>
-                    </div>
-
-                    <div class="info-item" id="modalDurationItem" style="display: none;">
-                        <span class="info-icon">⏱️</span>
-                        <div class="info-text">
-                            <strong>时长</strong>
-                            <div id="modalDuration">1小时</div>
+                        <!-- 频率信息 -->
+                        <div class="modal-info-row" id="modalFrequencyRow" style="display: none;">
+                            <strong>📅 频率:</strong>
+                            <span id="modalFrequency">每周</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 内容区域 -->
-                <div class="modal-body">
-                    <!-- 分类标签 -->
-                    <span class="modal-category-badge" id="modalCategory">分类</span>
-
-                    <!-- 活动详情 -->
-                    <div class="modal-section">
-                        <h3 class="section-title">📝 活动详情</h3>
-                        <div class="section-content" id="modalDescription">
-                            活动描述内容...
-                        </div>
-                    </div>
-
-                    <!-- 频率信息 -->
-                    <div class="modal-info-row" id="modalFrequencyRow" style="display: none;">
-                        <strong>📅 频率:</strong>
-                        <span id="modalFrequency">每周</span>
-                    </div>
-                </div>
-
-                <!-- 底部操作按钮 -->
-                <div class="modal-footer" id="modalFooter" style="display: none;">
+                <!-- ========== 底部：操作按钮（固定） ========== -->
+                <div class="modal-footer" id="modalFooter" style="display: flex;">
                     <button class="btn-secondary" onclick="closeModal()">关闭</button>
                     <a id="modalLinkButton" href="#" target="_blank" class="btn-primary">
-                        查看官网 →
+                        查看官网/来源 →
                     </a>
                 </div>
             </div>
@@ -443,6 +467,45 @@
                 <button class="sheet-btn primary" onclick="applyFilters()">
                     应用 <span id="filterCount" class="filter-count">0</span>
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Bottom Sheet Tab选择组件 -->
+    <div class="bottom-sheet" id="tabSheet">
+        <div class="sheet-overlay" onclick="closeTabSheet()"></div>
+        <div class="sheet-content">
+            <div class="sheet-handle" id="tabSheetHandle"></div>
+            <div class="sheet-header">
+                <h3 class="sheet-title">全部分类</h3>
+            </div>
+            <div class="sheet-body">
+                <div class="tab-option-list">
+                    <div class="tab-option-item" onclick="switchTabAndClose(0)">
+                        <span class="tab-option-icon">📅</span>
+                        <span class="tab-option-text">兴趣班</span>
+                    </div>
+                    <div class="tab-option-item" onclick="switchTabAndClose(1)">
+                        <span class="tab-option-icon">📋</span>
+                        <span class="tab-option-text">市集</span>
+                    </div>
+                    <div class="tab-option-item" onclick="switchTabAndClose(2)">
+                        <span class="tab-option-icon">🎵</span>
+                        <span class="tab-option-text">音乐</span>
+                    </div>
+                    <div class="tab-option-item" onclick="switchTabAndClose(3)">
+                        <span class="tab-option-icon">⏰</span>
+                        <span class="tab-option-text">灵活时间活动</span>
+                    </div>
+                    <div class="tab-option-item" onclick="switchTabAndClose(4)">
+                        <span class="tab-option-icon">🏪</span>
+                        <span class="tab-option-text">活动网站</span>
+                    </div>
+                    <div class="tab-option-item" onclick="switchTabAndClose(5)">
+                        <span class="tab-option-icon">📖</span>
+                        <span class="tab-option-text">攻略信息</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
