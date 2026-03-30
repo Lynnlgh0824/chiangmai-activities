@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Identity
 
-**Project Name:** Chiang Mai Guide Platform (清迈指南)
+**Project Name:** Chiengmai Activities Platform (清迈活动策划管理系统)
 
 This is an **independent project**.
 
@@ -51,6 +51,48 @@ Before coding, Claude must:
 
 ---
 
+## Workflow Rules
+
+⚠️ **CRITICAL**: Every task MUST follow this workflow:
+
+### Step 1: Understand (Required)
+- Rephrase the requirement in your own words
+- Identify constraints and boundaries
+- Check related docs (memory/, docs/)
+- **Output**: "我理解您的需求是..." (confirm understanding)
+
+### Step 2: Design (Required)
+- Analyze possible solutions
+- Identify risks and dependencies
+- Create execution plan
+- **Output**: Show complete plan with rationale
+
+### Step 3: Confirm (Required)
+- Present the plan to user
+- Explain why this approach
+- List potential risks
+- **WAIT**: Do NOT execute until user approves
+
+### Step 4: Execute (After Approval)
+- Follow the approved plan
+- Verify each step
+- Update relevant docs
+
+### ⛔ Forbidden
+- ❌ Execute without showing plan
+- ❌ Assume understanding
+- ❌ Skip risk assessment
+
+### ✅ Required
+- ✅ Rephrase requirements
+- ✅ Show complete plan
+- ✅ Wait for approval
+- ✅ Consider long-term impact
+
+**See**: `docs/WORKFLOW.md` for detailed guide
+
+---
+
 ## Safety Rule
 
 If unsure, Claude must **ASK** instead of modifying.
@@ -66,22 +108,9 @@ Claude must **NEVER**:
 
 ---
 
-## Development Commands
+## Project Overview
 
-- `npm install` - Install dependencies
-- `npm start` - Start server in production mode
-- `npm run dev` - Start server in development mode with auto-restart
-- `npm test` - Run tests (currently placeholder)
-
-## Project Architecture
-
-This is a basic Express.js server with the following structure:
-
-- **server.js** - Main application entry point
-  - Creates Express app instance
-  - Configures middleware (JSON parsing, URL encoding)
-  - Defines basic routes (/ and /api/health)
-  - Starts server on port 3000 (or PORT environment variable)
+Chiengmai Activities Platform is an event planning management system built with Express.js, providing comprehensive event management tools with Feishu (Lark) integration.
 
 ## Tech Stack
 
@@ -89,15 +118,23 @@ This is a basic Express.js server with the following structure:
 - **Framework**: Express.js 4.x
 - **Dev Tool**: Nodemon for development
 
-## Key Features
+## Project Structure
 
-- Basic health check endpoint at `/api/health`
-- JSON middleware for parsing request bodies
-- Environment variable support for port configuration
-- Development mode with nodemon for auto-restart
+```
+Chiengmai/
+├── server.js              # Main application entry point
+├── config/                # Configuration files
+├── docs/                  # Documentation
+├── memory/                # Project memory system
+└── tests/                 # Test files
+```
 
 ## Getting Started
 
 1. Install dependencies: `npm install`
 2. Start in development: `npm run dev`
-3. Server will be available at `http://localhost:4000`
+3. Server will be available at `http://localhost:3000`
+
+---
+
+**Last Updated**: 2026-02-27

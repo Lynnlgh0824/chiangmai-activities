@@ -1,0 +1,332 @@
+# Chiengmai 项目设计规范
+
+> 基于实际代码提取的设计规范
+> 更新时间: 2026-02-27
+
+---
+
+## 🎨 配色方案
+
+### 主色调
+```css
+--primary-color: #6A5ACD;          /* 主色调 - 优雅紫色 */
+--primary-light: #8B7ED8;           /* 浅紫色 */
+--primary-dark: #4A38A0;            /* 深紫色 */
+--primary-hover: #7B68EE;           /* 悬停色 */
+```
+
+**渐变背景**（管理后台）:
+```css
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+```
+
+### 文字颜色
+```css
+--text-primary: #333333;           /* 主要文字 */
+--text-secondary: #666666;         /* 次要文字 */
+--text-tertiary: #999999;          /* 辅助文字 */
+--text-white: #FFFFFF;             /* 白色文字 */
+```
+
+### 背景颜色
+```css
+--bg-primary: #FFFFFF;             /* 主背景 */
+--bg-secondary: #F5F5F5;           /* 次要背景 */
+--bg-tertiary: #FAFAFA;            /* 第三背景 */
+```
+
+### 边框颜色
+```css
+--border-primary: #E0E0E0;         /* 主边框 */
+--border-secondary: #DDDDDD;       /* 次边框 */
+```
+
+### 语义颜色
+```css
+--color-success: #52C41A;          /* 成功 */
+--color-warning: #FAAD14;          /* 警告 */
+--color-error: #FF4D4F;            /* 错误 */
+--color-info: var(--primary-color); /* 信息 */
+```
+
+---
+
+## 📏 间距系统
+
+### PC 端
+```css
+--space-xs: 4px;
+--space-sm: 8px;
+--space-md: 12px;
+--space-lg: 16px;
+--space-xl: 20px;
+--space-2xl: 24px;
+```
+
+### 移动端
+```css
+--space-mobile-xs: 2px;
+--space-mobile-sm: 4px;
+--space-mobile-md: 6px;
+--space-mobile-lg: 8px;
+--space-mobile-xl: 12px;
+--space-mobile-2xl: 16px;
+```
+
+---
+
+## 🏗️ 布局尺寸
+
+```css
+--space-header-height: 65px;
+--space-tab-height: 50px;
+--space-tab-padding-std: calc(var(--space-header-height) + var(--space-tab-height) + var(--space-md));
+```
+
+---
+
+## 🎯 组件规范
+
+### 1. 活动卡片
+
+**尺寸**: 280px 宽度，自适应高度
+**圆角**: 8px
+**边框**: 1px, #E0E0E0
+**内边距**: 12px
+**间距**: 8px
+
+**结构**:
+```
+┌─────────────────────┐
+│ [分类] 兴趣班        │ 11px, #6A5ACD
+│                     │
+│ 清迈瑜伽课程         │ 14px, 加粗, #333333
+│                     │
+│ ⏰ 2026-03-15 10:00 │ 11px, #666666
+│ 📍 宁曼路            │ 11px, #666666
+│ 💰 500฿             │ 11px, #52C41A
+└─────────────────────┘
+```
+
+### 2. 主按钮
+
+**尺寸**: 自适应宽度 × 36px
+**圆角**: 6px
+**背景色**: #6A5ACD
+**内边距**: 8px 20px
+**文字**: 13px, 中等, #FFFFFF
+
+### 3. 筛选标签
+
+**普通状态**:
+- 背景: #F5F5F5
+- 边框: 1px, #E0E0E0
+- 圆角: 16px
+- 内边距: 6px 12px
+
+**选中状态**:
+- 背景: #6A5ACD
+- 文字: #FFFFFF
+- 无边框
+
+### 4. 搜索框
+
+**尺寸**: 300px × 40px
+**圆角**: 20px
+**背景**: #F5F5F5
+**边框**: 1px, #E0E0E0
+**内边距**: 0 12px
+
+**结构**:
+```
+[🔍 搜索活动、地点等...]
+```
+
+### 5. Tab 导航
+
+**高度**: 50px
+**间距**: 4px
+**背景**: transparent
+
+**选中状态**:
+- 背景: #6A5ACD
+- 文字: #FFFFFF
+
+**未选中状态**:
+- 背景: transparent
+- 文字: #333333
+
+**结构**:
+```
+┌────────┬────────┬────────┐
+│ 📅     │ 📋     │ 🎵     │
+│ 兴趣班  │ 市集    │ 音乐    │
+└────────┴────────┴────────┘
+```
+
+---
+
+## 📱 页面结构
+
+### 前台页面 (index.html)
+
+```
+┌────────────────────────────────────────┐
+│ Header (65px)                         │
+│ ✨ 清迈指南  [🔍 搜索...]  [🔽 筛选]  │
+├────────────────────────────────────────┤
+│ Filter Section                        │
+│ 分类: [兴趣班] [市集] [音乐] [灵活时间] │
+├────────────────────────────────────────┤
+│ Tabs (50px)                           │
+│ [📅兴趣班] [📋市集] [🎵音乐] [⏰灵活时间]│
+├────────────────────────────────────────┤
+│ Activity Grid                         │
+│ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ │
+│ │卡片1 │ │卡片2 │ │卡片3 │ │卡片4 │ │
+│ └──────┘ └──────┘ └──────┘ └──────┘ │
+├────────────────────────────────────────┤
+│ Results (40px)                        │
+│ 共 45 个活动                           │
+└────────────────────────────────────────┘
+```
+
+### 管理后台页面 (admin.html)
+
+```
+┌────────────────────────────────────────┐
+│ Navbar (64px)                          │
+│ ⚙️ 管理后台                    [管理员] │
+├────────┬───────────────────────────────┤
+│ Sidebar│ Main Content                  │
+│ (240px)│                               │
+│        │ ┌─────────────────────────┐ │
+│活动管理 │ │ Header                   │ │
+│--------│ │ 活动列表  [🔍] [+ 新建]  │ │
+│📋活动列表│ ├─────────────────────────┤ │
+│➕创建活动 │ │ Table                   │ │
+│📊数据统计 │ │ ID │ 名称 │ 分类 │状态│ │
+│⚙️设置   │ │ ---|------|------|---│ │
+│        │ │ 1  │ 瑜伽  │ 兴趣班│进行│ │
+│        │ │ 2  │ 市集  │ 市集  │即将│ │
+└────────┴───────────────────────────────┘
+```
+
+---
+
+## 🎨 管理后台表格样式
+
+### 表头
+```css
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+color: white;
+padding: 12px;
+text-align: left;
+```
+
+### 表格行
+```css
+border: 1px solid #E0E0E0;
+padding: 12px;
+```
+
+### 按钮样式
+```css
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+}
+
+.btn-success {
+  background: #66bb6a;
+  color: white;
+}
+
+.btn-danger {
+  background: #ef5350;
+  color: white;
+}
+```
+
+---
+
+## 📐 响应式设计
+
+### PC 端 (>768px)
+- 容器最大宽度: 1200px
+- 卡片网格: 4列
+- 显示所有 Tab
+
+### 移动端 (≤768px)
+- 容器宽度: 100%
+- 卡片网格: 1列
+- Tab 折叠为 4个 + "更多"按钮
+- 间距使用 mobile-* 变量
+
+---
+
+## 🔤 字体规范
+
+```css
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+/* 字号 */
+h1: 2.5em (40px)     - 页面标题
+h2: 2em (32px)       - 区块标题
+h3: 1.5em (24px)     - 卡片标题
+body: 1em (16px)      - 正文
+small: 0.875em (14px) - 辅助信息
+xs: 0.75em (12px)    - 标签、元数据
+```
+
+---
+
+## 🎯 Z-Index 层级
+
+```css
+--z-header: 1001;
+--z-modal: 2000;
+```
+
+---
+
+## 📦 组件清单
+
+### 前台组件
+1. ✅ 活动卡片 (Activity Card)
+2. ✅ 搜索框 (Search Input)
+3. ✅ 筛选标签 (Filter Chip)
+4. ✅ Tab 导航 (Tabs)
+5. ✅ 日历网格 (Calendar Grid)
+6. ✅ 灵活时间列表 (Schedule List)
+
+### 后台组件
+1. ✅ 数据表格 (Data Table)
+2. ✅ 主按钮 (Primary Button)
+3. ✅ 次要按钮 (Secondary Button)
+4. ✅ 侧边栏 (Sidebar)
+5. ✅ 搜索输入 (Search Input)
+6. ✅ 操作按钮组 (Action Buttons)
+
+---
+
+## 🚀 使用建议
+
+### 对于新功能开发
+1. **复用现有配色** - 使用 CSS 变量
+2. **遵循间距系统** - 使用 space-* 变量
+3. **保持组件一致性** - 参考组件规范
+4. **注意响应式** - 考虑移动端体验
+
+### 对于 UI 修改
+1. **优先使用 CSS 变量** - 便于全局调整
+2. **保持视觉一致性** - 遵循现有设计语言
+3. **测试多端显示** - PC 和移动端都要测试
+
+---
+
+**文档版本**: v1.0.0
+**最后更新**: 2026-02-27
+**基于文件**: public/css/style.css, public/index.html

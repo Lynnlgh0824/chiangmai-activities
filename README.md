@@ -58,6 +58,33 @@ python3 -m http.server 8000
 
 ---
 
+## 🤖 与 Claude Code 协作
+
+### ⚠️ 重要：工作流程规范
+
+使用 Claude Code 时，请确保遵循工作流程：
+
+**标准启动指令（复制粘贴）：**
+```bash
+请按照 CLAUDE.md 的工作流程执行：
+1. 理解需求并复述确认
+2. 设计完整方案并展示
+3. 等待我的批准
+4. 执行批准的方案
+```
+
+**如果 AI 直接执行：**
+```bash
+停！请先给我看方案，不要直接修改代码。
+```
+
+**相关文档：**
+- [CLAUDE.md](./CLAUDE.md) - 项目规则和工作流程
+- [WORKFLOW-REMINDER.md](./WORKFLOW-REMINDER.md) - 快速启动指令
+- [docs/AI-COLLABORATION.md](./docs/AI-COLLABORATION.md) - AI 协作指南
+
+---
+
 ## 📂 项目结构
 
 ```
