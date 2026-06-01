@@ -79,7 +79,7 @@ const validators = {
 
   // 4. 状态值检查
   statusValue: (item) => {
-    const validStatus = ['进行中', 'suspended', 'draft', '已结束'];
+    const validStatus = ['进行中', '已暂停', '草稿', '待开始', '已过期'];
     if (!item.status || validStatus.includes(item.status)) {
       return null;
     }

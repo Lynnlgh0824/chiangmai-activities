@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <!-- 百度站点验证 -->
     <meta name="baidu-site-verification" content="codeva-pRjdEjCKGZ" />
@@ -171,11 +171,11 @@
                 </div>
                 <!-- 搜索按钮 - 独立于输入框 -->
                 <button class="search-btn" onclick="performSearch()">搜索</button>
+                <!-- ✅ Round 2 fix: 筛选按钮移入search-section，确保同行排列 -->
+                <button class="search-icon-btn filter-trigger-btn" onclick="openFilterSheet()" aria-label="筛选">
+                    筛选
+                </button>
             </div>
-            <!-- 筛选按钮 - 在search-section外，header内 -->
-            <button class="search-icon-btn filter-trigger-btn" onclick="openFilterSheet()" aria-label="筛选">
-                筛选
-            </button>
         </div>
 
         <!-- 筛选区域（固定在顶部） -->
@@ -342,6 +342,12 @@
                     <button class="modal-close" onclick="closeModal()">×</button>
                 </div>
 
+                <!-- ========== 暂停提示 ========== -->
+                <div class="modal-suspension" id="modalSuspension" style="display: none;">
+                    <span class="suspension-icon">⚠️</span>
+                    <span class="suspension-text" id="modalSuspensionText"></span>
+                </div>
+
                 <!-- ========== 内容区域：可滚动 ========== -->
                 <div class="modal-scrollable-content">
                     <!-- 关键信息卡片 -->
@@ -400,6 +406,9 @@
                 <!-- ========== 底部：操作按钮（固定） ========== -->
                 <div class="modal-footer" id="modalFooter" style="display: flex;">
                     <button class="btn-secondary" onclick="closeModal()">关闭</button>
+                    <button class="btn-share" onclick="shareActivity()" title="分享">
+                        📤 分享
+                    </button>
                     <a id="modalLinkButton" href="#" target="_blank" class="btn-primary">
                         查看官网/来源 →
                     </a>

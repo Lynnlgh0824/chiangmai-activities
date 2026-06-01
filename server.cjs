@@ -1121,7 +1121,7 @@ app.post('/api/activities', requireApiKey, (req, res) => {
     bookingRequired: bookingRequired !== undefined ? bookingRequired : true,
     language: language || 'Both',
     tags: tags || [],
-    status: 'active',
+    status: '草稿',
     rating: { average: 0, count: 0 },
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
@@ -1188,7 +1188,7 @@ app.delete('/api/activities/:id', requireApiKey, (req, res) => {
 app.get('/api/activities/stats/categories', (req, res) => {
   const items = readData();
   // 统计非草稿的活动（包括：待开始、进行中、已过期）
-  const activeItems = items.filter(item => item.status !== 'draft');
+  const activeItems = items.filter(item => item.status !== '草稿');
 
   const stats = activeItems.reduce((acc, item) => {
     acc[item.category] = (acc[item.category] || 0) + 1;
@@ -1271,7 +1271,7 @@ app.post('/api/items', requireApiKey, (req, res) => {
     id: Date.now().toString(),
     _id: Date.now().toString(),
     ...data,
-    status: 'active',
+    status: '草稿',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -2005,12 +2005,13 @@ function convertFeishuDataToProjectFormat(feishuItems) {
  */
 function mapStatus(status) {
   const statusMap = {
-    '草稿': 'draft',
-    '待开始': 'upcoming',
-    '进行中': 'ongoing',
-    '已过期': 'expired'
+    '草稿': '草稿',
+    '待开始': '待开始',
+    '进行中': '进行中',
+    '已暂停': '已暂停',
+    '已过期': '已过期'
   };
-  return statusMap[status] || 'active';
+  return statusMap[status] || '进行中';
 }
 
 /**
@@ -2198,8 +2199,8 @@ app.post('/api/fix-suspension-notes', requireApiKey, (req, res) => {
 
     let fixedCount = 0;
     data.forEach(item => {
-      // 只修复suspended状态的活动
-      if (item.status === 'suspended' && (!item.suspensionNote || item.suspensionNote === '')) {
+      // 只修复已暂停状态的活动
+      if (item.status === '已暂停' && (!item.suspensionNote || item.suspensionNote === '')) {
         // 如果提供了具体修复项
         if (items && items.length > 0) {
           const fixItem = items.find(f => f.activityNumber === item.activityNumber);
@@ -2307,7 +2308,7 @@ app.post('/api/auto-fix-all', requireApiKey, async (req, res) => {
     // 2. 修复缺失的suspensionNote
     let noteFixed = 0;
     data.forEach(item => {
-      if (item.status === 'suspended' && (!item.suspensionNote || item.suspensionNote === '')) {
+      if (item.status === '已暂停' && (!item.suspensionNote || item.suspensionNote === '')) {
         item.suspensionNote = '此活动暂时停用，详情请咨询客服';
         noteFixed++;
       }
@@ -2648,6 +2649,30 @@ app.get('/api/test-update/status', (req, res) => {
 // 全局错误处理（必须在所有路由之后）
 // =====================================================
 app.use(globalErrorHandler);
+
+// =====================================================
+// 启动时同步 data/ → public/data/（确保静态数据一致）
+// =====================================================
+function syncDataToPublic() {
+  const publicDataDir = path.join(__dirname, 'public', 'data');
+  const filesToSync = ['items.json', 'guide.json'];
+  try {
+    if (!fs.existsSync(publicDataDir)) {
+      fs.mkdirSync(publicDataDir, { recursive: true });
+    }
+    for (const file of filesToSync) {
+      const src = path.join(__dirname, 'data', file);
+      const dest = path.join(publicDataDir, file);
+      if (fs.existsSync(src)) {
+        fs.copyFileSync(src, dest);
+      }
+    }
+    logger.info('📁 data/ → public/data/ 同步完成');
+  } catch (err) {
+    logger.warn('数据同步失败（非致命）:', err.message);
+  }
+}
+syncDataToPublic();
 
 app.listen(PORT, () => {
   console.log(`

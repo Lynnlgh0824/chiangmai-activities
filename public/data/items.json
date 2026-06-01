@@ -1233,10 +1233,16 @@
     "maxParticipants": "不限",
     "description": "⚠️ 注意事项：\n需自备瑜伽垫，或现场租用（15-20泰铢）。\n下雨天活动取消。\n建议提前到达",
     "flexibleTime": "否",
-    "status": "进行中",
+    "status": "已暂停",
     "requireBooking": "否",
     "sourceLink": "",
     "id": "0001",
+    "suspensionNote": "花卉节期间公园关闭（1月26日-2月15日），预计2月16日恢复",
+    "hiddenDateBlock": {
+      "startDate": "2026-01-26",
+      "endDate": "2026-02-15",
+      "reason": "花卉节期间公园关闭（1月26日-2月15日）"
+    },
     "source": {
       "name": "Yoga Group",
       "url": "https://www.facebook.com/groups/289951174859604/",

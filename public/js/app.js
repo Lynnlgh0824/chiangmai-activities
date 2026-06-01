@@ -1372,7 +1372,7 @@
                     // 过滤掉非"进行中"状态的活动
                     if (item.status !== '进行中') {
                         console.log('🚫 过滤活动:', item.title, '状态:', item.status);
-                        return; // 跳过suspended和draft状态的活动
+                        return; // 跳过非"进行中"状态的活动（已暂停、草稿等）
                     }
                     const days = parseDaysFromWeekdays(item.weekdays);
 
@@ -1862,7 +1862,7 @@
 
             // 过滤掉暂停的活动
             const beforeSuspendFilter = filtered.length;
-            filtered = filtered.filter(a => a.status !== 'suspended');
+            filtered = filtered.filter(a => a.status !== '已暂停');
             console.log(`⏸️ 暂停活动过滤: ${beforeSuspendFilter} → ${filtered.length} (排除 ${beforeSuspendFilter - filtered.length} 个)`);
 
             // 根据当前Tab筛选数据
@@ -1993,6 +1993,7 @@
         // 存储滚动监听器，用于清理
         let h5ScrollListener = null;
         let h5ScrollHighlightTimeout = null;
+        let h5CalendarInitTimer = null; // 跟踪 updateCalendarView 中的 setTimeout
 
         /**
          * 初始化H5周视图的滚动自动选中功能
@@ -2458,7 +2459,7 @@
                     if (header) {
                         header.style.position = 'relative';
                     }
-                    window.scrollTo(0, 0);
+                    searchInput.scrollIntoView({ behavior: 'smooth', block: 'start' }); /* ✅ 平滑滚动到搜索框 */
                 });
 
                 searchInput.addEventListener('blur', () => {
@@ -2629,7 +2630,9 @@
             if (isMobile && currentFilters.day === null) {
                 // 等待DOM更新完成后初始化滚动检测
                 // ✅ 延迟 1000ms，确保在 Tab 切换保护（800ms）之后才初始化
-                setTimeout(() => {
+                if (h5CalendarInitTimer) clearTimeout(h5CalendarInitTimer);
+                h5CalendarInitTimer = setTimeout(() => {
+                    h5CalendarInitTimer = null;
                     initH5ScrollAutoSelect(gridId);
                     // 同时初始化滚动日期高亮功能
                     initH5ScrollDateHighlight(gridId);
@@ -2741,7 +2744,7 @@
                          style="border-left-color: ${getActivityColor(act.id)}"
                          onclick='showActivityDetail("${act.id}")'>
                         <div style="font-weight: 500;" class="chip-title">${cleanTitle(act.title)}</div>
-                        <div style="font-size: 10px; color: #666; font-weight: 600;">${act.time || '灵活时间'}</div>
+                        <div style="font-size: 12px; color: #666; font-weight: 600;">${act.time || '灵活时间'}</div>
                     </div>
                 `).join('');
             }
@@ -3229,7 +3232,24 @@
 
         function clearSearch() {
             currentFilters.search = '';
+            currentFilters.day = null;
+            lastSelectedDay = null;
             document.getElementById('searchInput').value = '';
+
+            // 清理 H5 滚动自动选中，防止 updateViews 重新触发 day 自动选择
+            if (h5ScrollObserver) {
+                h5ScrollObserver.disconnect();
+                h5ScrollObserver = null;
+            }
+            if (h5AutoSelectTimeout) {
+                clearTimeout(h5AutoSelectTimeout);
+                h5AutoSelectTimeout = null;
+            }
+            if (h5CalendarInitTimer) {
+                clearTimeout(h5CalendarInitTimer);
+                h5CalendarInitTimer = null;
+            }
+
             updateViews();
         }
 
@@ -3310,6 +3330,21 @@
                 descEl.innerHTML = sanitizeHTML(formattedDescription);
             }
 
+            // 处理暂停提示
+            const modalSuspension = document.getElementById('modalSuspension');
+            const modalSuspensionText = document.getElementById('modalSuspensionText');
+            if (modalSuspension && modalSuspensionText) {
+                if (activity.suspensionNote) {
+                    modalSuspension.style.display = 'flex';
+                    modalSuspensionText.textContent = activity.suspensionNote;
+                } else {
+                    modalSuspension.style.display = 'none';
+                }
+            }
+
+            // 存储当前活动用于分享
+            window._currentActivity = activity;
+
             // 处理链接按钮
             const modalFooter = document.getElementById('modalFooter');
             const modalLinkButton = document.getElementById('modalLinkButton');
@@ -3317,15 +3352,25 @@
             if (modalFooter && modalLinkButton) {
                 const url = activity.source?.url;
                 if (url && url.trim() !== '') {
-                    modalFooter.style.display = 'block';
+                    modalFooter.style.display = 'flex'; /* ✅ 修复：保持 flex 布局 */
                     modalLinkButton.href = url.trim();
+                    modalLinkButton.style.display = '';
                 } else {
-                    modalFooter.style.display = 'none';
+                    modalLinkButton.style.display = 'none';
+                    modalFooter.style.display = 'flex';
                 }
             }
 
             const modal = document.getElementById('activityModal');
-            if (modal) modal.classList.add('active');
+            if (modal) {
+                modal.classList.add('active');
+                /* ✅ 锁定背景滚动（iOS 需要 position:fixed 才能完全阻止） */
+                document.body.dataset.scrollY = window.scrollY;
+                document.body.style.overflow = 'hidden';
+                document.body.style.position = 'fixed';
+                document.body.style.top = `-${window.scrollY}px`;
+                document.body.style.width = '100%';
+            }
         }
 
         // 清理活动标题中的重复标签
@@ -3450,7 +3495,32 @@
 
         function closeModal() {
             document.getElementById('activityModal').classList.remove('active');
+            /* ✅ 恢复背景滚动和滚动位置 */
+            document.body.style.overflow = '';
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            const scrollY = document.body.dataset.scrollY || '0';
+            window.scrollTo(0, parseInt(scrollY, 10));
+            delete document.body.dataset.scrollY;
         }
+        window.closeModal = closeModal;
+
+        // 分享活动
+        function shareActivity() {
+            const a = window._currentActivity;
+            if (!a) return;
+            const shareText = `${a.title}\n📍 ${a.location || ''}\n💰 ${a.price || ''}\n🕐 ${a.time || ''}\n\n来自清迈活动指南`;
+            if (navigator.share) {
+                navigator.share({ title: a.title, text: shareText, url: window.location.href }).catch(() => {});
+            } else if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    const btn = document.querySelector('.btn-share');
+                    if (btn) { btn.textContent = '✓ 已复制'; setTimeout(() => { btn.textContent = '📤 分享'; }, 2000); }
+                }).catch(() => {});
+            }
+        }
+        window.shareActivity = shareActivity;
 
         // 点击遮罩关闭弹窗
         document.getElementById('activityModal').addEventListener('click', function(e) {
@@ -3721,6 +3791,9 @@
             element: null,
             content: null,
             handle: null,
+            startY: 0,        /* ✅ 初始化手势追踪变量 */
+            currentY: 0,
+            isDragging: false,
 
             init() {
                 this.element = document.getElementById('tabSheet');
@@ -3875,13 +3948,31 @@
         function applyFilters() {
             closeFilterSheet();
 
-            // 应用筛选逻辑
             console.log('应用筛选:', selectedFilters);
 
-            // TODO: 这里需要调用实际的筛选函数
-            // 例如：filterActivitiesByOptions(selectedFilters);
+            // 映射 Bottom Sheet 筛选值到 currentFilters
+            const categoryMap = { 'all': '全部', 'class': '兴趣班', 'market': '市集' };
+            const priceMap = { 'all': '全部', 'free': '免费', 'paid': '付费' };
 
-            console.log('✅ 筛选已应用:', selectedFilters);
+            currentFilters.category = categoryMap[selectedFilters.category] || '全部';
+            currentFilters.price = priceMap[selectedFilters.price] || '全部';
+
+            // 更新顶部筛选 chip 的 active 状态
+            document.querySelectorAll('#categoryChips .filter-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.textContent.trim() === currentFilters.category);
+            });
+            document.querySelectorAll('.filter-group .filter-chips').forEach(group => {
+                if (group.querySelector('[onclick*="price"]')) {
+                    group.querySelectorAll('.filter-chip').forEach(chip => {
+                        chip.classList.toggle('active', chip.textContent.trim() === currentFilters.price);
+                    });
+                }
+            });
+
+            // 调用现有筛选函数
+            filterActivities();
+
+            console.log('✅ 筛选已应用:', currentFilters);
         }
 
         // 2. Toast 提示系统
@@ -4216,7 +4307,7 @@
                 hiddenTabs.forEach((tab, index) => {
                     const tabIndex = visibleCount + index;
                     const icon = tab.querySelector('.tab-icon')?.textContent || '';
-                    const text = tab.querySelector('span:not(.tab-icon))')?.textContent || '';
+                    const text = tab.querySelector('span:not(.tab-icon)')?.textContent || '';
 
                     const item = document.createElement('div');
                     item.className = 'dropdown-item';

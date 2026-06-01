@@ -72,6 +72,7 @@
             overflow-x: hidden;
             width: 100%;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: none; /* P0: 禁止 iOS 橡皮筋回弹 */
         }
 
         /* 确保所有容器不超出视口 */
@@ -247,10 +248,16 @@
             color: #333;
             font-size: 14px;
             outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 44px;
+            min-height: 44px;
+            line-height: 44px;
+            box-sizing: border-box;
         }
 
         .search-input::placeholder {
-            color: #999;
+            color: #767676; /* ✅ WCAG AA 对比度 4.54:1 */
         }
 
         /* 筛选区域 - 固定在顶部 */
@@ -580,7 +587,7 @@
         }
 
         .date-weekday {
-            font-size: 11px;
+            font-size: 12px; /* ✅ Round 2 fix: 提升到12px满足移动端可读性 */
             font-weight: 500;
             line-height: 1.2;
             color: inherit;
@@ -988,7 +995,7 @@
         /* 日历卡片时间（L2层级） */
         .activity-chip > div:last-child {
             /* L2层级：日历卡片中的时间 */
-            font-size: 10px;
+            font-size: 12px; /* ✅ 最小可读字号 */
             color: #666;
             font-weight: 400;
         }
@@ -1436,9 +1443,9 @@
             color: #ff6b6b;
             cursor: pointer;
             font-size: 14px;
-            padding: 0;
-            width: 16px;
-            height: 16px;
+            padding: 8px;
+            min-width: 44px;
+            min-height: 44px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1451,11 +1458,12 @@
         .clear-all-btn {
             background: #ffc107;
             border: none;
-            padding: 4px 12px;
+            padding: 10px 16px;
             border-radius: 12px;
             font-size: 12px;
             cursor: pointer;
             color: #333;
+            min-height: 44px;
         }
 
         .clear-all-btn:hover {
@@ -1883,6 +1891,51 @@
             border-color: #ccc;
         }
 
+        /* 分享按钮 */
+        .modal-footer .btn-share {
+            flex: 0 0 auto;
+            padding: 10px 16px;
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .modal-footer .btn-share:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
+        /* 暂停提示 */
+        .modal-suspension {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 14px 20px;
+            background: #fff7e6;
+            border-bottom: 1px solid #ffe0b2;
+            flex-shrink: 0;
+        }
+
+        .modal-suspension .suspension-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .modal-suspension .suspension-text {
+            font-size: 14px;
+            color: #ad6800;
+            line-height: 1.5;
+        }
+
+        .modal-link-btn:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+
         .modal-link-btn {
             display: flex;
             align-items: center;
@@ -1979,6 +2032,16 @@
                 box-shadow: none;
                 /* 移动端不需要padding-top，因为header是fixed的 */
                 padding-top: 0 !important;
+                /* ✅ Round 2 fix: 防止水平溢出 */
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+                width: 100vw !important;
+            }
+
+            /* ✅ Round 2 fix: 约束所有子元素不超出容器 */
+            .container > * {
+                max-width: 100vw;
+                box-sizing: border-box;
             }
 
             /* ========== ✅ 方案B: 搜索框不固定，页面正常流动 (2026-01-29) ========== */
@@ -1988,7 +2051,7 @@
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 flex-direction: column;
                 align-items: stretch;
-                gap: 8px;
+                gap: 0; /* ✅ Round 2 fix: search-section内部管理间距 */
                 padding: 8px 12px;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
             }
@@ -2014,11 +2077,12 @@
             /* 移动端搜索优化 - 单行布局 */
             .search-section {
                 max-width: 100%;
-                width: 100%;
+                flex: 1; /* ✅ Round 2 fix: 填充剩余空间，不设width:100% */
+                min-width: 0; /* 防止flex子项溢出 */
                 flex-direction: row;
                 align-items: center; /* 改为center确保垂直居中 */
-                gap: 12px; /* 增加间距，让搜索框和筛选按钮分开 */
-                padding-right: 12px !important; /* ✅ 筛选按钮已隐藏，恢复正常右边距 */
+                gap: 8px; /* ✅ Round 2 fix: 减小间距适配390px */
+                padding-right: 0 !important; /* ✅ Round 2 fix: 移除右边距，filter-btn在外侧 */
             }
 
             .search-input-wrapper {
@@ -2049,11 +2113,17 @@
                 padding: 0;
                 margin: 0;
                 min-width: 0; /* 防止内容溢出 */
+                height: 44px !important; /* ✅ Round 3 fix: 触控目标>=44px */
+                min-height: 44px !important;
+                line-height: 44px !important; /* ✅ 确保移动端高度生效 */
+                -webkit-appearance: none !important; /* ✅ 移除 Safari 默认外观 */
+                appearance: none !important;
+                box-sizing: border-box;
             }
 
             /* ✅ 确保移动端placeholder颜色与PC端一致 */
             .search-input::placeholder {
-                color: #999 !important;
+                color: #767676 !important; /* ✅ WCAG AA 对比度 4.54:1 */
             }
 
             /* ✅ 修复：搜索按钮白底紫字，CTA更突出 */
@@ -2095,13 +2165,15 @@
 
             /* 移除筛选按钮后，search-section不需要右边距 */
             .search-section {
-                padding-right: 12px !important; /* ✅ 恢复正常右边距 */
+                padding-right: 0 !important; /* ✅ Round 2 fix: 无右边距，filter-btn在行内 */
             }
 
             /* 特殊处理：筛选按钮 - 移动端显示 */
             .filter-trigger-btn {
                 display: inline-flex !important; /* ✅ 移动端显示筛选按钮 */
                 position: relative !important;
+                top: auto !important; /* ✅ Round 2 fix: 覆盖 base 的 top:50% */
+                transform: none !important; /* ✅ Round 2 fix: 覆盖 base 的 translateY(-50%) */
                 z-index: 1002 !important; /* 高于 search-input-wrapper */
                 align-items: center;
                 justify-content: center;
@@ -2147,7 +2219,7 @@
             .filter-chip {
                 padding: 8px 14px !important;
                 font-size: 12px !important;
-                min-height: 38px !important; /* ✅ 38px 筛选标签触控标准 */
+                min-height: 44px !important; /* ✅ 44px iOS 触控标准 */
                 display: inline-flex !important;
                 align-items: center !important;
                 border-radius: 16px !important;
@@ -2158,35 +2230,27 @@
 
             /* ========== 日期标签栏移动端优化（修复样式错乱） ========== */
             .date-grid-header {
-                /* ✅ 横向弹性布局 */
+                /* ✅ Round 2 fix: flex布局，7个按钮均匀分布无溢出 */
                 display: flex !important;
                 flex-direction: row !important;
-                flex-wrap: nowrap !important; /* 禁止换行，所有按钮在同一行 */
+                flex-wrap: nowrap !important;
 
-                gap: 8px !important;  /* 与PC端保持一致 */
-                padding: 8px 4px !important;
+                gap: 4px !important; /* ✅ Round 2 fix: 减小gap适配342px容器 */
+                padding: 8px 2px !important;
 
-                /* ✅ 启用横向滚动（当按钮总宽度超出容器时） */
-                overflow-x: auto !important;
+                /* ✅ Round 2 fix: 禁止溢出，按钮自动收缩适配 */
+                overflow-x: hidden !important;
                 overflow-y: visible !important;
-                -webkit-overflow-scrolling: touch !important; /* iOS平滑滚动 */
 
                 margin-bottom: 12px !important;
 
-                /* ✅ 修复日历溢出问题 */
                 max-width: 100% !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
 
-                /* ✅ 弹性布局优化，确保按钮均匀分布 */
-                justify-content: flex-start !important;
+                justify-content: stretch !important; /* ✅ Round 2 fix: 拉伸填充 */
                 align-items: center !important;
 
-                /* 隐藏滚动条但保留功能 */
-                scrollbar-width: none; /* Firefox */
-                -ms-overflow-style: none; /* IE/Edge */
-
-                /* 相对定位，用于滚动提示 */
                 position: relative !important;
             }
 
@@ -2218,11 +2282,12 @@
 
             /* ========== 移动端日期样式 ========== */
             .date-cell-header {
-                /* 固定宽度，确保按钮不会变形 */
-                min-width: 48px !important;
-                width: auto !important;
-                max-width: 60px !important;
-                flex-shrink: 0 !important;
+                /* ✅ Round 2 fix: 均匀分布，允许收缩适配容器宽度 */
+                flex: 1 1 0 !important;
+                min-width: 0 !important;
+                width: 0 !important;
+                max-width: none !important;
+                flex-shrink: 1 !important;
                 min-height: 44px !important;
                 padding: 8px 4px !important;
                 font-size: 11px !important;
@@ -2298,9 +2363,13 @@
 
             .calendar-grid {
                 display: flex;
-                gap: 8px;  /* 与PC端保持一致，更紧凑 */
-                width: max-content;
+                flex-wrap: wrap; /* ✅ Round 2 fix: 允许换行，防止水平溢出 */
+                gap: 8px;
+                width: 100%; /* ✅ Round 2 fix: 替换 max-content，防止宽度膨胀 */
+                max-width: 100%;
+                box-sizing: border-box;
                 padding: 8px 16px;
+                overflow-x: hidden;
             }
 
             .day-cell {
@@ -2738,13 +2807,13 @@
             }
 
             .tab-item {
-                padding: 10px 16px; /* 增加左右padding */
+                padding: 14px 16px; /* ✅ 增加上下padding至44px达标 */
                 font-size: 13px;
+                min-height: 44px; /* ✅ 44px iOS 触控标准 */
                 white-space: nowrap !important; /* 防止换行 */
                 text-align: center;
                 line-height: 1.3;
                 min-width: fit-content;
-                max-width: 100px; /* 限制最大宽度 */
                 overflow: hidden;
                 text-overflow: ellipsis;
                 flex-shrink: 0;
@@ -2885,9 +2954,9 @@
             }
 
             .activity-chip {
-                padding: var(--space-mobile-sm) var(--space-xs) !important;
+                padding: 8px 10px !important; /* ✅ 增大触控区域 */
                 margin-bottom: var(--space-xs) !important;
-                font-size: 11px !important;
+                font-size: 12px !important; /* ✅ 最小可读字号 */
             }
 
             /* 优化列表视图间距 */
@@ -2912,21 +2981,20 @@
                 gap: 2px !important;
                 padding: 6px 2px !important;
 
-                /* ✅ 修复超小屏溢出问题 */
                 max-width: 100% !important;
                 width: 100% !important;
                 box-sizing: border-box !important;
 
-                /* ✅ 确保横向滚动正常工作 */
-                flex-shrink: 0 !important;
+                overflow-x: hidden !important; /* ✅ Round 2 fix */
             }
 
             .date-cell-header {
-                min-width: 36px !important; /* ✅ 超小屏幕进一步减小最小宽度 */
-                max-width: 45px !important; /* ✅ 超小屏幕减小最大宽度 */
-                min-height: 40px !important;
+                flex: 1 1 0 !important; /* ✅ Round 2 fix: 均匀分布 */
+                min-width: 0 !important;
+                max-width: none !important;
+                min-height: 44px !important; /* ✅ 44px iOS 触控标准 */
                 padding: 6px 2px !important;
-                font-size: 10px !important;
+                font-size: 12px !important; /* ✅ Round 2 fix: 统一12px */
 
                 /* ✅ 修复超小屏按钮溢出问题 */
                 box-sizing: border-box !important;
@@ -2939,7 +3007,7 @@
             }
 
             .date-weekday {
-                font-size: 9px !important;
+                font-size: 12px !important; /* ✅ Round 2 fix: 统一12px最低可读字号 */
             }
 
             .filter-chip {
@@ -3104,12 +3172,13 @@
             overflow-y: auto;
             padding: 20px;
             -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain; /* ✅ 防止滚动穿透 */
         }
 
         .sheet-footer {
             padding: 16px 20px;
             border-top: 1px solid #eee;
-            display: none; /* ✅ 隐藏底部按钮区域 */
+            display: flex; /* ✅ 显示底部按钮区域 */
             gap: 12px;
             flex-shrink: 0;
         }
@@ -3171,6 +3240,10 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .filter-option-item:active {
@@ -3578,12 +3651,11 @@
             ===================================================== */
 
             /* 搜索+筛选模块：固定在顶部 */
-            .search-section {
-                position: sticky;
+            /* ✅ Round 2 fix: header整体sticky */
+            .header {
+                position: sticky !important;
                 top: 0;
-                z-index: 100;
-                background: white;
-                padding: 8px 0;
+                z-index: 1001 !important;
             }
 
             /* 日期筛选条：固定 */

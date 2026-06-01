@@ -233,7 +233,7 @@
 
             // 过滤掉暂停的活动
             const beforeSuspendFilter = filtered.length;
-            filtered = filtered.filter(a => a.status !== 'suspended');
+            filtered = filtered.filter(a => a.status !== '已暂停');
             console.log(`⏸️ 暂停活动过滤: ${beforeSuspendFilter} → ${filtered.length} (排除 ${beforeSuspendFilter - filtered.length} 个)`);
 
             // 根据当前Tab筛选数据
