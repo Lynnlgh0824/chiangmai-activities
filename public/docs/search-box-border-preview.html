@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索框描边对比原型图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f23;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 15px;
+            margin-bottom: 48px;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 48px;
+        }
+        .wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .label {
+            display: inline-block;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .label.current { background: #667eea; color: white; }
+        .label.new { background: #4ecdc4; color: white; }
+
+        /* 浏览器 */
+        .browser-frame {
+            background: #1e1e2e;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            width: 100%;
+        }
+        .browser-bar {
+            background: #2a2a3e;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .browser-dots { display: flex; gap: 6px; }
+        .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .browser-dot.red { background: #ff5f57; }
+        .browser-dot.yellow { background: #febc2e; }
+        .browser-dot.green { background: #28c840; }
+        .browser-url {
+            flex: 1;
+            background: #1a1a2e;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 11px;
+            color: #888;
+            margin-left: 8px;
+        }
+        .browser-content { background: #f5f5f5; }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            white-space: nowrap;
+        }
+        .search-section {
+            flex: 1;
+            max-width: 600px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .search-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            padding: 8px 16px;
+            height: 42px;
+        }
+        .search-wrapper .icon {
+            font-size: 16px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .search-wrapper input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+            background: transparent;
+        }
+        .search-wrapper input::placeholder { color: #bbb; }
+
+        /* 无描边 */
+        .search-wrapper.no-border {
+            border: none;
+        }
+        /* 有描边 - 细边 */
+        .search-wrapper.border-subtle {
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        /* 有描边 - 粗边 */
+        .search-wrapper.border-strong {
+            border: 2px solid rgba(255,255,255,0.4);
+        }
+
+        .search-btn {
+            padding: 8px 20px;
+            background: #6A5ACD;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 42px;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 8px;
+            color: white;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .mock-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 0 30px;
+        }
+        .mock-tab {
+            padding: 12px 20px;
+            color: #999;
+            font-size: 14px;
+        }
+        .mock-tab.active {
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+            font-weight: 600;
+        }
+
+        .callout {
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+            width: 100%;
+        }
+        .callout.neutral {
+            background: rgba(102,126,234,0.1);
+            border: 1px solid rgba(102,126,234,0.3);
+            color: #a99cf0;
+        }
+        .callout.good {
+            background: rgba(78,205,196,0.1);
+            border: 1px solid rgba(78,205,196,0.3);
+            color: #7ee8e0;
+        }
+        .callout strong { display: block; margin-bottom: 4px; font-size: 14px; }
+        .callout.neutral strong { color: #667eea; }
+        .callout.good strong { color: #4ecdc4; }
+
+        /* 第二轮对比：三种方案并排 */
+        .triple-section {
+            margin-top: 48px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title .icon { font-size: 24px; }
+
+        .triple-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+        }
+        .option-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        .option-tag {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        .option-tag.a { background: #667eea; color: white; }
+        .option-tag.b { background: #4ecdc4; color: white; }
+        .option-tag.c { background: #feca57; color: #333; }
+
+        /* 放大的搜索框 */
+        .zoom-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .zoom-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            padding: 12px 16px;
+            height: 52px;
+        }
+        .zoom-wrapper .icon {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+        .zoom-wrapper .placeholder {
+            color: #bbb;
+            font-size: 15px;
+        }
+        .zoom-btn {
+            padding: 12px 24px;
+            background: #6A5ACD;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+            height: 52px;
+        }
+
+        .zoom-wrapper.opt-a { border: none; }
+        .zoom-wrapper.opt-b { border: 1px solid rgba(255,255,255,0.25); }
+        .zoom-wrapper.opt-c { border: 2px solid rgba(255,255,255,0.4); }
+
+        .option-desc {
+            font-size: 12px;
+            color: #888;
+            line-height: 1.5;
+            text-align: left;
+        }
+        .option-desc code {
+            font-family: 'Monaco', monospace;
+            font-size: 11px;
+            padding: 1px 5px;
+            border-radius: 3px;
+        }
+        .option-desc code.css {
+            background: rgba(102,126,234,0.2);
+            color: #a99cf0;
+        }
+
+        /* 风格统一性 */
+        .unity-section {
+            margin-top: 48px;
+        }
+        .unity-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 28px;
+        }
+        .unity-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .unity-row:last-child { margin-bottom: 0; }
+        .unity-label {
+            font-size: 13px;
+            color: #888;
+            min-width: 80px;
+        }
+        .unity-items {
+            display: flex;
+            gap: 12px;
+            flex: 1;
+        }
+        .unity-item {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .unity-item.search-box {
+            background: white;
+            color: #333;
+        }
+        .unity-item.search-box.has-border {
+            border: 1px solid rgba(255,255,255,0.25);
+        }
+        .unity-item.search-btn {
+            background: #6A5ACD;
+            color: white;
+        }
+        .unity-item.filter-item {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.4);
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .comparison { grid-template-columns: 1fr; }
+            .triple-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 搜索框描边对比原型图</h1>
+        <p class="subtitle">是否需要给搜索输入框加描边？</p>
+
+        <!-- ==================== 方案对比 ==================== -->
+        <div class="triple-section">
+            <div class="section-title">
+                <span class="icon">🎨</span>
+                三种方案放大对比
+            </div>
+            <div class="triple-grid">
+                <!-- 方案 A：无描边 -->
+                <div class="option-card">
+                    <span class="option-tag a">方案 A</span>
+                    <div class="zoom-header">
+                        <div class="zoom-wrapper opt-a">
+                            <span class="icon">🔍</span>
+                            <span class="placeholder">搜索活动、地点等</span>
+                        </div>
+                        <div class="zoom-btn">搜索</div>
+                    </div>
+                    <div class="option-desc">
+                        <strong style="color:#667eea; font-size:14px;">无描边</strong><br>
+                        纯白背景，靠色差自然分界<br>
+                        <code class="css">border: none</code><br><br>
+                        ✅ 简洁干净<br>
+                        ✅ 现代感强<br>
+                        ⚪ 与筛选按钮风格不统一
+                    </div>
+                </div>
+
+                <!-- 方案 B：细描边 -->
+                <div class="option-card" style="border-color: rgba(78,205,196,0.4);">
+                    <span class="option-tag b">方案 B · 推荐</span>
+                    <div class="zoom-header">
+                        <div class="zoom-wrapper opt-b">
+                            <span class="icon">🔍</span>
+                            <span class="placeholder">搜索活动、地点等</span>
+                        </div>
+                        <div class="zoom-btn">搜索</div>
+                    </div>
+                    <div class="option-desc">
+                        <strong style="color:#4ecdc4; font-size:14px;">细描边 · 白色半透</strong><br>
+                        与筛选按钮同款描边<br>
+                        <code class="css">border: 1px solid rgba(255,255,255,0.25)</code><br><br>
+                        ✅ 精致有层次<br>
+                        ✅ 与筛选按钮风格统一<br>
+                        ✅ 不喧宾夺主
+                    </div>
+                </div>
+
+                <!-- 方案 C：粗描边 -->
+                <div class="option-card">
+                    <span class="option-tag c">方案 C</span>
+                    <div class="zoom-header">
+                        <div class="zoom-wrapper opt-c">
+                            <span class="icon">🔍</span>
+                            <span class="placeholder">搜索活动、地点等</span>
+                        </div>
+                        <div class="zoom-btn">搜索</div>
+                    </div>
+                    <div class="option-desc">
+                        <strong style="color:#feca57; font-size:14px;">粗描边 · 高亮</strong><br>
+                        更粗的白色边框<br>
+                        <code class="css">border: 2px solid rgba(255,255,255,0.4)</code><br><br>
+                        ⚠️ 边框过于抢眼<br>
+                        ⚠️ 与搜索按钮视觉冲突<br>
+                        ❌ 不推荐
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 浏览器完整预览 ==================== -->
+        <div style="margin-top:48px;">
+            <div class="section-title">
+                <span class="icon">🖥️</span>
+                浏览器完整预览
+            </div>
+            <div class="comparison">
+                <!-- 方案 A -->
+                <div class="wrap">
+                    <span class="label current">方案 A · 无描边</span>
+                    <div class="browser-frame">
+                        <div class="browser-bar">
+                            <div class="browser-dots">
+                                <div class="browser-dot red"></div>
+                                <div class="browser-dot yellow"></div>
+                                <div class="browser-dot green"></div>
+                            </div>
+                            <div class="browser-url">localhost:4000</div>
+                        </div>
+                        <div class="browser-content">
+                            <div class="page-header">
+                                <div class="page-title">✨ 清迈指南</div>
+                                <div class="search-section">
+                                    <div class="search-wrapper no-border">
+                                        <span class="icon">🔍</span>
+                                        <input placeholder="搜索活动、地点等">
+                                    </div>
+                                    <button class="search-btn">搜索</button>
+                                </div>
+                                <button class="filter-btn">筛选</button>
+                            </div>
+                            <div class="mock-tabs">
+                                <div class="mock-tab active">📅 日历</div>
+                                <div class="mock-tab">📋 列表</div>
+                                <div class="mock-tab">🏪 活动网站</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout neutral">
+                        <strong>无描边 · 当前状态</strong>
+                        白色背景靠色差分界，简洁但与筛选按钮风格不统一
+                    </div>
+                </div>
+
+                <!-- 方案 B -->
+                <div class="wrap">
+                    <span class="label new">方案 B · 细描边 ✨</span>
+                    <div class="browser-frame">
+                        <div class="browser-bar">
+                            <div class="browser-dots">
+                                <div class="browser-dot red"></div>
+                                <div class="browser-dot yellow"></div>
+                                <div class="browser-dot green"></div>
+                            </div>
+                            <div class="browser-url">localhost:4000</div>
+                        </div>
+                        <div class="browser-content">
+                            <div class="page-header">
+                                <div class="page-title">✨ 清迈指南</div>
+                                <div class="search-section">
+                                    <div class="search-wrapper border-subtle">
+                                        <span class="icon">🔍</span>
+                                        <input placeholder="搜索活动、地点等">
+                                    </div>
+                                    <button class="search-btn">搜索</button>
+                                </div>
+                                <button class="filter-btn">筛选</button>
+                            </div>
+                            <div class="mock-tabs">
+                                <div class="mock-tab active">📅 日历</div>
+                                <div class="mock-tab">📋 列表</div>
+                                <div class="mock-tab">🏪 活动网站</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="callout good">
+                        <strong>细描边 · 推荐方案</strong>
+                        白色半透描边与筛选按钮风格统一，精致不抢眼
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 风格统一性分析 ==================== -->
+        <div class="unity-section">
+            <div class="section-title">
+                <span class="icon">🔗</span>
+                风格统一性分析
+            </div>
+            <div class="unity-card">
+                <div class="unity-row">
+                    <div class="unity-label">搜索框</div>
+                    <div class="unity-items">
+                        <div class="unity-item search-box has-border">🔍 搜索活动...</div>
+                    </div>
+                    <div style="font-size:12px; color:#4ecdc4;">border: 1px solid rgba(255,255,255,0.25)</div>
+                </div>
+                <div class="unity-row">
+                    <div class="unity-label">筛选按钮</div>
+                    <div class="unity-items">
+                        <div class="unity-item filter-item">筛选</div>
+                    </div>
+                    <div style="font-size:12px; color:#4ecdc4;">border: 1px solid rgba(255,255,255,0.4)</div>
+                </div>
+                <div style="margin-top:16px; padding:12px 16px; background:rgba(78,205,196,0.08); border-radius:8px; font-size:13px; color:#7ee8e0;">
+                    ✅ 两者使用同一色系描边（白色半透），透明度略有差异（0.25 vs 0.4），形成自然层次：搜索框柔和 → 筛选按钮略强
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 总结 ==================== -->
+        <div style="margin-top:48px; background:linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); border:1px solid rgba(102,126,234,0.3); border-radius:16px; padding:28px;">
+            <h3 style="color:#667eea; margin-bottom:16px; font-size:18px;">📋 建议</h3>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:16px;">
+                    <div style="font-size:12px; color:#888; margin-bottom:6px;">推荐方案</div>
+                    <div style="font-size:14px; font-weight:600; color:#4ecdc4;">方案 B · 细描边</div>
+                </div>
+                <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:16px;">
+                    <div style="font-size:12px; color:#888; margin-bottom:6px;">改动量</div>
+                    <div style="font-size:14px; font-weight:600; color:#667eea;">CSS 加 1 行 border</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

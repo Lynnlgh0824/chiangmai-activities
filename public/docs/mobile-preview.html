@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端交互优化预览</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .preview-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-title {
+            font-size: 20px;
+            margin-bottom: 16px;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .preview-title .badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #667eea;
+            color: white;
+        }
+
+        .device-frame {
+            background: #000;
+            border-radius: 36px;
+            padding: 12px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .device-frame::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            z-index: 10;
+        }
+
+        .device-screen {
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            min-height: 400px;
+        }
+
+        /* ===== 问题 1: Viewport 预览 ===== */
+        .viewport-preview {
+            position: relative;
+        }
+
+        .zoom-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            padding: 20px 30px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 14px;
+            z-index: 100;
+        }
+
+        .zoom-indicator .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .zoom-indicator .label {
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .pinch-gesture {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 5px;
+            font-size: 24px;
+            opacity: 0.6;
+        }
+
+        /* ===== 问题 2: Safe Area 预览 ===== */
+        .safe-area-preview {
+            position: relative;
+        }
+
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 4px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 2px;
+        }
+
+        .safe-area-highlight {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(102, 126, 234, 0.3), transparent);
+            padding: 20px;
+            border-radius: 0 0 24px 24px;
+        }
+
+        .safe-area-label {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        /* ===== 问题 3: 搜索按钮预览 ===== */
+        .search-preview {
+            padding: 16px;
+            background: #f8f9fa;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .search-input-preview {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .search-input-preview .icon {
+            color: #999;
+        }
+
+        .search-input-preview .placeholder {
+            color: #ccc;
+        }
+
+        .search-btn-preview {
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+
+        .touch-area-visual {
+            position: relative;
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 8px;
+            border: 2px dashed #667eea;
+        }
+
+        .touch-area-visual::before {
+            content: '触摸目标区域';
+            position: absolute;
+            top: -10px;
+            left: 12px;
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .size-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .size-bar {
+            height: 8px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+        }
+
+        .size-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* 对比样式 */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .comparison-item {
+            text-align: center;
+        }
+
+        .comparison-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+
+        .comparison-value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .comparison-value.before {
+            color: #ff6b6b;
+        }
+
+        .comparison-value.after {
+            color: #4ecdc4;
+        }
+
+        .checkmark {
+            color: #4ecdc4;
+        }
+
+        .crossmark {
+            color: #ff6b6b;
+        }
+
+        /* 状态标签 */
+        .status-bad {
+            background: #ff6b6b;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .status-good {
+            background: #4ecdc4;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        /* 差异高亮 */
+        .diff-highlight {
+            background: rgba(78, 205, 196, 0.2);
+            border: 1px solid #4ecdc4;
+            border-radius: 4px;
+            padding: 2px 6px;
+        }
+
+        /* 代码预览 */
+        .code-preview {
+            background: #0d1117;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            overflow-x: auto;
+        }
+
+        .code-preview pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .code-preview .tag {
+            color: #7ee787;
+        }
+
+        .code-preview .attr {
+            color: #79c0ff;
+        }
+
+        .code-preview .value {
+            color: #a5d6ff;
+        }
+
+        .code-preview .comment {
+            color: #8b949e;
+        }
+
+        .code-preview .highlight {
+            background: rgba(78, 205, 196, 0.3);
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+
+        /* 按钮尺寸对比 */
+        .btn-comparison {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .btn-size-box {
+            background: white;
+            border-radius: 8px;
+            padding: 12px 20px;
+            color: #333;
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-size-box.small {
+            height: 42px;
+            border: 2px solid #ff6b6b;
+        }
+
+        .btn-size-box.large {
+            height: 44px;
+            border: 2px solid #4ecdc4;
+        }
+
+        .height-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 8px;
+        }
+
+        /* 改进建议 */
+        .suggestions {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 24px;
+        }
+
+        .suggestions h3 {
+            margin-bottom: 16px;
+            color: #667eea;
+        }
+
+        .suggestion-list {
+            list-style: none;
+        }
+
+        .suggestion-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .suggestion-list li:last-child {
+            border-bottom: none;
+        }
+
+        .suggestion-icon {
+            font-size: 20px;
+        }
+
+        .suggestion-text {
+            flex: 1;
+        }
+
+        .suggestion-text strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .suggestion-text span {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .priority {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .priority.high {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .priority.medium {
+            background: #feca57;
+            color: #333;
+        }
+
+        .priority.low {
+            background: #667eea;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 移动端交互优化预览</h1>
+
+        <div class="preview-grid">
+            <!-- 问题 1: Viewport 设置 -->
+            <div class="preview-card">
+                <div class="preview-title">
+                    问题 1: Viewport 设置
+                    <span class="badge">优先级: 中</span>
+                </div>
+
+                <div class="viewport-preview">
+                    <div class="device-frame">
+                        <div class="device-screen">
+                            <div class="zoom-indicator">
+                                <div class="icon">👆👇</div>
+                                <div class="label">双指缩放</div>
+                            </div>
+                            <div style="padding: 60px 20px 20px; background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); height: 300px; display: flex; align-items: center; justify-content: center;">
+                                <div style="background: white; padding: 20px; border-radius: 12px; text-align: center; color: #333;">
+                                    <div style="font-size: 24px; margin-bottom: 8px;">📱</div>
+                                    <div style="font-size: 14px;">页面内容</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-label">修改前</div>
+                        <div class="comparison-value before">
+                            <span class="crossmark">✗</span> 可缩放
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">修改后</div>
+                        <div class="comparison-value after">
+                            <span class="checkmark">✓</span> 禁止缩放
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-preview">
+                    <pre><span class="comment">&lt;!-- 修改前 --&gt;</span>
+&lt;<span class="tag">meta</span> <span class="attr">name</span>=<span class="value">"viewport"</span>
+      <span class="attr">content</span>=<span class="value">"width=device-width, initial-scale=1.0"</span>&gt;
+
+<span class="comment">&lt;!-- 修改后 --&gt;</span>
+&lt;<span class="tag">meta</span> <span class="attr">name</span>=<span class="value">"viewport"</span>
+      <span class="attr">content</span>=<span class="value">"width=device-width,
+              initial-scale=1.0,
+<span class="highlight">              maximum-scale=1.0,
+              user-scalable=no"</span>&gt;</pre>
+                </div>
+            </div>
+
+            <!-- 问题 2: Safe Area -->
+            <div class="preview-card">
+                <div class="preview-title">
+                    问题 2: Safe Area 支持
+                    <span class="badge">优先级: 高</span>
+                </div>
+
+                <div class="safe-area-preview">
+                    <div class="device-frame">
+                        <div class="device-screen" style="position: relative;">
+                            <div style="background: linear-gradient(180deg, #667eea 0%, #764ba2 100%); height: 350px; padding: 60px 20px 0;">
+                                <div style="background: white; padding: 16px; border-radius: 12px; color: #333;">
+                                    <div style="font-size: 14px; margin-bottom: 8px; font-weight: 600;">筛选条件</div>
+                                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                        <span style="background: #667eea; color: white; padding: 6px 12px; border-radius: 16px; font-size: 12px;">全部</span>
+                                        <span style="background: #f0f0f0; padding: 6px 12px; border-radius: 16px; font-size: 12px;">兴趣班</span>
+                                        <span style="background: #f0f0f0; padding: 6px 12px; border-radius: 16px; font-size: 12px;">市集</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Safe Area 区域 -->
+                            <div class="safe-area-highlight">
+                                <div class="safe-area-label">✅ Safe Area 已应用</div>
+                            </div>
+
+                            <!-- Home Indicator -->
+                            <div class="home-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="comparison">
+                    <div class="comparison-item">
+                        <div class="comparison-label">修改前</div>
+                        <div class="comparison-value before">
+                            内容被遮挡 ❌
+                        </div>
+                    </div>
+                    <div class="comparison-item">
+                        <div class="comparison-label">修改后</div>
+                        <div class="comparison-value after">
+                            安全区域 ✅
+                        </div>
+                    </div>
+                </div>
+
+                <div class="code-preview">
+                    <pre><span class="comment">/* CSS 添加 */</span>
+@supports (<span class="attr">padding-bottom:</span> <span class="value">env(safe-area-inset-bottom)</span>) {
+    .<span class="tag">sheet-content</span>,
+    .<span class="tag">bottom-sheet</span> {
+        <span class="highlight">padding-bottom:</span>
+            <span class="value">calc(16px + env(safe-area-inset-bottom))</span>;
+    }
+}</pre>
+                </div>
+            </div>
+
+            <!-- 问题 3: 搜索按钮 -->
+            <div class="preview-card">
+                <div class="preview-title">
+                    问题 3: 搜索按钮高度
+                    <span class="badge">优先级: 低</span>
+                </div>
+
+                <div class="device-frame">
+                    <div class="device-screen">
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px;">
+                            <div class="search-preview" style="background: white; border-radius: 12px;">
+                                <div class="search-box">
+                                    <div class="search-input-preview">
+                                        <span class="icon">🔍</span>
+                                        <span class="placeholder">搜索活动...</span>
+                                    </div>
+                                    <div class="search-btn-preview">搜索</div>
+                                </div>
+
+                                <div class="touch-area-visual">
+                                    <div style="text-align: center; color: #667eea; font-size: 13px; font-weight: 600;">
+                                        触摸目标区域
+                                    </div>
+                                    <div class="size-indicator" style="margin-top: 8px;">
+                                        <div style="width: 8px; height: 8px; background: #ff6b6b; border-radius: 50%;"></div>
+                                        <div style="flex: 1;">
+                                            <div class="size-bar" style="width: 95%;"></div>
+                                        </div>
+                                        <span style="font-size: 12px; color: #4ecdc4;">44px ✅</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-comparison">
+                    <div>
+                        <div class="btn-size-box small">42px</div>
+                        <div class="height-label">修改前</div>
+                    </div>
+                    <div style="font-size: 24px;">→</div>
+                    <div>
+                        <div class="btn-size-box large">44px</div>
+                        <div class="height-label">修改后</div>
+                    </div>
+                </div>
+
+                <div class="code-preview">
+                    <pre><span class="comment">/* CSS 修改 */</span>
+.<span class="tag">search-btn</span> {
+    <span class="comment">/* 修改前 */</span>
+    <span style="color: #ff6b6b;">height: 42px;</span>
+
+    <span class="comment">/* 修改后 */</span>
+    <span class="highlight">height: 44px;</span>
+    <span class="highlight">min-width: 60px;</span>
+}</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- 改进建议汇总 -->
+        <div class="suggestions">
+            <h3>📋 改进建议汇总</h3>
+            <ul class="suggestion-list">
+                <li>
+                    <span class="suggestion-icon">🔍</span>
+                    <div class="suggestion-text">
+                        <strong>Viewport 设置</strong>
+                        <span>防止用户缩放导致布局错乱，提升移动端浏览稳定性</span>
+                    </div>
+                    <span class="priority medium">中优先级</span>
+                </li>
+                <li>
+                    <span class="suggestion-icon">📱</span>
+                    <div class="suggestion-text">
+                        <strong>Safe Area 支持</strong>
+                        <span>iPhone X 及以上设备必备，避免内容被刘海/底部栏遮挡</span>
+                    </div>
+                    <span class="priority high">高优先级</span>
+                </li>
+                <li>
+                    <span class="suggestion-icon">👆</span>
+                    <div class="suggestion-text">
+                        <strong>搜索按钮高度</strong>
+                        <span>符合 Apple 人机交互指南最小触摸目标标准，减少误触</span>
+                    </div>
+                    <span class="priority low">低优先级</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="window.close()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 16px 40px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 0 10px;">
+                关闭预览
+            </button>
+            <button onclick="window.location.href='http://localhost:4000/'" style="background: #4ecdc4; color: white; border: none; padding: 16px 40px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 0 10px;">
+                查看实际页面
+            </button>
+        </div>
+    </div>
+</body>
+</html>

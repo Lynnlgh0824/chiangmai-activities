@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端问题修复草图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f0f23;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* 问题卡片 */
+        .issue-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .issue-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .issue-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .issue-number.high { background: #ff6b6b; }
+        .issue-number.medium { background: #feca57; color: #333; }
+        .issue-number.low { background: #4ecdc4; }
+        .issue-title { font-size: 22px; font-weight: 600; }
+        .issue-desc { color: #aaa; margin-bottom: 24px; line-height: 1.6; }
+
+        /* 对比区域 */
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 24px;
+        }
+        .before, .after {
+            background: rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 24px;
+            position: relative;
+        }
+        .before::before, .after::before {
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .before::before {
+            content: '❌ 修改前';
+            background: #ff6b6b;
+            color: white;
+        }
+        .after::before {
+            content: '✅ 修改后';
+            background: #4ecdc4;
+            color: white;
+        }
+
+        /* 手机框架 */
+        .phone-frame {
+            background: #000;
+            border-radius: 36px;
+            padding: 12px;
+            max-width: 280px;
+            margin: 20px auto;
+            position: relative;
+        }
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+        }
+        .phone-screen {
+            background: #fff;
+            border-radius: 24px;
+            overflow: hidden;
+            min-height: 480px;
+        }
+
+        /* 代码预览 */
+        .code-block {
+            background: #1e1e3f;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 16px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        .code-block .comment { color: #6272a4; }
+        .code-block .property { color: #ff79c6; }
+        .code-block .value { color: #f1fa8c; }
+        .code-block .selector { color: #50fa7b; }
+        .code-block .highlight {
+            background: rgba(78, 205, 196, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* 模拟元素 */
+        .mock-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 16px 16px;
+        }
+        .mock-search {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .mock-input {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #999;
+        }
+        .mock-btn {
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        .mock-btn.primary {
+            background: #6A5ACD;
+            color: white;
+        }
+        .mock-btn.small {
+            height: 36px;
+        }
+        .mock-btn.large {
+            height: 44px;
+        }
+
+        /* Safe Area 模拟 */
+        .safe-area-indicator {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 34px;
+            background: linear-gradient(to top, rgba(255,0,0,0.3), transparent);
+            border-radius: 0 0 24px 24px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 8px;
+        }
+        .home-bar {
+            width: 120px;
+            height: 4px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 2px;
+        }
+
+        /* 筛选按钮模拟 */
+        .filter-fab {
+            position: absolute;
+            bottom: 80px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .filter-fab.disabled {
+            background: #ccc;
+            opacity: 0.5;
+        }
+        .filter-fab.enabled {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* 触摸区域可视化 */
+        .touch-area {
+            border: 2px dashed;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .touch-area.bad {
+            border-color: #ff6b6b;
+            background: rgba(255,107,107,0.1);
+            color: #ff6b6b;
+            height: 36px;
+        }
+        .touch-area.good {
+            border-color: #4ecdc4;
+            background: rgba(78,205,196,0.1);
+            color: #4ecdc4;
+            height: 44px;
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .tag.p0 { background: #ff6b6b; color: white; }
+        .tag.p1 { background: #feca57; color: #333; }
+        .tag.p2 { background: #4ecdc4; color: white; }
+
+        /* 日期栏模拟 */
+        .mock-date-bar {
+            display: flex;
+            gap: 8px;
+            padding: 12px 16px;
+            overflow-x: auto;
+        }
+        .mock-date-item {
+            min-width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+        }
+        .mock-date-item.normal {
+            background: #E8F3FF;
+            color: #667eea;
+        }
+        .mock-date-item.today {
+            background: linear-gradient(135deg, #FF8C00, #FF6B35);
+            color: white;
+        }
+        .mock-date-item.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Tab 模拟 */
+        .mock-tabs {
+            display: flex;
+            border-bottom: 2px solid #e0e0e0;
+            padding: 0 16px;
+            background: white;
+        }
+        .mock-tab {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #666;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+        .mock-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            font-weight: 600;
+        }
+
+        /* 底部内容被遮挡模拟 */
+        .mock-content {
+            padding: 16px;
+        }
+        .mock-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        .mock-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .mock-card-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 问题指示器 */
+        .problem-indicator {
+            position: absolute;
+            background: #ff6b6b;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 修复指示器 */
+        .fix-indicator {
+            position: absolute;
+            background: #4ecdc4;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 10px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+            .issue-card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 移动端问题修复草图</h1>
+
+        <!-- 问题 1: 筛选功能不可用 -->
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-number high">1</div>
+                <div>
+                    <div class="issue-title">筛选功能完全不可用</div>
+                    <span class="tag p0">P0 - 核心功能缺失</span>
+                </div>
+            </div>
+            <div class="issue-desc">
+                移动端隐藏了筛选区域 <code>.filter-section</code>，同时浮动筛选按钮 <code>.mobile-filter-fab</code> 也被隐藏，导致用户无法筛选活动。
+            </div>
+
+            <div class="comparison">
+                <div class="before">
+                    <div class="phone-frame">
+                        <div class="phone-screen" style="position: relative;">
+                            <div class="mock-header">
+                                <div class="mock-search">
+                                    <div class="mock-input">🔍 搜索活动...</div>
+                                    <div class="mock-btn primary">搜索</div>
+                                </div>
+                            </div>
+                            <div class="mock-tabs">
+                                <div class="mock-tab active">📅 日历</div>
+                                <div class="mock-tab">📋 列表</div>
+                                <div class="mock-tab">🗺️ 地图</div>
+                            </div>
+                            <div class="mock-content">
+                                <div class="mock-card">
+                                    <div class="mock-card-title">瑜伽课程</div>
+                                    <div class="mock-card-meta">⏰ 09:00 | 📍 古城</div>
+                                </div>
+                                <div class="mock-card">
+                                    <div class="mock-card-title">泰拳训练</div>
+                                    <div class="mock-card-meta">⏰ 14:00 | 📍 宁曼路</div>
+                                </div>
+                            </div>
+                            <!-- 筛选按钮被隐藏 -->
+                            <div class="filter-fab disabled" style="opacity: 0.3;">
+                                🔍
+                            </div>
+                            <div class="problem-indicator" style="bottom: 140px; right: 20px;">
+                                ❌ 筛选按钮被隐藏
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="after">
+                    <div class="phone-frame">
+                        <div class="phone-screen" style="position: relative;">
+                            <div class="mock-header">
+                                <div class="mock-search">
+                                    <div class="mock-input">🔍 搜索活动...</div>
+                                    <div class="mock-btn primary">搜索</div>
+                                </div>
+                            </div>
+                            <div class="mock-tabs">
+                                <div class="mock-tab active">📅 日历</div>
+                                <div class="mock-tab">📋 列表</div>
+                                <div class="mock-tab">🗺️ 地图</div>
+                            </div>
+                            <div class="mock-content">
+                                <div class="mock-card">
+                                    <div class="mock-card-title">瑜伽课程</div>
+                                    <div class="mock-card-meta">⏰ 09:00 | 📍 古城</div>
+                                </div>
+                                <div class="mock-card">
+                                    <div class="mock-card-title">泰拳训练</div>
+                                    <div class="mock-card-meta">⏰ 14:00 | 📍 宁曼路</div>
+                                </div>
+                            </div>
+                            <!-- 筛选按钮显示 -->
+                            <div class="filter-fab enabled">
+                                🔍
+                            </div>
+                            <div class="fix-indicator" style="bottom: 140px; right: 20px;">
+                                ✅ 筛选按钮可见
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <span class="comment">/* 修复：显示浮动筛选按钮 */</span><br>
+                <span class="selector">@media</span> (<span class="property">max-width</span>: <span class="value">768px</span>) {<br>
+                &nbsp;&nbsp;<span class="selector">.mobile-filter-fab</span> {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight"><span class="property">display</span>: <span class="value">flex</span> !important;</span><br>
+                &nbsp;&nbsp;}<br>
+                }
+            </div>
+        </div>
+
+        <!-- 问题 2: Safe Area 未适配 -->
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-number high">2</div>
+                <div>
+                    <div class="issue-title">Safe Area 未适配（iPhone X+）</div>
+                    <span class="tag p1">P1 - 用户体验问题</span>
+                </div>
+            </div>
+            <div class="issue-desc">
+                iPhone X 及以上设备的底部 Home Indicator 区域会遮挡页面内容，特别是底部的筛选 Sheet 和弹窗按钮。
+            </div>
+
+            <div class="comparison">
+                <div class="before">
+                    <div class="phone-frame">
+                        <div class="phone-screen" style="position: relative;">
+                            <div class="mock-header">
+                                <div class="mock-search">
+                                    <div class="mock-input">🔍 搜索活动...</div>
+                                </div>
+                            </div>
+                            <div class="mock-content" style="padding-bottom: 0;">
+                                <!-- 底部 Sheet -->
+                                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; padding: 20px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15);">
+                                    <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
+                                    <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">筛选条件</div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                                        <div style="background: #f5f5f5; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px;">全部</div>
+                                        <div style="background: #667eea; color: white; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px;">瑜伽</div>
+                                        <div style="background: #f5f5f5; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px;">泰拳</div>
+                                    </div>
+                                    <!-- 按钮被遮挡 -->
+                                    <div style="margin-top: 16px; display: flex; gap: 8px;">
+                                        <div style="flex: 1; padding: 12px; background: #f5f5f5; border-radius: 8px; text-align: center; font-size: 13px; color: #666;">重置</div>
+                                        <div style="flex: 1; padding: 12px; background: #667eea; border-radius: 8px; text-align: center; font-size: 13px; color: white;">确定</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Safe Area 指示 -->
+                            <div class="safe-area-indicator">
+                                <div class="home-bar"></div>
+                            </div>
+                            <div class="problem-indicator" style="bottom: 40px; left: 20px;">
+                                ❌ 按钮被 Home Indicator 遮挡
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="after">
+                    <div class="phone-frame">
+                        <div class="phone-screen" style="position: relative;">
+                            <div class="mock-header">
+                                <div class="mock-search">
+                                    <div class="mock-input">🔍 搜索活动...</div>
+                                </div>
+                            </div>
+                            <div class="mock-content" style="padding-bottom: 0;">
+                                <!-- 底部 Sheet（增加 Safe Area padding） -->
+                                <div style="position: absolute; bottom: 0; left: 0; right: 0; background: white; border-radius: 20px 20px 0 0; padding: 20px; padding-bottom: calc(20px + 34px); box-shadow: 0 -4px 20px rgba(0,0,0,0.15);">
+                                    <div style="width: 40px; height: 4px; background: #ddd; border-radius: 2px; margin: 0 auto 16px;"></div>
+                                    <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 16px;">筛选条件</div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                                        <div style="background: #f5f5f5; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px;">全部</div>
+                                        <div style="background: #667eea; color: white; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px;">瑜伽</div>
+                                        <div style="background: #f5f5f5; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px;">泰拳</div>
+                                    </div>
+                                    <!-- 按钮可见 -->
+                                    <div style="margin-top: 16px; display: flex; gap: 8px;">
+                                        <div style="flex: 1; padding: 12px; background: #f5f5f5; border-radius: 8px; text-align: center; font-size: 13px; color: #666;">重置</div>
+                                        <div style="flex: 1; padding: 12px; background: #667eea; border-radius: 8px; text-align: center; font-size: 13px; color: white;">确定</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Safe Area 指示 -->
+                            <div class="safe-area-indicator" style="background: linear-gradient(to top, rgba(78,205,196,0.3), transparent);">
+                                <div class="home-bar"></div>
+                            </div>
+                            <div class="fix-indicator" style="bottom: 40px; left: 20px;">
+                                ✅ 按钮在 Safe Area 上方
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <span class="comment">/* 修复：添加 Safe Area 支持 */</span><br>
+                <span class="selector">@supports</span> (<span class="property">padding-bottom</span>: <span class="value">env(safe-area-inset-bottom)</span>) {<br>
+                &nbsp;&nbsp;<span class="selector">.sheet-content</span>,<br>
+                &nbsp;&nbsp;<span class="selector">.modal-footer</span> {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight"><span class="property">padding-bottom</span>: <span class="value">calc(16px + env(safe-area-inset-bottom))</span>;</span><br>
+                &nbsp;&nbsp;}<br>
+                }
+            </div>
+        </div>
+
+        <!-- 问题 3: CSS 语法错误 -->
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-number high">3</div>
+                <div>
+                    <div class="issue-title">CSS 语法错误</div>
+                    <span class="tag p1">P1 - 潜在样式失效</span>
+                </div>
+            </div>
+            <div class="issue-desc">
+                style.css 第 158 行有多余的 <code>}</code>，可能导致后续的媒体查询和样式规则失效。
+            </div>
+
+            <div class="code-block">
+                <span class="comment">/* 错误位置：style.css 第 157-159 行 */</span><br><br>
+                <span class="selector">.header</span> {<br>
+                &nbsp;&nbsp;<span class="comment">/* ... 样式属性 ... */</span><br>
+                }<br>
+                <span style="color: #ff6b6b; font-weight: bold;">}  ← ❌ 多余的闭合括号</span><br><br>
+                <span class="selector">.header h1</span> {  <span class="comment">/* ← 这个选择器可能失效 */</span><br>
+                &nbsp;&nbsp;<span class="property">font-size</span>: <span class="value">24px</span>;<br>
+                }
+            </div>
+
+            <div style="background: rgba(78,205,196,0.1); border: 1px solid #4ecdc4; border-radius: 12px; padding: 20px; margin-top: 20px;">
+                <div style="font-weight: 600; color: #4ecdc4; margin-bottom: 8px;">✅ 修复方案</div>
+                <div style="color: #aaa; line-height: 1.6;">
+                    删除第 158 行的多余 <code>}</code>，确保 CSS 选择器正确闭合。
+                </div>
+            </div>
+        </div>
+
+        <!-- 问题 4: 触摸目标太小 -->
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-number medium">4</div>
+                <div>
+                    <div class="issue-title">触摸目标尺寸不足</div>
+                    <span class="tag p2">P2 - 误触率问题</span>
+                </div>
+            </div>
+            <div class="issue-desc">
+                多个可点击元素的尺寸小于 iOS 人机交互指南建议的 44px 最小触摸目标，容易导致误触。
+            </div>
+
+            <div class="comparison">
+                <div class="before">
+                    <h4 style="color: #ff6b6b; margin-bottom: 16px;">搜索按钮</h4>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; flex: 1;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 8px;">输入框</div>
+                            <div style="height: 36px; background: white; border-radius: 6px;"></div>
+                        </div>
+                        <div>
+                            <div class="mock-btn primary small" style="min-width: 50px; text-align: center;">搜索</div>
+                            <div class="touch-area bad">36px ❌</div>
+                        </div>
+                    </div>
+
+                    <h4 style="color: #ff6b6b; margin: 24px 0 16px;">筛选标签</h4>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <div style="background: #f5f5f5; padding: 6px 12px; border-radius: 16px; font-size: 11px; height: 32px; display: flex; align-items: center;">全部</div>
+                        <div style="background: #667eea; color: white; padding: 6px 12px; border-radius: 16px; font-size: 11px; height: 32px; display: flex; align-items: center;">瑜伽</div>
+                        <div style="background: #f5f5f5; padding: 6px 12px; border-radius: 16px; font-size: 11px; height: 32px; display: flex; align-items: center;">泰拳</div>
+                    </div>
+                    <div class="touch-area bad" style="margin-top: 8px;">32px ❌</div>
+                </div>
+
+                <div class="after">
+                    <h4 style="color: #4ecdc4; margin-bottom: 16px;">搜索按钮</h4>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="background: #f5f5f5; padding: 12px; border-radius: 8px; flex: 1;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 8px;">输入框</div>
+                            <div style="height: 44px; background: white; border-radius: 6px;"></div>
+                        </div>
+                        <div>
+                            <div class="mock-btn primary large" style="min-width: 60px; text-align: center;">搜索</div>
+                            <div class="touch-area good">44px ✅</div>
+                        </div>
+                    </div>
+
+                    <h4 style="color: #4ecdc4; margin: 24px 0 16px;">筛选标签</h4>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <div style="background: #f5f5f5; padding: 8px 16px; border-radius: 16px; font-size: 12px; height: 38px; display: flex; align-items: center;">全部</div>
+                        <div style="background: #667eea; color: white; padding: 8px 16px; border-radius: 16px; font-size: 12px; height: 38px; display: flex; align-items: center;">瑜伽</div>
+                        <div style="background: #f5f5f5; padding: 8px 16px; border-radius: 16px; font-size: 12px; height: 38px; display: flex; align-items: center;">泰拳</div>
+                    </div>
+                    <div class="touch-area good" style="margin-top: 8px;">38px ✅</div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <span class="comment">/* 修复：增大触摸目标 */</span><br><br>
+                <span class="selector">.search-input-wrapper</span> {<br>
+                &nbsp;&nbsp;<span class="highlight"><span class="property">height</span>: <span class="value">44px</span> !important;</span><br>
+                &nbsp;&nbsp;<span class="highlight"><span class="property">min-height</span>: <span class="value">44px</span> !important;</span><br>
+                }<br><br>
+                <span class="selector">.search-btn</span> {<br>
+                &nbsp;&nbsp;<span class="highlight"><span class="property">height</span>: <span class="value">44px</span> !important;</span><br>
+                &nbsp;&nbsp;<span class="highlight"><span class="property">min-width</span>: <span class="value">60px</span> !important;</span><br>
+                }<br><br>
+                <span class="selector">.filter-chip</span> {<br>
+                &nbsp;&nbsp;<span class="highlight"><span class="property">min-height</span>: <span class="value">38px</span> !important;</span><br>
+                &nbsp;&nbsp;<span class="highlight"><span class="property">padding</span>: <span class="value">8px 16px</span> !important;</span><br>
+                }
+            </div>
+        </div>
+
+        <!-- 问题 5: Viewport 可缩放 -->
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-number medium">5</div>
+                <div>
+                    <div class="issue-title">Viewport 可缩放导致布局不稳定</div>
+                    <span class="tag p2">P2 - 布局稳定性</span>
+                </div>
+            </div>
+            <div class="issue-desc">
+                当前 viewport 设置允许用户双指缩放，可能导致页面布局错乱，特别是固定定位的元素（Tab 栏、筛选栏）。
+            </div>
+
+            <div class="comparison">
+                <div class="before">
+                    <div class="phone-frame">
+                        <div class="phone-screen" style="position: relative; overflow: hidden;">
+                            <div class="mock-header" style="transform: scale(1.2); transform-origin: top left; width: 120%;">
+                                <div class="mock-search">
+                                    <div class="mock-input">🔍 搜索活...</div>
+                                    <div class="mock-btn primary">搜索</div>
+                                </div>
+                            </div>
+                            <div style="padding: 8px; color: #666; font-size: 12px; text-align: center;">
+                                👆👇 双指缩放中...
+                            </div>
+                            <div class="mock-content" style="transform: scale(1.2); transform-origin: top left; width: 120%;">
+                                <div class="mock-card">
+                                    <div class="mock-card-title" style="font-size: 16px;">瑜伽课程</div>
+                                    <div class="mock-card-meta">⏰ 09:00 | 📍 古城</div>
+                                </div>
+                            </div>
+                            <div class="problem-indicator" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                ❌ 布局溢出屏幕
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="after">
+                    <div class="phone-frame">
+                        <div class="phone-screen" style="position: relative;">
+                            <div class="mock-header">
+                                <div class="mock-search">
+                                    <div class="mock-input">🔍 搜索活动...</div>
+                                    <div class="mock-btn primary">搜索</div>
+                                </div>
+                            </div>
+                            <div class="mock-tabs">
+                                <div class="mock-tab active">📅 日历</div>
+                                <div class="mock-tab">📋 列表</div>
+                            </div>
+                            <div class="mock-content">
+                                <div class="mock-card">
+                                    <div class="mock-card-title">瑜伽课程</div>
+                                    <div class="mock-card-meta">⏰ 09:00 | 📍 古城</div>
+                                </div>
+                                <div class="mock-card">
+                                    <div class="mock-card-title">泰拳训练</div>
+                                    <div class="mock-card-meta">⏰ 14:00 | 📍 宁曼路</div>
+                                </div>
+                            </div>
+                            <div class="fix-indicator" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                ✅ 布局稳定
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <span class="comment">&lt;!-- 修复：禁止缩放 --&gt;</span><br>
+                &lt;<span class="selector">meta</span> <span class="property">name</span>=<span class="value">"viewport"</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="property">content</span>=<span class="value">"width=device-width,</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="value">initial-scale=1.0,</span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight"><span class="value">maximum-scale=1.0,</span></span><br>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="highlight"><span class="value">user-scalable=no"</span></span>&gt;
+            </div>
+        </div>
+
+        <!-- 问题 6: Tab 导航定位冲突 -->
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-number low">6</div>
+                <div>
+                    <div class="issue-title">Tab 导航定位冲突</div>
+                    <span class="tag p2">P2 - 滚动行为不一致</span>
+                </div>
+            </div>
+            <div class="issue-desc">
+                多处定义 <code>.tabs-nav</code> 的 <code>position: sticky</code>，可能导致滚动行为不一致，特别是在不同屏幕尺寸下。
+            </div>
+
+            <div class="code-block">
+                <span class="comment">/* 冲突位置：3 处定义 sticky */</span><br><br>
+                <span class="comment">/* 1. PC 端定义 (第 326 行) */</span><br>
+                <span class="selector">.tabs-nav</span> {<br>
+                &nbsp;&nbsp;<span class="property">position</span>: <span class="value">sticky</span>;<br>
+                &nbsp;&nbsp;<span class="property">top</span>: <span class="value">0</span>;<br>
+                }<br><br>
+
+                <span class="comment">/* 2. 移动端定义 (第 2747 行) */</span><br>
+                <span class="selector">@media</span> (<span class="property">max-width</span>: <span class="value">768px</span>) {<br>
+                &nbsp;&nbsp;<span class="selector">.tabs-nav</span> {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="property">position</span>: <span class="value">sticky</span> !important;<br>
+                &nbsp;&nbsp;}<br>
+                }<br><br>
+
+                <span class="comment">/* 3. 又一次定义 (第 3576 行) */</span><br>
+                <span class="selector">@media</span> (<span class="property">max-width</span>: <span class="value">768px</span>) {<br>
+                &nbsp;&nbsp;<span class="selector">.tabs-nav</span> {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="property">position</span>: <span class="value">sticky</span>;<br>
+                &nbsp;&nbsp;}<br>
+                }
+            </div>
+
+            <div style="background: rgba(78,205,196,0.1); border: 1px solid #4ecdc4; border-radius: 12px; padding: 20px; margin-top: 20px;">
+                <div style="font-weight: 600; color: #4ecdc4; margin-bottom: 8px;">✅ 修复方案</div>
+                <div style="color: #aaa; line-height: 1.6;">
+                    合并重复的媒体查询，确保只有一个 <code>position: sticky</code> 定义，避免样式冲突。
+                </div>
+            </div>
+        </div>
+
+        <!-- 问题 7: 日期栏滚动提示 -->
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-number low">7</div>
+                <div>
+                    <div class="issue-title">日期栏缺少滚动提示</div>
+                    <span class="tag p2">P2 - 可发现性问题</span>
+                </div>
+            </div>
+            <div class="issue-desc">
+                日期选择栏的滚动条被隐藏，用户可能不知道可以横向滑动查看更多日期。
+            </div>
+
+            <div class="comparison">
+                <div class="before">
+                    <h4 style="color: #ff6b6b; margin-bottom: 16px;">当前状态</h4>
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 12px;">
+                        <div class="mock-date-bar" style="padding: 0;">
+                            <div class="mock-date-item today">
+                                <div style="font-size: 14px; font-weight: 700;">1</div>
+                                <div style="font-size: 9px;">今天</div>
+                            </div>
+                            <div class="mock-date-item selected">
+                                <div style="font-size: 14px; font-weight: 700;">2</div>
+                                <div style="font-size: 9px;">周一</div>
+                            </div>
+                            <div class="mock-date-item normal">
+                                <div style="font-size: 14px; font-weight: 700;">3</div>
+                                <div style="font-size: 9px;">周二</div>
+                            </div>
+                            <div class="mock-date-item normal">
+                                <div style="font-size: 14px; font-weight: 700;">4</div>
+                                <div style="font-size: 9px;">周三</div>
+                            </div>
+                            <div class="mock-date-item normal">
+                                <div style="font-size: 14px; font-weight: 700;">5</div>
+                                <div style="font-size: 9px;">周四</div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 8px; color: #999; font-size: 11px;">
+                            ← 可以滑动 →
+                        </div>
+                    </div>
+                    <div style="color: #ff6b6b; font-size: 12px; margin-top: 8px; text-align: center;">
+                        ❌ 无视觉提示，用户不知道可以滑动
+                    </div>
+                </div>
+
+                <div class="after">
+                    <h4 style="color: #4ecdc4; margin-bottom: 16px;">改进方案</h4>
+                    <div style="background: #f8f9fa; border-radius: 12px; padding: 12px; position: relative;">
+                        <div class="mock-date-bar" style="padding: 0;">
+                            <div class="mock-date-item today">
+                                <div style="font-size: 14px; font-weight: 700;">1</div>
+                                <div style="font-size: 9px;">今天</div>
+                            </div>
+                            <div class="mock-date-item selected">
+                                <div style="font-size: 14px; font-weight: 700;">2</div>
+                                <div style="font-size: 9px;">周一</div>
+                            </div>
+                            <div class="mock-date-item normal">
+                                <div style="font-size: 14px; font-weight: 700;">3</div>
+                                <div style="font-size: 9px;">周二</div>
+                            </div>
+                            <div class="mock-date-item normal">
+                                <div style="font-size: 14px; font-weight: 700;">4</div>
+                                <div style="font-size: 9px;">周三</div>
+                            </div>
+                            <div class="mock-date-item normal">
+                                <div style="font-size: 14px; font-weight: 700;">5</div>
+                                <div style="font-size: 9px;">周四</div>
+                            </div>
+                        </div>
+                        <!-- 渐变遮罩提示 -->
+                        <div style="position: absolute; right: 12px; top: 12px; bottom: 12px; width: 40px; background: linear-gradient(to right, transparent, #f8f9fa); pointer-events: none; display: flex; align-items: center; justify-content: flex-end;">
+                            <span style="color: #667eea; font-size: 16px;">›</span>
+                        </div>
+                    </div>
+                    <div style="color: #4ecdc4; font-size: 12px; margin-top: 8px; text-align: center;">
+                        ✅ 右侧渐变 + 箭头提示可滑动
+                    </div>
+                </div>
+            </div>
+
+            <div class="code-block">
+                <span class="comment">/* 修复：添加滚动提示渐变 */</span><br><br>
+                <span class="selector">.date-grid-header</span> {<br>
+                &nbsp;&nbsp;<span class="property">position</span>: <span class="value">relative</span>;<br>
+                }<br><br>
+                <span class="selector">.date-grid-header::after</span> {<br>
+                &nbsp;&nbsp;<span class="property">content</span>: <span class="value">''</span>;<br>
+                &nbsp;&nbsp;<span class="property">position</span>: <span class="value">absolute</span>;<br>
+                &nbsp;&nbsp;<span class="property">right</span>: <span class="value">0</span>;<br>
+                &nbsp;&nbsp;<span class="property">top</span>: <span class="value">0</span>;<br>
+                &nbsp;&nbsp;<span class="property">bottom</span>: <span class="value">0</span>;<br>
+                &nbsp;&nbsp;<span class="property">width</span>: <span class="value">40px</span>;<br>
+                &nbsp;&nbsp;<span class="highlight"><span class="property">background</span>: <span class="value">linear-gradient(to right, transparent, #f8f9fa)</span>;</span><br>
+                &nbsp;&nbsp;<span class="property">pointer-events</span>: <span class="value">none</span>;<br>
+                }
+            </div>
+        </div>
+
+        <!-- 问题 8: 搜索图标按钮冗余 -->
+        <div class="issue-card">
+            <div class="issue-header">
+                <div class="issue-number low">8</div>
+                <div>
+                    <div class="issue-title">搜索图标按钮冗余代码</div>
+                    <span class="tag p2">P2 - 代码清理</span>
+                </div>
+            </div>
+            <div class="issue-desc">
+                <code>.search-icon-btn</code> 定义了 <code>position: absolute</code> 但又被隐藏，存在冗余代码，可能造成样式混乱。
+            </div>
+
+            <div class="code-block">
+                <span class="comment">/* 冗余代码：第 214-231 行 */</span><br><br>
+                <span class="selector">.search-icon-btn</span> {<br>
+                &nbsp;&nbsp;<span class="property">position</span>: <span class="value">absolute</span>;<br>
+                &nbsp;&nbsp;<span class="property">right</span>: <span class="value">8px</span>;<br>
+                &nbsp;&nbsp;<span class="property">top</span>: <span class="value">50%</span>;<br>
+                &nbsp;&nbsp;<span class="property">transform</span>: <span class="value">translateY(-50%)</span>;<br>
+                &nbsp;&nbsp;<span class="comment">/* ... 其他样式 ... */</span><br>
+                &nbsp;&nbsp;<span class="property">display</span>: <span class="value">none</span>;  <span class="comment">← 始终隐藏</span><br>
+                }<br><br>
+
+                <span class="comment">/* 移动端也隐藏：第 2089 行 */</span><br>
+                <span class="selector">@media</span> (<span class="property">max-width</span>: <span class="value">768px</span>) {<br>
+                &nbsp;&nbsp;<span class="selector">.search-icon-btn</span> {<br>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="property">display</span>: <span class="value">none</span> !important;<br>
+                &nbsp;&nbsp;}<br>
+                }
+            </div>
+
+            <div style="background: rgba(78,205,196,0.1); border: 1px solid #4ecdc4; border-radius: 12px; padding: 20px; margin-top: 20px;">
+                <div style="font-weight: 600; color: #4ecdc4; margin-bottom: 8px;">✅ 修复方案</div>
+                <div style="color: #aaa; line-height: 1.6;">
+                    删除 <code>.search-icon-btn</code> 的所有样式定义，简化代码结构。
+                </div>
+            </div>
+        </div>
+
+        <!-- 总结 -->
+        <div class="issue-card" style="background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%); border-color: rgba(102,126,234,0.3);">
+            <h2 style="color: #667eea; margin-bottom: 20px;">📋 修复优先级总结</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="background: rgba(255,107,107,0.1); border: 1px solid #ff6b6b; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 600; color: #ff6b6b; margin-bottom: 12px;">🔴 P0 - 必须修复</div>
+                    <ul style="list-style: none; color: #aaa; line-height: 2;">
+                        <li>• 筛选功能不可用</li>
+                    </ul>
+                </div>
+                <div style="background: rgba(254,202,87,0.1); border: 1px solid #feca57; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 600; color: #feca57; margin-bottom: 12px;">🟡 P1 - 建议修复</div>
+                    <ul style="list-style: none; color: #aaa; line-height: 2;">
+                        <li>• Safe Area 适配</li>
+                        <li>• CSS 语法错误</li>
+                    </ul>
+                </div>
+                <div style="background: rgba(78,205,196,0.1); border: 1px solid #4ecdc4; border-radius: 12px; padding: 16px;">
+                    <div style="font-weight: 600; color: #4ecdc4; margin-bottom: 12px;">🟢 P2 - 可选优化</div>
+                    <ul style="list-style: none; color: #aaa; line-height: 2;">
+                        <li>• 触摸目标尺寸</li>
+                        <li>• Viewport 缩放</li>
+                        <li>• Tab 定位冲突</li>
+                        <li>• 日期栏滚动提示</li>
+                        <li>• 冗余代码清理</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div style="text-align: center; margin-top: 40px;">
+            <button onclick="window.location.href='http://localhost:4000/'" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 16px 40px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 0 10px;">
+                查看实际页面
+            </button>
+            <button onclick="window.close()" style="background: #4ecdc4; color: white; border: none; padding: 16px 40px; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer; margin: 0 10px;">
+                关闭预览
+            </button>
+        </div>
+    </div>
+</body>
+</html>
