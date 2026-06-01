@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>清迈指南 v3.0 - 用户流程原型</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans Thai', sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* === 原型导航 === */
+        .proto-nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+            background: #1a1a2e; color: white; padding: 8px 16px;
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+            font-size: 13px;
+        }
+        .proto-nav span { color: #8B7FD4; font-weight: 600; }
+        .proto-nav button {
+            padding: 4px 12px; border: 1px solid rgba(255,255,255,0.3);
+            background: transparent; color: white; border-radius: 6px;
+            cursor: pointer; font-size: 12px; transition: all 0.2s;
+        }
+        .proto-nav button:hover, .proto-nav button.active {
+            background: #6A5ACD; border-color: #6A5ACD;
+        }
+        .screen { display: none; margin-top: 48px; }
+        .screen.active { display: block; }
+
+        /* === 通用 === */
+        .phone-frame {
+            max-width: 414px; margin: 16px auto; background: white;
+            border-radius: 16px; overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+        }
+
+        /* === 头部 === */
+        .app-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 16px 20px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .app-header h1 { font-size: 20px; font-weight: 700; }
+        .app-header .user-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: rgba(255,255,255,0.25); display: flex;
+            align-items: center; justify-content: center; font-size: 18px;
+            cursor: pointer;
+        }
+
+        /* === 搜索 === */
+        .search-bar {
+            padding: 12px 16px; background: white;
+            border-bottom: 1px solid #eee;
+        }
+        .search-bar input {
+            width: 100%; height: 44px; border: 1px solid #e0e0e0;
+            border-radius: 12px; padding: 0 16px; font-size: 16px;
+            background: #f8f8f8; outline: none;
+        }
+        .search-bar input:focus { border-color: #6A5ACD; background: white; }
+
+        /* === 筛选 === */
+        .filters {
+            padding: 12px 16px; display: flex; gap: 8px;
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .filters::-webkit-scrollbar { display: none; }
+        .filter-chip {
+            padding: 8px 16px; border-radius: 20px; font-size: 14px;
+            background: #f0f0f0; border: 1px solid #e0e0e0;
+            white-space: nowrap; cursor: pointer; transition: all 0.2s;
+            min-height: 40px; display: flex; align-items: center;
+        }
+        .filter-chip.active {
+            background: #6A5ACD; color: white; border-color: #6A5ACD;
+        }
+
+        /* === 活动卡片 === */
+        .activity-list { padding: 0 16px 16px; }
+        .activity-card {
+            background: white; border-radius: 12px; padding: 16px;
+            margin-bottom: 12px; border: 1px solid #eee;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            cursor: pointer; transition: all 0.2s;
+            min-height: 44px;
+        }
+        .activity-card:active { transform: scale(0.98); }
+        .card-tag {
+            display: inline-block; padding: 4px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 500; margin-bottom: 8px;
+        }
+        .card-tag.yoga { background: #EDE7F6; color: #7B68EE; }
+        .card-tag.market { background: #FFF3E0; color: #FF8C00; }
+        .card-tag.music { background: #FCE4EC; color: #FF69B4; }
+        .card-tag.free { background: #E8F5E9; color: #52C41A; }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+        .card-meta { font-size: 13px; color: #666; line-height: 1.8; }
+        .card-rsvp {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f0f0;
+        }
+        .rsvp-count { font-size: 13px; color: #999; }
+        .rsvp-btn {
+            padding: 8px 20px; border-radius: 20px; font-size: 14px;
+            font-weight: 500; border: none; cursor: pointer; transition: all 0.2s;
+            min-height: 40px;
+        }
+        .rsvp-btn.join { background: #6A5ACD; color: white; }
+        .rsvp-btn.joined { background: #E8F5E9; color: #52C41A; border: 1px solid #52C41A; }
+
+        /* === 登录页 === */
+        .login-screen {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; min-height: 80vh; padding: 32px;
+        }
+        .login-logo {
+            width: 80px; height: 80px; border-radius: 20px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 36px; margin-bottom: 24px;
+        }
+        .login-title { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .login-sub { color: #666; font-size: 14px; margin-bottom: 32px; }
+        .login-input {
+            width: 100%; height: 48px; border: 1px solid #e0e0e0;
+            border-radius: 12px; padding: 0 16px; font-size: 16px;
+            margin-bottom: 12px; outline: none;
+        }
+        .login-input:focus { border-color: #6A5ACD; }
+        .login-btn {
+            width: 100%; height: 48px; border-radius: 12px; border: none;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white; font-size: 16px; font-weight: 600;
+            cursor: pointer; margin-top: 8px;
+        }
+        .login-divider {
+            display: flex; align-items: center; width: 100%;
+            margin: 24px 0; color: #999; font-size: 13px;
+        }
+        .login-divider::before, .login-divider::after {
+            content: ''; flex: 1; height: 1px; background: #e0e0e0;
+        }
+        .login-divider span { padding: 0 12px; }
+        .social-btn {
+            width: 100%; height: 48px; border-radius: 12px;
+            border: 1px solid #e0e0e0; background: white;
+            font-size: 15px; cursor: pointer; margin-bottom: 8px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        /* === 活动详情 + 评论 === */
+        .detail-header-img {
+            height: 200px; background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex; align-items: flex-end; padding: 16px 20px;
+        }
+        .detail-header-img h2 { color: white; font-size: 22px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+        .detail-body { padding: 20px; }
+        .detail-section { margin-bottom: 20px; }
+        .detail-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+        .detail-info-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; font-size: 14px; color: #555; line-height: 1.6; }
+        .detail-info-row .icon { font-size: 16px; flex-shrink: 0; }
+        .detail-rsvp-bar {
+            position: sticky; bottom: 0; background: white;
+            padding: 12px 20px; border-top: 1px solid #eee;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        /* === 评论 === */
+        .comment-section { padding: 0 20px 20px; }
+        .comment-section h3 { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+        .comment-item {
+            display: flex; gap: 12px; margin-bottom: 16px;
+            padding-bottom: 16px; border-bottom: 1px solid #f0f0f0;
+        }
+        .comment-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: #EDE7F6; display: flex; align-items: center;
+            justify-content: center; font-size: 14px; flex-shrink: 0;
+        }
+        .comment-content { flex: 1; }
+        .comment-name { font-size: 14px; font-weight: 600; }
+        .comment-time { font-size: 12px; color: #999; margin-left: 8px; }
+        .comment-text { font-size: 14px; color: #444; margin-top: 4px; line-height: 1.6; }
+        .comment-actions { display: flex; gap: 16px; margin-top: 8px; }
+        .comment-actions span { font-size: 12px; color: #999; cursor: pointer; }
+        .comment-input-bar {
+            position: sticky; bottom: 0; background: white;
+            padding: 12px 20px; border-top: 1px solid #eee;
+            display: flex; gap: 8px;
+        }
+        .comment-input-bar input {
+            flex: 1; height: 40px; border: 1px solid #e0e0e0;
+            border-radius: 20px; padding: 0 16px; font-size: 14px; outline: none;
+        }
+        .comment-input-bar button {
+            height: 40px; padding: 0 20px; border-radius: 20px;
+            border: none; background: #6A5ACD; color: white;
+            font-size: 14px; font-weight: 500; cursor: pointer;
+        }
+
+        /* === 底部导航 === */
+        .bottom-nav {
+            display: flex; background: white; border-top: 1px solid #eee;
+            position: sticky; bottom: 0;
+        }
+        .bottom-nav-item {
+            flex: 1; display: flex; flex-direction: column; align-items: center;
+            padding: 8px 0; font-size: 10px; color: #999; cursor: pointer;
+        }
+        .bottom-nav-item.active { color: #6A5ACD; }
+        .bottom-nav-item .icon { font-size: 20px; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+
+<!-- 原型导航 -->
+<div class="proto-nav">
+    <span>v3.0 原型</span>
+    <button class="active" onclick="showScreen('home')">首页</button>
+    <button onclick="showScreen('login')">登录</button>
+    <button onclick="showScreen('detail')">活动详情</button>
+    <button onclick="showScreen('comments')">评论</button>
+</div>
+
+<!-- ====== 屏幕1: 首页 ====== -->
+<div id="screen-home" class="screen active">
+    <div class="phone-frame">
+        <div class="app-header">
+            <h1>🌴 清迈指南</h1>
+            <div class="user-avatar" onclick="showScreen('login')">👤</div>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="🔍 搜索活动（中/英/泰）...">
+        </div>
+        <div class="filters">
+            <div class="filter-chip active">全部</div>
+            <div class="filter-chip">🧘 瑜伽</div>
+            <div class="filter-chip">🛍️ 市集</div>
+            <div class="filter-chip">🎵 音乐</div>
+            <div class="filter-chip">🥊 泰拳</div>
+            <div class="filter-chip">🎨 艺术</div>
+            <div class="filter-chip">🥾 户外</div>
+        </div>
+        <div class="activity-list">
+            <div class="activity-card" onclick="showScreen('detail')">
+                <div class="card-tag yoga">🧘 瑜伽/冥想</div>
+                <div class="card-title">清迈清晨瑜伽课程</div>
+                <div class="card-meta">
+                    📅 每周一/三/五 07:00-08:30<br>
+                    📍 宁曼路 Happy Yoga Studio<br>
+                    💰 免费（捐赠制）
+                </div>
+                <div class="card-rsvp">
+                    <span class="rsvp-count">👥 23 人已报名</span>
+                    <button class="rsvp-btn join" onclick="event.stopPropagation(); toggleRSVP(this)">我要参加</button>
+                </div>
+            </div>
+            <div class="activity-card" onclick="showScreen('detail')">
+                <div class="card-tag market">🛍️ 市集</div>
+                <div class="card-title">周日夜市 Sunday Walking Street</div>
+                <div class="card-meta">
+                    📅 每周日 16:00-23:00<br>
+                    📍 塔佩门 → 帕辛寺<br>
+                    🎫 免费入场
+                </div>
+                <div class="card-rsvp">
+                    <span class="rsvp-count">👥 156 人感兴趣</span>
+                    <button class="rsvp-btn join" onclick="event.stopPropagation(); toggleRSVP(this)">我要参加</button>
+                </div>
+            </div>
+            <div class="activity-card" onclick="showScreen('detail')">
+                <div class="card-tag music">🎵 音乐</div>
+                <div class="card-title">North Gate Jazz Club 现场演出</div>
+                <div class="card-meta">
+                    📅 每周二/四/六 20:00-23:00<br>
+                    📍 古城北门 North Gate Jazz Co-Op<br>
+                    💰 免费入场
+                </div>
+                <div class="card-rsvp">
+                    <span class="rsvp-count">👥 45 人已报名</span>
+                    <button class="rsvp-btn joined" onclick="event.stopPropagation(); toggleRSVP(this)">✅ 已报名</button>
+                </div>
+            </div>
+        </div>
+        <div class="bottom-nav">
+            <div class="bottom-nav-item active"><span class="icon">🏠</span>首页</div>
+            <div class="bottom-nav-item"><span class="icon">📅</span>日历</div>
+            <div class="bottom-nav-item"><span class="icon">🗺️</span>地图</div>
+            <div class="bottom-nav-item"><span class="icon">👤</span>我的</div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== 屏幕2: 登录 ====== -->
+<div id="screen-login" class="screen">
+    <div class="phone-frame">
+        <div class="app-header">
+            <h1>🌴 清迈指南</h1>
+        </div>
+        <div class="login-screen">
+            <div class="login-logo">🌴</div>
+            <div class="login-title">欢迎来到清迈指南</div>
+            <div class="login-sub">登录后可报名活动、发表评论</div>
+            <input class="login-input" type="text" placeholder="📱 手机号或邮箱">
+            <input class="login-input" type="text" placeholder="🔑 输入验证码">
+            <button class="login-btn">登录 / 注册</button>
+            <div class="login-divider"><span>或</span></div>
+            <button class="social-btn">💬 微信登录</button>
+            <button class="social-btn">🔵 Google 登录</button>
+        </div>
+    </div>
+</div>
+
+<!-- ====== 屏幕3: 活动详情 ====== -->
+<div id="screen-detail" class="screen">
+    <div class="phone-frame">
+        <div class="detail-header-img">
+            <h2>清迈清晨瑜伽课程</h2>
+        </div>
+        <div class="detail-body">
+            <div class="detail-section">
+                <div class="detail-info-row"><span class="icon">📅</span><span>每周一/三/五 07:00-08:30</span></div>
+                <div class="detail-info-row"><span class="icon">📍</span><span>Happy Yoga Studio, 宁曼路 Soi 9</span></div>
+                <div class="detail-info-row"><span class="icon">💰</span><span>免费（欢迎捐赠 100-300฿）</span></div>
+                <div class="detail-info-row"><span class="icon">👤</span><span>组织者: Sarah（美国，旅居清迈 3 年）</span></div>
+            </div>
+            <div class="detail-section">
+                <h3>活动介绍</h3>
+                <p style="font-size:14px;color:#555;line-height:1.8;">
+                    适合所有水平的瑜伽练习者。课程融合哈他瑜伽和正念冥想，
+                    每次 90 分钟。请自带瑜伽垫，提前 10 分钟到达。
+                    课程用英文授课，Sarah 会用简单中文辅助说明。
+                </p>
+            </div>
+            <div class="detail-section">
+                <h3>👥 已报名 (23人)</h3>
+                <div style="display:flex;gap:-8px;margin-top:8px;">
+                    <div style="width:32px;height:32px;border-radius:50%;background:#EDE7F6;display:flex;align-items:center;justify-content:center;font-size:12px;">A</div>
+                    <div style="width:32px;height:32px;border-radius:50%;background:#E3F2FD;display:flex;align-items:center;justify-content:center;font-size:12px;margin-left:-8px;">B</div>
+                    <div style="width:32px;height:32px;border-radius:50%;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:12px;margin-left:-8px;">C</div>
+                    <div style="width:32px;height:32px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;font-size:12px;margin-left:-8px;">+20</div>
+                </div>
+            </div>
+            <div class="detail-section">
+                <h3>💬 评论 (3)</h3>
+            </div>
+            <div class="comment-item">
+                <div class="comment-avatar">🧑</div>
+                <div class="comment-content">
+                    <span class="comment-name">小明</span><span class="comment-time">2天前</span>
+                    <div class="comment-text">非常好的课程！Sarah 老师很耐心，环境也很舒适。强烈推荐给初学者。</div>
+                    <div class="comment-actions"><span>👍 5</span><span>💬 回复</span></div>
+                </div>
+            </div>
+            <div class="comment-item">
+                <div class="comment-avatar">👩</div>
+                <div class="comment-content">
+                    <span class="comment-name">Emma</span><span class="comment-time">5天前</span>
+                    <div class="comment-text">I've been going for 2 months now. Great community vibe!</div>
+                    <div class="comment-actions"><span>👍 8</span><span>💬 回复</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="detail-rsvp-bar">
+            <span style="font-size:14px;color:#666;">👥 23 人已报名</span>
+            <button class="rsvp-btn join" onclick="toggleRSVP(this)">我要参加</button>
+        </div>
+    </div>
+</div>
+
+<!-- ====== 屏幕4: 评论 ====== -->
+<div id="screen-comments" class="screen">
+    <div class="phone-frame">
+        <div class="app-header">
+            <h1>💬 评论</h1>
+        </div>
+        <div style="padding:12px 16px;border-bottom:1px solid #eee;">
+            <div style="font-size:15px;font-weight:600;">清迈清晨瑜伽课程</div>
+            <div style="font-size:13px;color:#666;margin-top:4px;">3 条评论</div>
+        </div>
+        <div class="comment-section">
+            <div class="comment-item">
+                <div class="comment-avatar" style="background:#EDE7F6;">🧑</div>
+                <div class="comment-content">
+                    <span class="comment-name">小明</span><span class="comment-time">2天前</span>
+                    <div class="comment-text">非常好的课程！Sarah 老师很耐心，环境也很舒适。强烈推荐给初学者。下次还会来！</div>
+                    <div class="comment-actions"><span>👍 5</span><span>💬 回复 (1)</span></div>
+                    <!-- 回复 -->
+                    <div style="margin-top:12px;padding-left:12px;border-left:2px solid #EDE7F6;">
+                        <div class="comment-item" style="margin-bottom:8px;padding-bottom:8px;">
+                            <div class="comment-avatar" style="width:28px;height:28px;background:#E3F2FD;font-size:11px;">S</div>
+                            <div class="comment-content">
+                                <span class="comment-name" style="font-size:13px;">Sarah</span><span class="comment-time">1天前</span>
+                                <div class="comment-text" style="font-size:13px;">谢谢小明！欢迎下次带朋友一起来 🧘</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="comment-item">
+                <div class="comment-avatar" style="background:#E3F2FD;">👩</div>
+                <div class="comment-content">
+                    <span class="comment-name">Emma</span><span class="comment-time">5天前</span>
+                    <div class="comment-text">I've been going for 2 months now. Great community vibe! The morning sessions are the best way to start the day in Chiang Mai.</div>
+                    <div class="comment-actions"><span>👍 8</span><span>💬 回复</span></div>
+                </div>
+            </div>
+            <div class="comment-item">
+                <div class="comment-avatar" style="background:#FFF3E0;">🧔</div>
+                <div class="comment-content">
+                    <span class="comment-name">Alex</span><span class="comment-time">1周前</span>
+                    <div class="comment-text">请问初学者可以参加吗？我完全没练过瑜伽。</div>
+                    <div class="comment-actions"><span>👍 2</span><span>💬 回复</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="comment-input-bar">
+            <input type="text" placeholder="写评论...">
+            <button>发送</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showScreen(name) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById('screen-' + name).classList.add('active');
+        document.querySelectorAll('.proto-nav button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+    }
+
+    function toggleRSVP(btn) {
+        if (btn.classList.contains('joined')) {
+            btn.classList.remove('joined');
+            btn.classList.add('join');
+            btn.textContent = '我要参加';
+        } else {
+            btn.classList.remove('join');
+            btn.classList.add('joined');
+            btn.textContent = '✅ 已报名';
+        }
+    }
+</script>
+
+</body>
+</html>
