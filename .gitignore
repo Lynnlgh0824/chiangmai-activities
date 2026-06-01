@@ -116,6 +116,16 @@ temp/
 *.backup
 *.bak
 
+# 根目录临时测试脚本
+test-mobile-round*.cjs
+mobile-ui-audit.cjs
+mobile-audit-result.json
+
+# 测试产物
+screenshots/
+test-results/
+e2e/*-results.json
+
 #################################################
 # 归档备份
 #################################################
