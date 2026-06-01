@@ -176,7 +176,8 @@
             display: flex;
             align-items: center;
             background: #FFFFFF;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
             border-radius: 8px;
             padding: 8px 16px;
             position: relative;
@@ -192,21 +193,23 @@
         /* 搜索按钮 - 桌面端显示 */
         .search-btn {
             padding: 8px 20px;
-            background: #6A5ACD;
+            background: #ffffff;
             border: none;
-            border-radius: 8px;
-            color: white !important;
+            border-radius: 10px;
+            color: #667eea !important;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
             white-space: nowrap;
             flex-shrink: 0;
             height: 42px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
 
         .search-btn:hover {
-            background: #7B68EE;
+            background: #f0f0ff;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.18);
         }
 
         /* 移动端搜索图标按钮 */
@@ -2053,7 +2056,7 @@
                 color: #999 !important;
             }
 
-            /* ✅ 修复：显示"搜索"文字按钮，与PC端一致 */
+            /* ✅ 修复：搜索按钮白底紫字，CTA更突出 */
             .search-btn {
                 display: flex !important; /* 使用flex确保显示 */
                 align-items: center;
@@ -2065,15 +2068,15 @@
                 padding: 0 14px !important;
 
                 /* 样式设置 */
-                background: #6A5ACD !important;  /* 深紫色背景 */
+                background: #ffffff !important;  /* 白色背景 */
                 border: none !important;  /* 移除边框 */
                 border-width: 0 !important;  /* 边框宽度为0 */
                 outline: none !important;  /* 移除outline */
-                box-shadow: none !important;  /* 移除阴影 */
-                border-radius: 6px !important;  /* 减小圆角 */
-                color: white !important;  /* 白色文字 */
-                font-size: 13px !important;  /* ✅ P3修复：从12px提升到13px */
-                font-weight: 600 !important;  /* 字重加粗 */
+                box-shadow: 0 2px 8px rgba(0,0,0,0.12) !important;  /* 微阴影 */
+                border-radius: 10px !important;  /* 圆角 */
+                color: #667eea !important;  /* 紫色文字 */
+                font-size: 14px !important;  /* ✅ 14px可读性 */
+                font-weight: 700 !important;  /* 加粗 */
                 cursor: pointer !important;
                 transition: all 0.2s !important;
                 white-space: nowrap !important;
@@ -2081,7 +2084,8 @@
             }
 
             .search-btn:hover {
-                background: #7B68EE !important;  /* 悬停时更亮 */
+                background: #f0f0ff !important;  /* 悬停时微紫 */
+                box-shadow: 0 4px 12px rgba(0,0,0,0.18) !important;
             }
 
             /* ✅ 筛选按钮基础样式（由 .filter-trigger-btn 控制显示） */
