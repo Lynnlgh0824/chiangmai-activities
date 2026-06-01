@@ -153,8 +153,6 @@
             /* ✅ 溢出保护 */
             max-width: 100%;
             box-sizing: border-box;
-            overflow: hidden;
-        }
         }
 
         .header h1 {
@@ -178,6 +176,7 @@
             display: flex;
             align-items: center;
             background: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 8px;
             padding: 8px 16px;
             position: relative;
@@ -196,7 +195,7 @@
             background: #6A5ACD;
             border: none;
             border-radius: 8px;
-            color: #333 !important;
+            color: white !important;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -2030,15 +2029,15 @@
                 background: #FFFFFF !important;
                 border: none !important; /* 移除边框 */
                 border-radius: 8px;
-                padding: 2px 8px !important; /* 减少padding */
-                height: 20px !important; /* 覆盖PC端的42px，改为20px */
-                min-height: 20px !important; /* 覆盖PC端的42px */
+                padding: 4px 8px !important;
+                height: 44px !important; /* ✅ 44px 符合 iOS 触控标准 */
+                min-height: 44px !important;
                 box-shadow: none !important; /* 移除阴影 */
             }
 
             .search-input {
-                /* ✅ 修复：与PC端保持一致 */
-                font-size: 12px !important; /* 减小字体以匹配新的高度 */
+                /* ✅ 修复：P3优化字体大小提升可读性 */
+                font-size: 14px !important; /* ✅ P3修复：从12px提升到14px */
                 flex: 1;
                 border: none;
                 background: transparent;
@@ -2061,9 +2060,9 @@
                 justify-content: center;
 
                 /* 尺寸设置 */
-                min-width: 50px !important;
-                height: 20px !important;  /* 与搜索框高度一致 */
-                padding: 0 8px !important;  /* 减少padding */
+                min-width: 60px !important;
+                height: 44px !important;  /* ✅ 44px 符合 iOS 触控标准 */
+                padding: 0 14px !important;
 
                 /* 样式设置 */
                 background: #6A5ACD !important;  /* 深紫色背景 */
@@ -2073,7 +2072,7 @@
                 box-shadow: none !important;  /* 移除阴影 */
                 border-radius: 6px !important;  /* 减小圆角 */
                 color: white !important;  /* 白色文字 */
-                font-size: 12px !important;  /* 减小字体 */
+                font-size: 13px !important;  /* ✅ P3修复：从12px提升到13px */
                 font-weight: 600 !important;  /* 字重加粗 */
                 cursor: pointer !important;
                 transition: all 0.2s !important;
@@ -2085,28 +2084,9 @@
                 background: #7B68EE !important;  /* 悬停时更亮 */
             }
 
-            /* ✅ 筛选按钮在移动端隐藏 */
+            /* ✅ 筛选按钮基础样式（由 .filter-trigger-btn 控制显示） */
             .search-icon-btn {
-                position: absolute !important;
-                right: 8px !important;
-                top: 10px !important; /* 修正：与搜索框垂直居中对齐 */
-                z-index: 1002 !important;
-
-                display: none !important; /* ✅ 隐藏筛选按钮 */
-                align-items: center;
-                justify-content: center;
-
-                width: auto !important;
-                min-width: 40px !important;
-                height: 20px !important;
-                padding: 0 8px !important;
-                background: #6A5ACD !important;
-                border: none !important;
-                border-radius: 6px !important;
-                font-size: 12px !important;
-                font-weight: 600 !important;
-                color: white !important;
-                box-shadow: 0 1px 3px rgba(106, 90, 205, 0.3) !important;
+                /* 移动端样式由 .filter-trigger-btn 覆盖 */
             }
 
             /* 移除筛选按钮后，search-section不需要右边距 */
@@ -2114,9 +2094,24 @@
                 padding-right: 12px !important; /* ✅ 恢复正常右边距 */
             }
 
-            /* 特殊处理：筛选按钮隐藏 */
+            /* 特殊处理：筛选按钮 - 移动端显示 */
             .filter-trigger-btn {
-                display: none !important; /* ✅ 隐藏筛选按钮 */
+                display: inline-flex !important; /* ✅ 移动端显示筛选按钮 */
+                position: relative !important;
+                z-index: 1002 !important; /* 高于 search-input-wrapper */
+                align-items: center;
+                justify-content: center;
+                padding: 8px 16px !important;
+                background: rgba(255, 255, 255, 0.2) !important;
+                border: 1px solid rgba(255, 255, 255, 0.4) !important;
+                border-radius: 8px !important;
+                color: white !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                cursor: pointer !important;
+                white-space: nowrap !important;
+                flex-shrink: 0 !important;
+                min-height: 44px !important; /* ✅ 符合触控标准 */
             }
 
             /* 移动端搜索图标优化 */
@@ -2146,9 +2141,9 @@
 
             /* ✅ 移动端筛选器优化 */
             .filter-chip {
-                padding: 6px 12px !important;
-                font-size: 11px !important; /* ✅ 减小字体，移动端应该比PC端小 */
-                min-height: 32px !important;
+                padding: 8px 14px !important;
+                font-size: 12px !important;
+                min-height: 38px !important; /* ✅ 38px 筛选标签触控标准 */
                 display: inline-flex !important;
                 align-items: center !important;
                 border-radius: 16px !important;
@@ -2186,6 +2181,30 @@
                 /* 隐藏滚动条但保留功能 */
                 scrollbar-width: none; /* Firefox */
                 -ms-overflow-style: none; /* IE/Edge */
+
+                /* 相对定位，用于滚动提示 */
+                position: relative !important;
+            }
+
+            /* 日期栏右侧滚动提示渐变 */
+            .date-grid-header::after {
+                content: '›' !important;
+                position: sticky !important;
+                right: 0 !important;
+                top: 0 !important;
+                bottom: 0 !important;
+                min-width: 32px !important;
+                height: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: linear-gradient(to right, transparent, rgba(255,255,255,0.9)) !important;
+                color: #667eea !important;
+                font-size: 20px !important;
+                font-weight: 700 !important;
+                pointer-events: none !important;
+                flex-shrink: 0 !important;
+                z-index: 5 !important;
             }
 
             /* 隐藏滚动条（Chrome/Safari） */
@@ -3156,8 +3175,9 @@
 
         .filter-option-item.selected {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white !important; /* ✅ 紫色背景改为白色文字 */
-            border-color: #667eea;
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         /* Tab选项列表样式 */
@@ -3203,11 +3223,12 @@
         /* 当前选中的Tab */
         .tab-option-item.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
         }
 
         .tab-option-item.active .tab-option-text {
-            color: #333 !important;
+            color: white !important;
         }
 
         /* 浮动筛选按钮 (移动端) */
@@ -3571,14 +3592,7 @@
 
             /* ========== ✅ 优化：使用sticky代替fixed，提供更好的滚动体验 ========== */
 
-            /* Tab导航：使用sticky定位（滚动时自然吸附） */
-            .tabs-nav {
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                background: white;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            }
+            /* Tab导航：已在上方定义 (line 2758)，此处跳过重复定义 */
 
             /* 日期选择器：正常流动（不固定，避免覆盖内容） */
             .date-grid-header {
@@ -3597,6 +3611,31 @@
             /* 容器：删除额外的padding，避免双重间距 */
             .container {
                 padding-top: 0 !important; /* 删除180px padding */
+            }
+        }
+
+        /* =====================================================
+           Safe Area 适配（iPhone X+ 设备）
+        ===================================================== */
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+            /* Bottom Sheet 底部安全区域 */
+            .sheet-content {
+                padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            }
+
+            /* 弹窗底部按钮安全区域 */
+            .modal-footer {
+                padding-bottom: calc(16px + env(safe-area-inset-bottom));
+            }
+
+            /* 浮动筛选按钮避开 Home Indicator */
+            .mobile-filter-fab {
+                bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+
+            /* 页面底部安全区域 */
+            .tab-content {
+                padding-bottom: calc(20px + env(safe-area-inset-bottom));
             }
         }
 
