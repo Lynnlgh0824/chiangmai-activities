@@ -1,0 +1,89 @@
+<view class="container" wx:if="{{activity}}">
+  <!-- 头部 -->
+  <view class="header">
+    <view class="header-top">
+      <text class="category-tag">{{activity.category}}</text>
+      <text class="status {{activity.status === '进行中' ? 'active' : (activity.status === '已暂停' ? 'suspended' : 'inactive')}}">
+        {{activity.status === '已暂停' ? '已暂停' : activity.status}}
+      </text>
+    </view>
+    <text class="title">{{activity.title}}</text>
+  </view>
+
+  <!-- 暂停提示 -->
+  <view class="suspension-banner" wx:if="{{activity.suspensionNote}}">
+    <text class="suspension-icon">⚠️</text>
+    <text class="suspension-text">{{activity.suspensionNote}}</text>
+  </view>
+
+  <!-- 核心信息 -->
+  <view class="info-section">
+    <view class="info-item" bindtap="onLocationTap">
+      <text class="info-icon">📍</text>
+      <view class="info-content">
+        <text class="info-label">地点</text>
+        <text class="info-value link">{{activity.location}}</text>
+        <text class="info-hint">{{activity.latitude ? '点击打开地图导航' : '点击复制地址'}}</text>
+      </view>
+    </view>
+
+    <view class="info-item">
+      <text class="info-icon">💰</text>
+      <view class="info-content">
+        <text class="info-label">价格</text>
+        <text class="info-value">{{activity.price || '价格待定'}}</text>
+      </view>
+    </view>
+
+    <view class="info-item">
+      <text class="info-icon">🕐</text>
+      <view class="info-content">
+        <text class="info-label">时间</text>
+        <text class="info-value">{{activity.time || '时间灵活'}}</text>
+        <text class="info-sub" wx:if="{{activity.duration}}">{{activity.duration}}</text>
+      </view>
+    </view>
+
+    <view class="info-item" wx:if="{{activity.requireBooking === '是'}}">
+      <text class="info-icon">📋</text>
+      <view class="info-content">
+        <text class="info-label">预约</text>
+        <text class="info-value">需要提前预约</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 来源链接 -->
+  <view class="source-section" wx:if="{{activity.source && activity.source.url}}" bindtap="onSourceTap">
+    <text class="source-icon">🔗</text>
+    <view class="source-content">
+      <text class="source-label">官方网站</text>
+      <text class="source-url">{{activity.source.url}}</text>
+      <text class="source-hint">点击复制链接</text>
+    </view>
+  </view>
+
+  <!-- 描述（格式化） -->
+  <view class="desc-section" wx:if="{{formattedDesc.length > 0}}">
+    <text class="section-title">详情介绍</text>
+    <view class="desc-line {{item.highlight ? 'highlight' : ''}}" wx:for="{{formattedDesc}}" wx:key="text">
+      <text class="desc-icon" wx:if="{{item.icon}}">{{item.icon}}</text>
+      <text class="desc-text">{{item.text}}</text>
+    </view>
+  </view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar">
+    <button class="action-btn secondary" open-type="share">
+      分享给朋友
+    </button>
+    <button class="action-btn primary" bindtap="onLocationTap">
+      {{activity.latitude ? '导航前往' : '复制地址'}}
+    </button>
+  </view>
+</view>
+
+<!-- 加载中 -->
+<view class="loading" wx:if="{{loading}}">
+  <view class="loading-spinner"></view>
+</view>

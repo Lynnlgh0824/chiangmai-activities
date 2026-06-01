@@ -1,0 +1,28 @@
+{
+  "miniprogramRoot": "./",
+  "projectname": "gocnx",
+  "description": "清迈活动指南 | Chiang Mai Activities Guide",
+  "appid": "wxYOUR_APPID_HERE",
+  "libVersion": "3.3.4",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "preloadBackgroundData": false,
+    "minified": true,
+    "newFeature": true,
+    "autoAudits": false,
+    "checkInvalidKey": true,
+    "checkSiteMap": true,
+    "uploadWithSourceMap": false,
+    "compileHotReLoad": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "compileType": "miniprogram",
+  "condition": {}
+}

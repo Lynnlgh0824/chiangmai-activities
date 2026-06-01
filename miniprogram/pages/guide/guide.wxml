@@ -1,0 +1,46 @@
+<view class="container">
+  <view class="header-banner">
+    <text class="banner-title">清迈旅行攻略</text>
+    <text class="banner-sub">出发前必看的实用信息</text>
+  </view>
+
+  <!-- 攻略列表 -->
+  <view class="guide-list" wx:if="{{sections.length > 0}}">
+    <view
+      class="guide-item {{expandedIndex === index ? 'expanded' : ''}}"
+      wx:for="{{sections}}"
+      wx:key="title"
+      bindtap="onToggle"
+      data-index="{{index}}"
+    >
+      <view class="guide-header">
+        <text class="guide-icon">{{item.icon}}</text>
+        <text class="guide-title">{{item.title}}</text>
+        <text class="guide-arrow">{{expandedIndex === index ? '▼' : '▶'}}</text>
+      </view>
+      <view class="guide-body" wx:if="{{expandedIndex === index}}">
+        <text class="guide-content" selectable>{{item.content}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:if="{{!loading && !error && sections.length === 0}}">
+    <text class="empty-icon">📖</text>
+    <text class="empty-text">暂无攻略内容</text>
+    <text class="empty-hint">稍后再试</text>
+  </view>
+
+  <!-- 错误状态 -->
+  <view class="error-state" wx:if="{{error}}">
+    <text class="empty-icon">😔</text>
+    <text class="empty-text">加载失败</text>
+    <button class="retry-btn" bindtap="onRetry">重新加载</button>
+  </view>
+
+  <!-- 加载状态 -->
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载攻略中...</text>
+  </view>
+</view>
