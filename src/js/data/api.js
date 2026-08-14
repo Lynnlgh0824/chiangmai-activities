@@ -9,7 +9,7 @@ export class API {
      */
     static async getActivities(limit = 1000) {
         try {
-            const response = await fetch(`http://localhost:3000/api/activities?limit=${limit}`);
+            const response = await fetch(`/api/activities?limit=${limit}`);
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}`);
             }

@@ -78,7 +78,7 @@ export class ActivitiesPage {
         try {
             PerfMonitor.start('fetchActivities');
 
-            const result = await APICache.fetch('http://localhost:3000/api/activities?limit=1000');
+            const result = await APICache.fetch('/api/activities?limit=1000');
 
             PerfMonitor.end('fetchActivities');
 

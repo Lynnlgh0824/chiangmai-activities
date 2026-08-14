@@ -2092,9 +2092,9 @@
                 align-items: center;
                 gap: 8px; /* 搜索框和搜索按钮之间的间距 */
 
-                /* ✅ 白色背景，无边框 */
+                /* ✅ 白色背景 + 可见边框（WCAG 触控区域标识） */
                 background: #FFFFFF !important;
-                border: none !important; /* 移除边框 */
+                border: 1.5px solid rgba(255, 255, 255, 0.5) !important;
                 border-radius: 8px;
                 padding: 4px 8px !important;
                 height: 44px !important; /* ✅ 44px 符合 iOS 触控标准 */
@@ -2290,7 +2290,7 @@
                 flex-shrink: 1 !important;
                 min-height: 44px !important;
                 padding: 8px 4px !important;
-                font-size: 11px !important;
+                font-size: 12px !important;
                 font-weight: 500 !important;
                 border-radius: 6px !important;
                 display: flex !important;
@@ -2955,7 +2955,7 @@
 
             .activity-chip {
                 padding: 8px 10px !important; /* ✅ 增大触控区域 */
-                margin-bottom: var(--space-xs) !important;
+                margin-bottom: 6px !important; /* ✅ D12 fix: 从2px增加到6px，避免卡片视觉粘连 */
                 font-size: 12px !important; /* ✅ 最小可读字号 */
             }
 
@@ -3100,7 +3100,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            z-index: var(--z-modal);
+            z-index: calc(var(--z-modal) + 1); /* ✅ F20 fix: 高于modal-overlay(2000)，避免层级冲突 */
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s ease;

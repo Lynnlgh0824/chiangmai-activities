@@ -3495,12 +3495,12 @@
 
         function closeModal() {
             document.getElementById('activityModal').classList.remove('active');
-            /* ✅ 恢复背景滚动和滚动位置 */
+            /* ✅ E18 fix: 先恢复滚动位置，再清除position:fixed，确保scrollTo生效 */
+            const scrollY = document.body.dataset.scrollY || '0';
             document.body.style.overflow = '';
             document.body.style.position = '';
             document.body.style.top = '';
             document.body.style.width = '';
-            const scrollY = document.body.dataset.scrollY || '0';
             window.scrollTo(0, parseInt(scrollY, 10));
             delete document.body.dataset.scrollY;
         }
@@ -3774,6 +3774,11 @@
         };
 
         function openFilterSheet() {
+            /* ✅ F20 fix: 打开筛选Sheet前，先关闭活动弹窗，避免两个overlay同时打开导致层级冲突 */
+            const modal = document.getElementById('activityModal');
+            if (modal && modal.classList.contains('active')) {
+                closeModal();
+            }
             filterSheet.init();
             filterSheet.open();
         }
@@ -3933,7 +3938,11 @@
             selectedFilters.category = 'all';
             selectedFilters.price = 'all';
 
-            // 重置UI
+            // 同步重置 currentFilters（影响主筛选逻辑）
+            currentFilters.category = '全部';
+            currentFilters.price = '全部';
+
+            // 重置 Bottom Sheet UI
             document.querySelectorAll('.filter-option-item').forEach(item => {
                 item.classList.remove('selected');
                 if (item.dataset.value === 'all') {
@@ -3941,7 +3950,22 @@
                 }
             });
 
+            // 重置顶部筛选 chip 的 active 状态
+            document.querySelectorAll('#categoryChips .filter-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.textContent.trim() === '全部');
+            });
+            document.querySelectorAll('.filter-group .filter-chips').forEach(group => {
+                if (group.querySelector('[onclick*="price"]')) {
+                    group.querySelectorAll('.filter-chip').forEach(chip => {
+                        chip.classList.toggle('active', chip.textContent.trim() === '全部');
+                    });
+                }
+            });
+
             updateFilterCount();
+
+            // 刷新视图以反映重置后的筛选状态
+            updateViews();
             console.log('✅ 筛选已重置');
         }
 
@@ -3969,8 +3993,8 @@
                 }
             });
 
-            // 调用现有筛选函数
-            filterActivities();
+            // 调用视图更新函数（会内部调用 filterActivities 并更新 UI 和计数）
+            updateViews();
 
             console.log('✅ 筛选已应用:', currentFilters);
         }

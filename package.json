@@ -31,10 +31,8 @@
     "watch-excel": "node scripts/watch-excel.mjs"
   },
   "dependencies": {
-    "@renmu/bili-api": "^2.12.0",
     "axios": "^1.13.3",
     "bilibili-api-ts": "^11.11.2",
-    "bilibili-save-nodejs": "^1.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",

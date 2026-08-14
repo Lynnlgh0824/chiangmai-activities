@@ -427,10 +427,11 @@ function tryCatch(res, operationName, fn) {
 // =====================================================
 
 /**
- * 从环境变量或使用默认API密钥
- * 生产环境必须设置ADMIN_API_KEY环境变量
+ * API 密钥：生产环境必须从环境变量读取，禁止回退到已知默认值（fail-fast）。
+ * 开发环境（NODE_ENV !== 'production'）保留便捷默认值，方便本地调试。
  */
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'dev-api-key-change-in-production';
+const DEFAULT_DEV_KEY = 'dev-api-key-change-in-production';
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || (process.env.NODE_ENV === 'production' ? undefined : DEFAULT_DEV_KEY);
 
 /**
  * API密钥认证中间件
@@ -481,11 +482,14 @@ function optionalApiKey(req, res, next) {
   next();
 }
 
-// 启动时检查API密钥配置
-if (ADMIN_API_KEY === 'dev-api-key-change-in-production' && process.env.NODE_ENV === 'production') {
-  console.warn('⚠️  警告: 使用默认API密钥！请在生产环境设置 ADMIN_API_KEY 环境变量');
+// 启动时校验：生产环境若未设置或仍是默认值，直接失败退出（fail-fast），避免以弱密钥运行。
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.ADMIN_API_KEY || process.env.ADMIN_API_KEY === DEFAULT_DEV_KEY) {
+    throw new Error('❌ 生产环境必须设置 ADMIN_API_KEY 环境变量（且不能是默认值）。已拒绝启动以防止以弱密钥运行。');
+  }
+  console.log('🔐 API 认证已启用（生产模式）');
 } else {
-  console.log('🔐 API认证已启用');
+  console.log('🔐 API 认证已启用（开发模式，使用默认密钥，请勿在生产使用）');
 }
 
 // =====================================================
@@ -1375,8 +1379,8 @@ app.get('/', (req, res) => {
     description: '清迈活动管理平台 - 整合版',
     links: {
       frontend: 'http://localhost:5173',
-      admin: 'http://localhost:3000/admin',
-      api: 'http://localhost:3000/api'
+      admin: 'http://localhost:4000/admin',
+      api: 'http://localhost:4000/api'
     }
   });
 });
