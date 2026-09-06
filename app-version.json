@@ -1,15 +1,18 @@
 {
-  "version": "v1.0.7",
-  "fullVersion": "1.0.7",
+  "version": "v1.0.9",
+  "fullVersion": "1.0.9",
   "codeName": "Unified Platform",
-  "buildDate": "2026-01-28",
+  "buildDate": "2026-09-06",
   "features": [
     "suspended状态过滤功能",
     "版本号机制（前后端统一）",
     "综合测试面板（17项测试）",
     "H5模式自动切换",
     "PC/H5导航区分",
-    "测试思维方法论文档"
+    "测试思维方法论文档",
+    "微信小程序首发（v2 原型 + 智能 API 环境切换）",
+    "CDN 化：发布版数据源切到 jsDelivr（GitHub data/items.json），免后端运维",
+    "架构升级：api.js 改为内存代理 + 轻量 HTTP 拉 guide"
   ],
-  "changelog": "实现H5模式自动切换，统一项目代码结构"
+  "changelog": "v1.0.9 CDN 化：CloudBase 503 后改用 jsDelivr + GitHub data/ 作为生产数据源"
 }
